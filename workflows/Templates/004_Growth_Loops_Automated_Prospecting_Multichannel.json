@@ -1,0 +1,26 @@
+{
+  "id": "TEMPLATE_GROWTH_MULTICHANNEL",
+  "name": "Automated Prospecting: Enrich -> Segment -> Outreach (Email+Slack)",
+  "tags": ["growth", "prospecting", "enrichment", "segmentation", "outreach"],
+  "nodes": [
+    {"id": "cron", "name": "Daily Schedule", "type": "n8n-nodes-base.cron", "parameters": {"triggerTimes": {"item": [{"hour": 8, "minute": 0, "second": 0}]}}, "typeVersion": 1, "position": [180, 0]},
+    {"id": "read_sheet", "name": "Read Leads (Google Sheets)", "type": "n8n-nodes-base.googleSheets", "parameters": {"operation": "read", "sheetName": {"__rl": true, "mode": "list", "value": "gid=0"}, "documentId": {"__rl": true, "mode": "list", "value": "SPREADSHEET_ID"}, "options": {}}, "credentials": {"googleApi": {"id": "", "name": "google"}}, "typeVersion": 4.5, "position": [440, 0]},
+    {"id": "enrich_http", "name": "Enrich (HTTP API)", "type": "n8n-nodes-base.httpRequest", "parameters": {"url": "={{$env.ENRICH_API || 'https://api.clearbit.com/v2/companies/find'}}", "sendQuery": true, "queryParameters": {"parameters": [{"name": "domain", "value": "={{$json.Domain}}"}]}, "authentication": "genericCredentialType", "genericAuthType": "httpBasicAuth"}, "credentials": {"httpBasicAuth": {"id": "", "name": "enrich-basic"}}, "typeVersion": 4.2, "position": [700, 0]},
+    {"id": "segment", "name": "Segment (Code)", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "const c = $json; const tier = (c.employees||0) > 200 ? 'enterprise' : (c.employees||0) > 20 ? 'smb' : 'micro'; return [{...c, tier}]"}, "typeVersion": 2, "position": [940, 0]},
+    {"id": "branch", "name": "Route by Tier", "type": "n8n-nodes-base.switch", "parameters": {"rules": {"values": [{"outputKey": "enterprise", "conditions": {"combinator": "and", "conditions": [{"id": "a","operator": {"type": "string", "operation": "equal"}, "leftValue": "={{$json.tier}}", "rightValue": "enterprise"}]}}, {"outputKey": "smb", "conditions": {"combinator": "and", "conditions": [{"id": "b","operator": {"type": "string", "operation": "equal"}, "leftValue": "={{$json.tier}}", "rightValue": "smb"}]}}]}}, "typeVersion": 3.2, "position": [1180, 0]},
+    {"id": "email", "name": "Send Email (Gmail)", "type": "n8n-nodes-base.gmail", "parameters": {"operation": "send", "toList": "={{$json.Email}}", "subject": "Quick question about {{ $json.Company }}", "message": "Hi {{ $json.Name }}, ..."}, "credentials": {"gmailOAuth2": {"id": "", "name": "gmail"}}, "typeVersion": 2, "position": [1420, -120]},
+    {"id": "slack", "name": "Notify Slack AE", "type": "n8n-nodes-base.slack", "parameters": {"operation": "postMessage", "channel": "#leads", "text": "New {{ $json.tier }} lead: {{ $json.Company }}"}, "credentials": {"slackApi": {"id": "", "name": "slack"}}, "typeVersion": 1, "position": [1420, 140]},
+    {"id": "update_sheet", "name": "Update Sheet", "type": "n8n-nodes-base.googleSheets", "parameters": {"operation": "update", "sheetName": {"__rl": true, "mode": "list", "value": "gid=0"}, "documentId": {"__rl": true, "mode": "list", "value": "SPREADSHEET_ID"}, "columns": {"mappingMode": "defineBelow", "matchingColumns": ["row_number"], "value": {"row_number": "={{$json.row_number}}", "Status": "={{$json.tier}}"}}}, "credentials": {"googleApi": {"id": "", "name": "google"}}, "typeVersion": 4.5, "position": [1660, 0]}
+  ],
+  "connections": {
+    "Daily Schedule": {"main": [[{"node": "Read Leads (Google Sheets)", "type": "main", "index": 0}]]},
+    "Read Leads (Google Sheets)": {"main": [[{"node": "Enrich (HTTP API)", "type": "main", "index": 0}]]},
+    "Enrich (HTTP API)": {"main": [[{"node": "Segment (Code)", "type": "main", "index": 0}]]},
+    "Segment (Code)": {"main": [[{"node": "Route by Tier", "type": "main", "index": 0}]]},
+    "Route by Tier": {"main": [[{"node": "Send Email (Gmail)", "type": "main", "index": 0}], [{"node": "Notify Slack AE", "type": "main", "index": 0}]]},
+    "Send Email (Gmail)": {"main": [[{"node": "Update Sheet", "type": "main", "index": 0}]]},
+    "Notify Slack AE": {"main": [[{"node": "Update Sheet", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"}
+}
