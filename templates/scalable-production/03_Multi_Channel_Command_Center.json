@@ -1,0 +1,463 @@
+{
+  "name": "Multi-Channel Command Center - Unified Communications",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Bot",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 200],
+      "webhookId": "telegram-command-center",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "eventsUi": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "app_mention"
+            }
+          ]
+        }
+      },
+      "id": "slack-trigger",
+      "name": "Slack Events",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 360],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-creds",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "events": ["MESSAGE_CREATE"]
+      },
+      "id": "discord-trigger",
+      "name": "Discord Bot",
+      "type": "n8n-nodes-base.discordTrigger",
+      "typeVersion": 1,
+      "position": [240, 520],
+      "credentials": {
+        "discordApi": {
+          "id": "discord-creds",
+          "name": "Discord Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $env.TEAMS_CHANNEL_ID }}",
+          "mode": "id"
+        }
+      },
+      "id": "teams-trigger",
+      "name": "MS Teams",
+      "type": "n8n-nodes-base.microsoftTeamsTrigger",
+      "typeVersion": 1,
+      "position": [240, 680],
+      "credentials": {
+        "microsoftTeamsOAuth2Api": {
+          "id": "teams-creds",
+          "name": "MS Teams OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Unified message processor for all channels\nconst item = $input.item(0).json;\nlet unified = {\n  id: null,\n  platform: null,\n  user: {},\n  message: {},\n  channel: {},\n  timestamp: new Date().toISOString()\n};\n\n// Detect source platform\nif (item.message?.from?.id) {\n  // Telegram\n  unified = {\n    id: item.message.message_id,\n    platform: 'telegram',\n    user: {\n      id: item.message.from.id,\n      username: item.message.from.username,\n      name: `${item.message.from.first_name} ${item.message.from.last_name || ''}`.trim()\n    },\n    message: {\n      text: item.message.text,\n      entities: item.message.entities,\n      is_command: item.message.text?.startsWith('/')\n    },\n    channel: {\n      id: item.message.chat.id,\n      type: item.message.chat.type,\n      name: item.message.chat.title\n    },\n    timestamp: new Date(item.message.date * 1000).toISOString()\n  };\n} else if (item.event?.type === 'message') {\n  // Slack\n  unified = {\n    id: item.event.ts,\n    platform: 'slack',\n    user: {\n      id: item.event.user,\n      username: item.event.username,\n      name: item.event.user\n    },\n    message: {\n      text: item.event.text,\n      blocks: item.event.blocks,\n      is_command: item.event.text?.startsWith('/')\n    },\n    channel: {\n      id: item.event.channel,\n      type: item.event.channel_type\n    },\n    timestamp: new Date(parseFloat(item.event.ts) * 1000).toISOString()\n  };\n} else if (item.content) {\n  // Discord\n  unified = {\n    id: item.id,\n    platform: 'discord',\n    user: {\n      id: item.author.id,\n      username: item.author.username,\n      name: item.author.username\n    },\n    message: {\n      text: item.content,\n      mentions: item.mentions,\n      is_command: item.content?.startsWith('!')\n    },\n    channel: {\n      id: item.channel_id,\n      type: 'discord_channel'\n    },\n    timestamp: item.timestamp\n  };\n} else if (item.body?.content) {\n  // MS Teams\n  unified = {\n    id: item.body.id,\n    platform: 'teams',\n    user: {\n      id: item.body.from.user.id,\n      username: item.body.from.user.displayName,\n      name: item.body.from.user.displayName\n    },\n    message: {\n      text: item.body.body.content,\n      is_command: item.body.body.content?.startsWith('/')\n    },\n    channel: {\n      id: item.body.channelIdentity.channelId,\n      type: 'teams_channel'\n    },\n    timestamp: item.body.createdDateTime\n  };\n}\n\n// Extract command if present\nif (unified.message.is_command) {\n  const parts = unified.message.text.split(' ');\n  unified.command = {\n    name: parts[0].substring(1),\n    args: parts.slice(1)\n  };\n}\n\nreturn [{ json: unified }];"
+      },
+      "id": "unify-messages",
+      "name": "Unify Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 420]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.message.is_command }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-command",
+      "name": "Is Command?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Command Router\nconst data = $input.item(0).json;\nconst command = data.command.name.toLowerCase();\nconst args = data.command.args;\n\nlet response = {\n  action: 'unknown',\n  data: {},\n  reply: 'Unknown command'\n};\n\nswitch (command) {\n  case 'status':\n    response = {\n      action: 'get_status',\n      data: { system: args[0] || 'all' },\n      reply: '🔍 Checking system status...'\n    };\n    break;\n    \n  case 'deploy':\n    response = {\n      action: 'trigger_deploy',\n      data: { service: args[0], env: args[1] || 'staging' },\n      reply: '🚀 Triggering deployment...'\n    };\n    break;\n    \n  case 'alert':\n    response = {\n      action: 'create_alert',\n      data: { message: args.join(' ') },\n      reply: '⚠️ Creating alert...'\n    };\n    break;\n    \n  case 'metrics':\n    response = {\n      action: 'get_metrics',\n      data: { service: args[0], timeRange: args[1] || '1h' },\n      reply: '📊 Fetching metrics...'\n    };\n    break;\n    \n  case 'ai':\n    response = {\n      action: 'ai_query',\n      data: { prompt: args.join(' ') },\n      reply: '🤖 Processing with AI...'\n    };\n    break;\n    \n  case 'help':\n    response = {\n      action: 'show_help',\n      reply: `📚 Available Commands:\\n\\n/status [system] - Check system status\\n/deploy [service] [env] - Deploy service\\n/alert [message] - Create alert\\n/metrics [service] [time] - Get metrics\\n/ai [query] - Ask AI assistant\\n/help - Show this help`\n    };\n    break;\n}\n\nreturn [{ \n  json: { \n    ...data, \n    ...response \n  } \n}];"
+      },
+      "id": "command-router",
+      "name": "Command Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 320]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "natural-reply",
+              "name": "reply",
+              "value": "={{ $json.reply }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "natural-response",
+      "name": "Natural Language Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 520]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "telegram"
+            }
+          ]
+        }
+      },
+      "id": "route-telegram",
+      "name": "Route: Telegram",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1120, 320]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.channel.id }}",
+        "text": "={{ $json.reply }}",
+        "replyToMessageId": "={{ $json.id }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "send-telegram",
+      "name": "Reply Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1340, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel.id }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.reply }}",
+        "otherOptions": {}
+      },
+      "id": "send-slack",
+      "name": "Reply Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1340, 320],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-creds",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channelId": "={{ $json.channel.id }}",
+        "content": "={{ $json.reply }}"
+      },
+      "id": "send-discord",
+      "name": "Reply Discord",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [1340, 440],
+      "credentials": {
+        "discordApi": {
+          "id": "discord-creds",
+          "name": "Discord Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel.id }}",
+          "mode": "id"
+        },
+        "messageType": "text",
+        "message": "={{ $json.reply }}"
+      },
+      "id": "send-teams",
+      "name": "Reply Teams",
+      "type": "n8n-nodes-base.microsoftTeams",
+      "typeVersion": 2,
+      "position": [1340, 560],
+      "credentials": {
+        "microsoftTeamsOAuth2Api": {
+          "id": "teams-creds",
+          "name": "MS Teams OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "command_logs",
+        "options": {}
+      },
+      "id": "log-command",
+      "name": "Log Command Execution",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1560, 420],
+      "credentials": {
+        "mongoDb": {
+          "id": "mongodb-creds",
+          "name": "MongoDB"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Bot": {
+      "main": [
+        [
+          {
+            "node": "Unify Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Events": {
+      "main": [
+        [
+          {
+            "node": "Unify Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Bot": {
+      "main": [
+        [
+          {
+            "node": "Unify Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MS Teams": {
+      "main": [
+        [
+          {
+            "node": "Unify Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unify Messages": {
+      "main": [
+        [
+          {
+            "node": "Is Command?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Command?": {
+      "main": [
+        [
+          {
+            "node": "Command Router",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Natural Language Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Command Router": {
+      "main": [
+        [
+          {
+            "node": "Route: Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Natural Language Response": {
+      "main": [
+        [
+          {
+            "node": "Route: Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Telegram": {
+      "main": [
+        [
+          {
+            "node": "Reply Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Teams",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Telegram": {
+      "main": [
+        [
+          {
+            "node": "Log Command Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Slack": {
+      "main": [
+        [
+          {
+            "node": "Log Command Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Discord": {
+      "main": [
+        [
+          {
+            "node": "Log Command Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Teams": {
+      "main": [
+        [
+          {
+            "node": "Log Command Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "any"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "Communications",
+      "id": "comms-tag"
+    },
+    {
+      "name": "Command Center",
+      "id": "command-tag"
+    },
+    {
+      "name": "Multi-Channel",
+      "id": "multi-channel-tag"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "command-center-v1"
+  },
+  "id": "multi-channel-command-center",
+  "versionId": "production-v1"
+}

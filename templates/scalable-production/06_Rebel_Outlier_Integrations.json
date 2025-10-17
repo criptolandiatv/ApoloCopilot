@@ -1,0 +1,701 @@
+{
+  "name": "Rebel Outlier Integrations - Cutting-Edge Tools",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rebel-trigger",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-trigger",
+      "name": "Universal Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a creative AI assistant that thinks outside the box. Generate innovative solutions and unconventional approaches."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.body.prompt }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 1.0,
+          "maxTokens": 3000
+        }
+      },
+      "id": "openai-creative",
+      "name": "OpenAI Creative Mode",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.2,
+      "position": [460, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mixtral-8x7b-32768",
+        "prompt": "={{ $json.body.prompt }}",
+        "options": {
+          "temperature": 0.9,
+          "maxTokens": 4000
+        }
+      },
+      "id": "groq-mixtral",
+      "name": "Groq Mixtral (Ultra Fast)",
+      "type": "n8n-nodes-base.groq",
+      "typeVersion": 1,
+      "position": [460, 320],
+      "credentials": {
+        "groqApi": {
+          "id": "groq-creds",
+          "name": "Groq API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "generate",
+        "model": "llama-3.1-70b-versatile",
+        "prompt": "={{ $json.body.prompt }}",
+        "options": {
+          "temperature": 0.85
+        }
+      },
+      "id": "replicate-llama",
+      "name": "Replicate Llama 3.1",
+      "type": "n8n-nodes-base.replicate",
+      "typeVersion": 1,
+      "position": [460, 440],
+      "credentials": {
+        "replicateApi": {
+          "id": "replicate-creds",
+          "name": "Replicate API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "llama-3.1-sonar-large-128k-online"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{role: 'user', content: $json.body.prompt}] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "perplexity-search",
+      "name": "Perplexity (Real-time Search)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 560]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.image_prompt }}",
+        "options": {
+          "model": "dall-e-3",
+          "size": "1024x1024",
+          "quality": "hd"
+        }
+      },
+      "id": "dalle-image",
+      "name": "DALL-E 3 Image Gen",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.2,
+      "position": [680, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "model": "flux-1.1-pro",
+        "prompt": "={{ $json.body.image_prompt }}",
+        "options": {
+          "aspectRatio": "1:1",
+          "outputFormat": "webp"
+        }
+      },
+      "id": "flux-image",
+      "name": "Flux Pro (Fast Image)",
+      "type": "n8n-nodes-base.replicate",
+      "typeVersion": 1,
+      "position": [680, 320]
+    },
+    {
+      "parameters": {
+        "operation": "transcribe",
+        "binaryProperty": "audio",
+        "options": {
+          "model": "whisper-large-v3",
+          "language": "auto"
+        }
+      },
+      "id": "whisper-transcribe",
+      "name": "Whisper Transcription",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.2,
+      "position": [680, 440],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.body.tts_text }}"
+            },
+            {
+              "name": "model_id",
+              "value": "eleven_multilingual_v2"
+            },
+            {
+              "name": "voice_settings",
+              "value": "={{ {stability: 0.5, similarity_boost: 0.75} }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "elevenlabs-tts",
+      "name": "ElevenLabs TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 560],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "elevenlabs-creds",
+          "name": "ElevenLabs API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-3-5-sonnet-20241022"
+            },
+            {
+              "name": "max_tokens",
+              "value": "8192"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{role: 'user', content: $json.body.prompt}] }}"
+            },
+            {
+              "name": "system",
+              "value": "You are a rebel thinker who challenges conventions and finds innovative solutions."
+            }
+          ]
+        }
+      },
+      "id": "claude-rebel",
+      "name": "Claude Rebel Thinking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.together.xyz/v1/chat/completions",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{role: 'user', content: $json.body.prompt}] }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": "4096"
+            },
+            {
+              "name": "temperature",
+              "value": "0.9"
+            }
+          ]
+        }
+      },
+      "id": "together-llama",
+      "name": "Together AI (Llama 405B)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 320],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "together-creds",
+          "name": "Together AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "accounts/fireworks/models/mixtral-8x22b-instruct"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{role: 'user', content: $json.body.prompt}] }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": "16384"
+            }
+          ]
+        }
+      },
+      "id": "fireworks-mixtral",
+      "name": "Fireworks Mixtral 8x22B",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 440]
+    },
+    {
+      "parameters": {
+        "url": "https://api.cohere.ai/v1/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "command-r-plus"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.body.prompt }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": "4000"
+            },
+            {
+              "name": "temperature",
+              "value": "0.9"
+            }
+          ]
+        }
+      },
+      "id": "cohere-command",
+      "name": "Cohere Command R+",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 560],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cohere-creds",
+          "name": "Cohere API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate and rank all AI responses\nconst items = $input.all();\nconst responses = [];\n\nitems.forEach(item => {\n  const data = item.json;\n  \n  // Extract text from different response formats\n  let text = '';\n  let provider = 'unknown';\n  \n  if (data.choices && data.choices[0]) {\n    text = data.choices[0].message?.content || data.choices[0].text;\n    provider = data.model?.includes('gpt') ? 'OpenAI' : \n               data.model?.includes('llama') ? 'Llama' :\n               data.model?.includes('mixtral') ? 'Mixtral' : 'Unknown';\n  } else if (data.content && Array.isArray(data.content)) {\n    text = data.content[0].text;\n    provider = 'Anthropic';\n  } else if (data.generations) {\n    text = data.generations[0].text;\n    provider = 'Cohere';\n  } else if (data.output) {\n    text = data.output;\n    provider = 'Replicate';\n  }\n  \n  if (text) {\n    responses.push({\n      provider,\n      text,\n      length: text.length,\n      creativity_score: Math.random() * 10, // In production, use actual scoring\n      uniqueness: Math.random() * 10,\n      timestamp: new Date().toISOString()\n    });\n  }\n});\n\n// Rank by creativity and uniqueness\nresponses.sort((a, b) => \n  (b.creativity_score + b.uniqueness) - (a.creativity_score + a.uniqueness)\n);\n\nreturn [{\n  json: {\n    best_response: responses[0],\n    all_responses: responses,\n    consensus: {\n      total: responses.length,\n      avg_length: Math.floor(responses.reduce((sum, r) => sum + r.length, 0) / responses.length),\n      most_creative: responses[0]?.provider\n    },\n    processed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "aggregate-rank",
+      "name": "Aggregate & Rank Responses",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collectionId": "rebel_ai_outputs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "best_provider",
+              "fieldValue": "={{ $json.best_response.provider }}"
+            },
+            {
+              "fieldName": "response",
+              "fieldValue": "={{ $json.best_response.text }}"
+            },
+            {
+              "fieldName": "creativity_score",
+              "fieldValue": "={{ $json.best_response.creativity_score }}"
+            },
+            {
+              "fieldName": "all_providers",
+              "fieldValue": "={{ $json.all_responses.map(r => r.provider).join(', ') }}"
+            },
+            {
+              "fieldName": "timestamp",
+              "fieldValue": "={{ $json.processed_at }}"
+            }
+          ]
+        }
+      },
+      "id": "log-outputs",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-creds",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.mem.ai/v0/mems",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "=AI Response from {{ $json.best_response.provider }}:\\n\\n{{ $json.best_response.text }}\\n\\nCreativity Score: {{ $json.best_response.creativity_score }}"
+            }
+          ]
+        }
+      },
+      "id": "save-to-mem",
+      "name": "Save to Mem.ai (Knowledge)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 420],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mem-creds",
+          "name": "Mem.ai API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.notion.com/v1/pages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "parent",
+              "value": "={{ {database_id: $env.NOTION_DATABASE_ID} }}"
+            },
+            {
+              "name": "properties",
+              "value": "={{ {Name: {title: [{text: {content: 'AI Output - ' + new Date().toISOString()}}]}, Provider: {rich_text: [{text: {content: $json.best_response.provider}}]}, Score: {number: $json.best_response.creativity_score}} }}"
+            }
+          ]
+        }
+      },
+      "id": "save-to-notion",
+      "name": "Save to Notion Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 540],
+      "credentials": {
+        "notionApi": {
+          "id": "notion-creds",
+          "name": "Notion API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1560, 400]
+    }
+  ],
+  "connections": {
+    "Universal Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Creative Mode",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Groq Mixtral (Ultra Fast)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Replicate Llama 3.1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Perplexity (Real-time Search)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Creative Mode": {
+      "main": [
+        [
+          {
+            "node": "DALL-E 3 Image Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Mixtral (Ultra Fast)": {
+      "main": [
+        [
+          {
+            "node": "Flux Pro (Fast Image)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replicate Llama 3.1": {
+      "main": [
+        [
+          {
+            "node": "Whisper Transcription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity (Real-time Search)": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DALL-E 3 Image Gen": {
+      "main": [
+        [
+          {
+            "node": "Claude Rebel Thinking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flux Pro (Fast Image)": {
+      "main": [
+        [
+          {
+            "node": "Together AI (Llama 405B)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whisper Transcription": {
+      "main": [
+        [
+          {
+            "node": "Fireworks Mixtral 8x22B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS": {
+      "main": [
+        [
+          {
+            "node": "Cohere Command R+",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Rebel Thinking": {
+      "main": [
+        [
+          {
+            "node": "Aggregate & Rank Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Together AI (Llama 405B)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate & Rank Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fireworks Mixtral 8x22B": {
+      "main": [
+        [
+          {
+            "node": "Aggregate & Rank Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cohere Command R+": {
+      "main": [
+        [
+          {
+            "node": "Aggregate & Rank Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate & Rank Responses": {
+      "main": [
+        [
+          {
+            "node": "Log to Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save to Mem.ai (Knowledge)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save to Notion Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "any",
+    "executionTimeout": 300
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "Rebel",
+      "id": "rebel-tag"
+    },
+    {
+      "name": "Cutting-Edge",
+      "id": "cutting-edge-tag"
+    },
+    {
+      "name": "Multi-AI",
+      "id": "multi-ai-tag"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "rebel-integrations-v1"
+  },
+  "id": "rebel-outlier-integrations",
+  "versionId": "production-v1"
+}

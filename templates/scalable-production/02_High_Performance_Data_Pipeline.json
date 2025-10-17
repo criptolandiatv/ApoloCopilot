@@ -1,0 +1,369 @@
+{
+  "name": "High-Performance Data Pipeline - ETL Master",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/5 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger (Every 5min)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "data-ingest",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-ingest",
+      "name": "Webhook Data Ingest",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 480]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "merge-sources",
+      "name": "Merge Data Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_ENDPOINT_1 }}/data",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 100,
+              "batchInterval": 1000
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-api-data",
+      "name": "Fetch API Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "// High-performance data transformation\nconst items = $input.all();\nconst transformed = [];\nconst errors = [];\n\n// Batch processing for efficiency\nconst BATCH_SIZE = 1000;\n\nfor (let i = 0; i < items.length; i += BATCH_SIZE) {\n  const batch = items.slice(i, i + BATCH_SIZE);\n  \n  for (const item of batch) {\n    try {\n      const data = item.json;\n      \n      // Transform data structure\n      const record = {\n        id: data.id || `gen_${Date.now()}_${Math.random()}`,\n        timestamp: data.timestamp || new Date().toISOString(),\n        \n        // Normalize data fields\n        normalized: {\n          value: parseFloat(data.value) || 0,\n          category: (data.category || 'unknown').toLowerCase(),\n          status: data.status === 'active' ? 1 : 0,\n          metadata: JSON.stringify(data.meta || {})\n        },\n        \n        // Data quality metrics\n        quality: {\n          completeness: Object.keys(data).length / 10,\n          freshness: Date.now() - new Date(data.timestamp || Date.now()).getTime(),\n          validity: data.value !== null && data.value !== undefined\n        },\n        \n        // Processing metadata\n        processed_at: new Date().toISOString(),\n        pipeline_version: '2.0',\n        source: data._source || 'api'\n      };\n      \n      transformed.push({ json: record });\n      \n    } catch (error) {\n      errors.push({\n        json: {\n          error: error.message,\n          item: item.json,\n          timestamp: new Date().toISOString()\n        }\n      });\n    }\n  }\n}\n\n// Log processing stats\nconsole.log(`Processed ${transformed.length} items, ${errors.length} errors`);\n\nreturn transformed;"
+      },
+      "id": "transform-data",
+      "name": "Transform Data (Batch)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.quality.completeness }}",
+              "operation": "larger",
+              "value2": 0.7
+            }
+          ],
+          "boolean": [
+            {
+              "value1": "={{ $json.quality.validity }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "quality-filter",
+      "name": "Data Quality Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO data_warehouse (id, timestamp, value, category, status, metadata, quality_score, processed_at, source) VALUES ",
+        "options": {
+          "queryBatching": "independently",
+          "largeNumbersOutput": "numbers"
+        }
+      },
+      "id": "postgres-insert",
+      "name": "PostgreSQL Insert",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 200],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-creds",
+          "name": "PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "data_lake",
+        "options": {
+          "bulkWrite": true,
+          "ordered": false
+        }
+      },
+      "id": "mongodb-backup",
+      "name": "MongoDB Backup",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1120, 400],
+      "credentials": {
+        "mongoDb": {
+          "id": "mongodb-creds",
+          "name": "MongoDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "data-pipeline-archive",
+        "fileName": "={{ `processed/${new Date().toISOString().split('T')[0]}/${$json.id}.json` }}",
+        "fileContent": "={{ JSON.stringify($json) }}",
+        "options": {
+          "contentType": "application/json"
+        }
+      },
+      "id": "s3-archive",
+      "name": "S3 Archive",
+      "type": "n8n-nodes-base.aws",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "credentials": {
+        "aws": {
+          "id": "aws-creds",
+          "name": "AWS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "queueUrl": "={{ $env.SQS_QUEUE_URL }}",
+        "messageBody": "={{ JSON.stringify({ type: 'data_processed', count: $items().length, timestamp: new Date().toISOString() }) }}"
+      },
+      "id": "notify-downstream",
+      "name": "Notify Downstream (SQS)",
+      "type": "n8n-nodes-base.aws",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "failed_records",
+        "options": {}
+      },
+      "id": "log-failures",
+      "name": "Log Failures",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1120, 520],
+      "credentials": {
+        "mongoDb": {
+          "id": "mongodb-creds",
+          "name": "MongoDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMIN_CHAT }}",
+        "text": "=⚠️ Data Pipeline Alert\n\n{{ $items().length }} records failed quality check\nTimestamp: {{ new Date().toISOString() }}\n\nAction required: Review failed records in MongoDB"
+      },
+      "id": "alert-admin",
+      "name": "Alert Admin (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1340, 520],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (Every 5min)": {
+      "main": [
+        [
+          {
+            "node": "Fetch API Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch API Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Data Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Data Ingest": {
+      "main": [
+        [
+          {
+            "node": "Merge Data Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Data Sources": {
+      "main": [
+        [
+          {
+            "node": "Transform Data (Batch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data (Batch)": {
+      "main": [
+        [
+          {
+            "node": "Data Quality Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Quality Filter": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Insert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB Backup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL Insert": {
+      "main": [
+        [
+          {
+            "node": "S3 Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Backup": {
+      "main": [
+        [
+          {
+            "node": "S3 Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3 Archive": {
+      "main": [
+        [
+          {
+            "node": "Notify Downstream (SQS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Failures": {
+      "main": [
+        [
+          {
+            "node": "Alert Admin (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "timezone": "UTC"
+  },
+  "staticData": {
+    "pipeline_stats": {
+      "total_processed": 0,
+      "last_run": null
+    }
+  },
+  "tags": [
+    {
+      "name": "Data Pipeline",
+      "id": "data-pipeline-tag"
+    },
+    {
+      "name": "ETL",
+      "id": "etl-tag"
+    },
+    {
+      "name": "Production",
+      "id": "production-tag"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "data-pipeline-v2"
+  },
+  "id": "high-performance-data-pipeline",
+  "versionId": "production-v2"
+}

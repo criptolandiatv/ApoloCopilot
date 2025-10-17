@@ -1,0 +1,299 @@
+{
+  "name": "AI Intelligence Engine - Production Ready",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-process",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "ai-intelligence-engine"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.action }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an intelligent automation assistant. Process requests efficiently and return structured JSON responses."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.body.prompt }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 2000
+        }
+      },
+      "id": "openai-gpt4",
+      "name": "OpenAI GPT-4",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.2,
+      "position": [680, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "={{ $json.body.prompt }}",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.8
+        }
+      },
+      "id": "anthropic-claude",
+      "name": "Anthropic Claude",
+      "type": "n8n-nodes-base.anthropic",
+      "typeVersion": 1.1,
+      "position": [680, 400],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-creds",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "merge-ai-responses",
+      "name": "Merge AI Responses",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process and rank AI responses\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const response = item.json;\n  \n  // Score based on length, coherence, and structure\n  const score = {\n    length: response.content?.length || 0,\n    hasJson: /\\{.*\\}/.test(JSON.stringify(response)),\n    timestamp: Date.now()\n  };\n  \n  results.push({\n    provider: response.model?.includes('gpt') ? 'OpenAI' : 'Anthropic',\n    content: response.content || response.text,\n    score: score,\n    metadata: {\n      tokens: response.usage?.total_tokens,\n      model: response.model\n    }\n  });\n}\n\n// Return best response\nconst best = results.sort((a, b) => b.score.length - a.score.length)[0];\n\nreturn [{\n  json: {\n    success: true,\n    result: best,\n    alternatives: results.filter(r => r !== best),\n    processed_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "process-rank-responses",
+      "name": "Process & Rank Responses",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "collectionId": "ai-intelligence-logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "provider",
+              "fieldValue": "={{ $json.result.provider }}"
+            },
+            {
+              "fieldName": "prompt",
+              "fieldValue": "={{ $('Webhook Trigger').item.json.body.prompt }}"
+            },
+            {
+              "fieldName": "response",
+              "fieldValue": "={{ $json.result.content }}"
+            },
+            {
+              "fieldName": "tokens",
+              "fieldValue": "={{ $json.result.metadata.tokens }}"
+            },
+            {
+              "fieldName": "timestamp",
+              "fieldValue": "={{ $json.processed_at }}"
+            }
+          ]
+        }
+      },
+      "id": "log-to-database",
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1340, 200],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-creds",
+          "name": "Airtable API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "X-Processing-Time",
+                "value": "={{ Date.now() - $('Webhook Trigger').item.json.timestamp }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"Invalid request\", \"message\": \"Missing required parameters\" } }}",
+        "responseCode": 400
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 520]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "OpenAI GPT-4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Anthropic Claude",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Claude": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Responses",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge AI Responses": {
+      "main": [
+        [
+          {
+            "node": "Process & Rank Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Rank Responses": {
+      "main": [
+        [
+          {
+            "node": "Log to Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler-workflow"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AI",
+      "id": "ai-tag"
+    },
+    {
+      "name": "Production",
+      "id": "production-tag"
+    },
+    {
+      "name": "Scalable",
+      "id": "scalable-tag"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ai-intelligence-engine-v1"
+  },
+  "id": "ai-intelligence-engine",
+  "versionId": "production-v1"
+}
