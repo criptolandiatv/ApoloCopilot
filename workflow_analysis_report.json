@@ -1,0 +1,4471 @@
+{
+  "summary": {
+    "total_workflows": 2060,
+    "total_categories": 18,
+    "game_changers_count": 6
+  },
+  "categories": {
+    "General Automation": {
+      "count": 850,
+      "workflows": [
+        {
+          "name": "Selenium Ultimate Scraper Workflow",
+          "file_path": "workflows/Limit/1711_Limit_Code_Automate_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 63,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "limit",
+            "convertToFile",
+            "@n8n/n8n-nodes-langchain",
+            "code",
+            "html",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 9 services; High complexity (100/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "⚡AI-Powered YouTube Playlist & Video Summarization and Analysis v2",
+          "file_path": "workflows/Limit/0971_Limit_Splitout_Automation_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 72,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "summarize",
+            "n8n-nodes-youtube-transcription-dmr",
+            "limit",
+            "redis",
+            "switch",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 8 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Selenium Ultimate Scraper Workflow",
+          "file_path": "workflows/Limit/1900_Limit_Code_Automate_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 63,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "limit",
+            "convertToFile",
+            "@n8n/n8n-nodes-langchain",
+            "code",
+            "html",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 9 services; High complexity (100/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "Business Canvas Generator",
+          "file_path": "workflows/Stickynote/1907_Stickynote_Converttofile_Automation_Triggered.json",
+          "category": "General Automation",
+          "num_nodes": 28,
+          "integrations": [
+            "@n8n/n8n-nodes-langchain",
+            "stickyNote",
+            "code",
+            "convertToFile"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 4 services; High complexity (100/100); Uses 11 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Auto WordPress Blog Generator (GPT + Postgres + WP Media)",
+          "file_path": "workflows/Postgres/0263_Postgres_Code_Automation_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 46,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "postgres",
+            "scheduleTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses postgres; Integrates 6 services; High complexity (100/100); Uses 7 advanced features",
+          "tags": [
+            {
+              "id": "k8Hqq1bbCQoesJjj",
+              "name": "Wordpress",
+              "createdAt": "2025-02-26T04:04:38.319Z",
+              "updatedAt": "2025-02-26T04:04:38.319Z"
+            }
+          ],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Spotify Sync Liked Songs to Playlist",
+          "file_path": "workflows/Schedule/1867_Schedule_Filter_Sync_Scheduled.json",
+          "category": "General Automation",
+          "num_nodes": 40,
+          "integrations": [
+            "stickyNote",
+            "summarize",
+            "splitInBatches",
+            "compareDatasets",
+            "manualTrigger",
+            "gotify",
+            "filter",
+            "spotify",
+            "scheduleTrigger",
+            "sort"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 10 services; High complexity (100/100)",
+          "tags": [
+            {
+              "id": "TYGC4owzlQuowxvB",
+              "name": "Spotify",
+              "createdAt": "2024-03-14T16:54:47.712Z",
+              "updatedAt": "2024-03-14T16:54:47.712Z"
+            }
+          ],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Basic PDF Digital Sign Service",
+          "file_path": "workflows/Webhook/1722_Webhook_Code_Automation_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 32,
+          "integrations": [
+            "stickyNote",
+            "switch",
+            "convertToFile",
+            "readWriteFile",
+            "code",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 8 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "Standup Bot - Worker",
+          "file_path": "workflows/Webhook/0066_Webhook_Cron_Automate_Scheduled.json",
+          "category": "General Automation",
+          "num_nodes": 29,
+          "integrations": [
+            "httpRequest",
+            "mattermost",
+            "switch",
+            "executeWorkflow",
+            "cron",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 6 services; High complexity (100/100); Uses 8 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "MONDAY GET FULL ITEM",
+          "file_path": "workflows/Mondaycom/1781_Mondaycom_Splitout_Import_Triggered.json",
+          "category": "General Automation",
+          "num_nodes": 26,
+          "integrations": [
+            "mondayCom",
+            "stickyNote",
+            "code",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "aggregate",
+            "splitOut"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 7 advanced features",
+          "tags": [
+            {
+              "id": "uKg1PU2D27Vsr8ud",
+              "name": "MONDAY",
+              "createdAt": "2023-12-05T07:54:13.266Z",
+              "updatedAt": "2023-12-05T07:54:13.266Z"
+            }
+          ],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Find Top Keywords",
+          "file_path": "workflows/Splitout/1642_Splitout_Code_Automation_Webhook.json",
+          "category": "General Automation",
+          "num_nodes": 35,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "nocoDb",
+            "code",
+            "filter",
+            "splitOut",
+            "scheduleTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 9 services; High complexity (100/100); Uses 5 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Communication & Notifications": {
+      "count": 479,
+      "workflows": [
+        {
+          "name": "Suspicious_login_detection",
+          "file_path": "workflows/Postgres/2014_Postgres_Webhook_Automation_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 43,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "switch",
+            "gmail",
+            "code",
+            "slack",
+            "html",
+            "postgres",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses postgres; Integrates 10 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [
+            {
+              "id": "GCHVocImoXoEVnzP",
+              "name": "🛠️ In progress",
+              "createdAt": "2023-10-31T02:17:21.618Z",
+              "updatedAt": "2023-10-31T02:17:21.618Z"
+            },
+            {
+              "id": "QPJKatvLSxxtrE8U",
+              "name": "Secops",
+              "createdAt": "2023-10-31T02:15:11.396Z",
+              "updatedAt": "2023-10-31T02:15:11.396Z"
+            },
+            {
+              "id": "hF4M6DtfFqOn2HK2",
+              "name": "createdBy:Milorad",
+              "createdAt": "2023-10-31T02:20:20.366Z",
+              "updatedAt": "2023-10-31T02:20:20.366Z"
+            }
+          ],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0453_Webhook_Code_Create_Webhook",
+          "file_path": "workflows/Webhook/0453_Webhook_Code_Create_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 34,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "switch",
+            "executeWorkflow",
+            "slack",
+            "code",
+            "executeWorkflowTrigger",
+            "postgres",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses postgres; Integrates 9 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "Realtime Notion Todoist 2-way Sync Template",
+          "file_path": "workflows/Webhook/1897_Webhook_Filter_Sync_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 246,
+          "integrations": [
+            "splitInBatches",
+            "compareDatasets",
+            "filter",
+            "aggregate",
+            "splitOut",
+            "executionData",
+            "switch",
+            "formTrigger",
+            "httpRequest",
+            "notion",
+            "code",
+            "executeWorkflow",
+            "html",
+            "form",
+            "webhook",
+            "scheduleTrigger",
+            "todoist",
+            "stickyNote",
+            "redis",
+            "wait",
+            "gmail",
+            "crypto",
+            "executeWorkflowTrigger",
+            "stopAndError",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 25 services; High complexity (100/100); Uses 20 advanced features",
+          "tags": [
+            {
+              "id": "RKga6I6NviNI12bx",
+              "name": "template",
+              "createdAt": "2024-09-19T19:09:21.997Z",
+              "updatedAt": "2024-09-19T19:09:21.997Z"
+            }
+          ],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0789_Telegram_Code_Create_Triggered",
+          "file_path": "workflows/Telegram/0789_Telegram_Code_Create_Triggered.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 37,
+          "integrations": [
+            "telegramTrigger",
+            "googleSheets",
+            "stickyNote",
+            "switch",
+            "gmail",
+            "code",
+            "telegram",
+            "googleDrive"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 13 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1439_Telegram_Code_Create_Webhook",
+          "file_path": "workflows/Telegram/1439_Telegram_Code_Create_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 43,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "convertToFile",
+            "code",
+            "telegram",
+            "@n8n/n8n-nodes-langchain",
+            "extractFromFile"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 5 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0201_Telegram_Executecommand_Process_Webhook",
+          "file_path": "workflows/Telegram/0201_Telegram_Executecommand_Process_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 21,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "spreadsheetFile",
+            "executeCommand",
+            "writeBinaryFile",
+            "switch",
+            "telegram",
+            "readBinaryFile"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0383_Telegram_Wait_Create_Webhook",
+          "file_path": "workflows/Telegram/0383_Telegram_Wait_Create_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 36,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "redis",
+            "switch",
+            "wait",
+            "code",
+            "telegram",
+            "filter"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "rss-telegram",
+          "file_path": "workflows/Telegram/0944_Telegram_Rssfeedread_Automation_Scheduled.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 18,
+          "integrations": [
+            "rssFeedRead",
+            "splitInBatches",
+            "manualTrigger",
+            "telegram",
+            "cron"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 5 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0462_Telegram_Code_Create_Webhook",
+          "file_path": "workflows/Telegram/0462_Telegram_Code_Create_Webhook.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 43,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "convertToFile",
+            "code",
+            "telegram",
+            "@n8n/n8n-nodes-langchain",
+            "extractFromFile"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 5 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Automate Google Analytics Reporting - AlexK1919",
+          "file_path": "workflows/Googleanalytics/0475_Googleanalytics_Code_Automate_Scheduled.json",
+          "category": "Communication & Notifications",
+          "num_nodes": 23,
+          "integrations": [
+            "googleAnalytics",
+            "stickyNote",
+            "manualTrigger",
+            "gmail",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 6 services; High complexity (100/100); Uses 9 advanced features",
+          "tags": [
+            {
+              "id": "BimZXo1NKE7JdlXm",
+              "name": "Google Analytics",
+              "createdAt": "2024-11-13T18:08:04.053Z",
+              "updatedAt": "2024-11-13T18:08:04.053Z"
+            },
+            {
+              "id": "nezaWFCGa7eZsVKu",
+              "name": "Utility",
+              "createdAt": "2024-11-13T18:08:08.207Z",
+              "updatedAt": "2024-11-13T18:08:08.207Z"
+            }
+          ],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Webhooks & API Integration": {
+      "count": 273,
+      "workflows": [
+        {
+          "name": "0674_Limit_Webhook_Automation_Webhook",
+          "file_path": "workflows/Limit/0674_Limit_Webhook_Automation_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 40,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "limit",
+            "code",
+            "gmailTrigger",
+            "aggregate",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0673_Limit_Code_Create_Webhook",
+          "file_path": "workflows/Limit/0673_Limit_Code_Create_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 41,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "limit",
+            "microsoftOutlookTrigger",
+            "code",
+            "aggregate",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0690_Telegram_Webhook_Send_Webhook",
+          "file_path": "workflows/Telegram/0690_Telegram_Webhook_Send_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 35,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "switch",
+            "code",
+            "gmailTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1606_Telegram_Webhook_Automation_Webhook",
+          "file_path": "workflows/Telegram/1606_Telegram_Webhook_Automation_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 35,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "switch",
+            "code",
+            "gmailTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0560_Splitout_Filter_Import_Webhook",
+          "file_path": "workflows/Splitout/0560_Splitout_Filter_Import_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 26,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "switch",
+            "mqttTrigger",
+            "filter",
+            "spotify",
+            "splitOut"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Bitrix24 Open Chanel RAG Chatbot Application Workflow example with Webhook Integration",
+          "file_path": "workflows/Splitout/1355_Splitout_Webhook_Automate_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 34,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "switch",
+            "executeWorkflow",
+            "filter",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 4 advanced features",
+          "tags": [
+            {
+              "id": "2ziILYLz4IbTkFf5",
+              "name": "Tech demo",
+              "createdAt": "2025-02-17T08:43:26.445Z",
+              "updatedAt": "2025-02-17T08:43:26.445Z"
+            },
+            {
+              "id": "BedOB2iRpKR26bcZ",
+              "name": "Chatbot",
+              "createdAt": "2025-02-17T08:43:26.436Z",
+              "updatedAt": "2025-02-17T08:43:26.436Z"
+            },
+            {
+              "id": "DvSHJwHwuObn0cxx",
+              "name": "Open Channels",
+              "createdAt": "2025-03-04T07:27:28.499Z",
+              "updatedAt": "2025-03-04T07:27:28.499Z"
+            },
+            {
+              "id": "YJcjKoBRFN1HXH5e",
+              "name": "Bitrix24",
+              "createdAt": "2025-02-17T08:43:26.424Z",
+              "updatedAt": "2025-02-17T08:43:26.424Z"
+            }
+          ],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0895_Splitout_Code_Create_Webhook",
+          "file_path": "workflows/Splitout/0895_Splitout_Code_Create_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 36,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "form",
+            "code",
+            "filter",
+            "splitOut",
+            "extractFromFile",
+            "formTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 6 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "1157_Functionitem_Executecommand_Update_Webhook",
+          "file_path": "workflows/Functionitem/1157_Functionitem_Executecommand_Update_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 25,
+          "integrations": [
+            "httpRequest",
+            "emailSend",
+            "executeCommand",
+            "writeBinaryFile",
+            "moveBinaryData",
+            "htmlExtract",
+            "cron",
+            "functionItem",
+            "readBinaryFile"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 9 services; High complexity (100/100); Uses 7 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0333_Stopanderror_Webhook_Create_Webhook",
+          "file_path": "workflows/Stopanderror/0333_Stopanderror_Webhook_Create_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 32,
+          "integrations": [
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "nextCloud",
+            "code",
+            "executeWorkflowTrigger",
+            "stopAndError",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Bitrix24 Task Form Widget Application Workflow example with Webhook Integration",
+          "file_path": "workflows/Code/1356_Code_Webhook_Import_Webhook.json",
+          "category": "Webhooks & API Integration",
+          "num_nodes": 21,
+          "integrations": [
+            "httpRequest",
+            "convertToFile",
+            "readWriteFile",
+            "code",
+            "extractFromFile",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        }
+      ]
+    },
+    "Storage & File Management": {
+      "count": 133,
+      "workflows": [
+        {
+          "name": "1293_Wait_Splitout_Automation_Webhook",
+          "file_path": "workflows/Wait/1293_Wait_Splitout_Automation_Webhook.json",
+          "category": "Storage & File Management",
+          "num_nodes": 88,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "executionData",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "switch",
+            "wait",
+            "aggregate",
+            "executeWorkflow",
+            "filter",
+            "code",
+            "googleDrive",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "removeDuplicates"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 17 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0668_Wait_Splitout_Create_Webhook",
+          "file_path": "workflows/Wait/0668_Wait_Splitout_Create_Webhook.json",
+          "category": "Storage & File Management",
+          "num_nodes": 88,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "executionData",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "switch",
+            "wait",
+            "aggregate",
+            "executeWorkflow",
+            "filter",
+            "code",
+            "googleDrive",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "removeDuplicates"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 17 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Line Save File to Google Drive and Log File's URL",
+          "file_path": "workflows/Code/1924_Code_Webhook_Export_Webhook.json",
+          "category": "Storage & File Management",
+          "num_nodes": 27,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "code",
+            "googleDrive",
+            "webhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 6 services; High complexity (100/100); Uses 6 advanced features",
+          "tags": [
+            {
+              "id": "W3ZSaJHRI2hXA9gT",
+              "name": "Line Messaging API",
+              "createdAt": "2025-03-09T13:14:42.780Z",
+              "updatedAt": "2025-03-09T13:14:42.780Z"
+            }
+          ],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0605_Code_Itemlists_Create_Scheduled",
+          "file_path": "workflows/Code/0605_Code_Itemlists_Create_Scheduled.json",
+          "category": "Storage & File Management",
+          "num_nodes": 33,
+          "integrations": [
+            "itemLists",
+            "n8n",
+            "stickyNote",
+            "splitInBatches",
+            "moveBinaryData",
+            "code",
+            "googleDrive",
+            "filter",
+            "scheduleTrigger"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 9 services; High complexity (95/100)",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Workflow management",
+          "file_path": "workflows/Dropbox/0969_Dropbox_Manual_Automate_Webhook.json",
+          "category": "Storage & File Management",
+          "num_nodes": 19,
+          "integrations": [
+            "httpRequest",
+            "splitInBatches",
+            "manualTrigger",
+            "moveBinaryData",
+            "airtable",
+            "cron",
+            "dropbox"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (90/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0625_Splitout_Code_Create_Triggered",
+          "file_path": "workflows/Splitout/0625_Splitout_Code_Create_Triggered.json",
+          "category": "Storage & File Management",
+          "num_nodes": 39,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "convertToFile",
+            "@n8n/n8n-nodes-langchain",
+            "googleDrive",
+            "code",
+            "aggregate",
+            "splitOut",
+            "formTrigger",
+            "sort"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 10 services; High complexity (90/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Colombian Invoices Processing",
+          "file_path": "workflows/Code/1765_Code_Filter_Process_Triggered.json",
+          "category": "Storage & File Management",
+          "num_nodes": 23,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "extractFromFile",
+            "splitInBatches",
+            "switch",
+            "aggregate",
+            "code",
+            "filter",
+            "googleDrive",
+            "gmailTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "xml",
+            "compression"
+          ],
+          "complexity": 85,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 13 services; High complexity (85/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1637_Splitout_Code_Automation_Triggered",
+          "file_path": "workflows/Splitout/1637_Splitout_Code_Automation_Triggered.json",
+          "category": "Storage & File Management",
+          "num_nodes": 10,
+          "integrations": [
+            "stickyNote",
+            "googleDriveTrigger",
+            "googleDrive",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 78,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 7 services; High complexity (78/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0698_Splitout_Code_Automation_Triggered",
+          "file_path": "workflows/Splitout/0698_Splitout_Code_Automation_Triggered.json",
+          "category": "Storage & File Management",
+          "num_nodes": 10,
+          "integrations": [
+            "stickyNote",
+            "googleDriveTrigger",
+            "googleDrive",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 78,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 7 services; High complexity (78/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "AutoClip – Automatically Generate Video Clips and Upload to YouTube",
+          "file_path": "workflows/Code/1864_Code_Executecommand_Create_Webhook.json",
+          "category": "Storage & File Management",
+          "num_nodes": 23,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "executeCommand",
+            "manualTrigger",
+            "readWriteFile",
+            "code",
+            "googleDrive"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 8 services; High complexity (75/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Project Management": {
+      "count": 88,
+      "workflows": [
+        {
+          "name": "0719_Stopanderror_Splitout_Create_Webhook",
+          "file_path": "workflows/Stopanderror/0719_Stopanderror_Splitout_Create_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 85,
+          "integrations": [
+            "httpRequest",
+            "executionData",
+            "stickyNote",
+            "splitInBatches",
+            "notion",
+            "markdown",
+            "switch",
+            "stopAndError",
+            "aggregate",
+            "executeWorkflow",
+            "filter",
+            "code",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "form",
+            "formTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 17 services; High complexity (100/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Notion to Clockify Sync Template",
+          "file_path": "workflows/Stopanderror/1498_Stopanderror_Limit_Sync_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 68,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "compareDatasets",
+            "scheduleTrigger",
+            "notion",
+            "limit",
+            "stopAndError",
+            "webhook",
+            "clockify"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 9 services; High complexity (100/100)",
+          "tags": [
+            {
+              "id": "RKga6I6NviNI12bx",
+              "name": "template",
+              "createdAt": "2024-09-19T19:09:21.997Z",
+              "updatedAt": "2024-09-19T19:09:21.997Z"
+            }
+          ],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0142_Notion_Webhook_Create_Webhook",
+          "file_path": "workflows/Notion/0142_Notion_Webhook_Create_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 23,
+          "integrations": [
+            "notion",
+            "webhook"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 30,
+          "gc_reason": "High complexity (95/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0706_Code_Schedule_Create_Scheduled",
+          "file_path": "workflows/Code/0706_Code_Schedule_Create_Scheduled.json",
+          "category": "Project Management",
+          "num_nodes": 27,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "notion",
+            "switch",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (95/100); Uses 7 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Deep Research Report Generation Using Open Router, Google Search, Webhook/Telegram and Notion",
+          "file_path": "workflows/Deep/2054_Deep_Research_Report_Generation_With_Open_Router_Google_Search_Webhook_Telegram_and_Notion.json",
+          "category": "Project Management",
+          "num_nodes": 38,
+          "integrations": [
+            "telegramTrigger",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "notion",
+            "markdown",
+            "switch",
+            "aggregate",
+            "code",
+            "filter",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 14 services; High complexity (90/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Google analytics template",
+          "file_path": "workflows/Googleanalytics/1652_Googleanalytics_Code_Automation_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 22,
+          "integrations": [
+            "baserow",
+            "httpRequest",
+            "googleAnalytics",
+            "stickyNote",
+            "manualTrigger",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (90/100); Uses 6 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Google analytics template",
+          "file_path": "workflows/Googleanalytics/1480_Googleanalytics_Code_Automation_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 22,
+          "integrations": [
+            "baserow",
+            "httpRequest",
+            "googleAnalytics",
+            "stickyNote",
+            "manualTrigger",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (90/100); Uses 6 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Google analytics template",
+          "file_path": "workflows/Googleanalytics/1529_Googleanalytics_Code_Automation_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 22,
+          "integrations": [
+            "baserow",
+            "httpRequest",
+            "googleAnalytics",
+            "stickyNote",
+            "manualTrigger",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (90/100); Uses 6 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0763_Wait_Splitout_Create_Webhook",
+          "file_path": "workflows/Wait/0763_Wait_Splitout_Create_Webhook.json",
+          "category": "Project Management",
+          "num_nodes": 37,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "notion",
+            "wait",
+            "executeWorkflowTrigger",
+            "aggregate",
+            "splitOut"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 7 services; High complexity (90/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0574_Stickynote_Notion_Create_Triggered",
+          "file_path": "workflows/Stickynote/0574_Stickynote_Notion_Create_Triggered.json",
+          "category": "Project Management",
+          "num_nodes": 24,
+          "integrations": [
+            "stickyNote",
+            "notion",
+            "switch",
+            "code",
+            "@n8n/n8n-nodes-langchain"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 5 services; High complexity (80/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        }
+      ]
+    },
+    "CRM & Sales Automation": {
+      "count": 57,
+      "workflows": [
+        {
+          "name": "0267_Functionitem_Zendesk_Create_Scheduled",
+          "file_path": "workflows/Functionitem/0267_Functionitem_Zendesk_Create_Scheduled.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 21,
+          "integrations": [
+            "itemLists",
+            "httpRequest",
+            "splitInBatches",
+            "pipedrive",
+            "cron",
+            "zendesk",
+            "functionItem"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (95/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0288_Code_Schedule_Create_Webhook",
+          "file_path": "workflows/Code/0288_Code_Schedule_Create_Webhook.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 24,
+          "integrations": [
+            "itemLists",
+            "httpRequest",
+            "stickyNote",
+            "stripe",
+            "code",
+            "hubspot",
+            "scheduleTrigger"
+          ],
+          "complexity": 85,
+          "is_game_changer": false,
+          "gc_score": 65,
+          "gc_reason": "Uses stripe; Uses hubspot; Integrates 7 services; High complexity (85/100)",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0655_Code_Postgres_Update_Scheduled",
+          "file_path": "workflows/Code/0655_Code_Postgres_Update_Scheduled.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 23,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "hubspot",
+            "code",
+            "postgres",
+            "scheduleTrigger"
+          ],
+          "complexity": 85,
+          "is_game_changer": false,
+          "gc_score": 60,
+          "gc_reason": "Uses hubspot; Uses postgres; Integrates 8 services; High complexity (85/100)",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0295_Webhook_Dropcontact_Create_Webhook",
+          "file_path": "workflows/Webhook/0295_Webhook_Dropcontact_Create_Webhook.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 18,
+          "integrations": [
+            "slack",
+            "dropcontact",
+            "hubspot",
+            "lemlist",
+            "webhook"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 50,
+          "gc_reason": "Uses hubspot; Integrates 5 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0760_Splitout_Code_Send_Webhook",
+          "file_path": "workflows/Splitout/0760_Splitout_Code_Send_Webhook.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 23,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "salesforce",
+            "code",
+            "executeWorkflowTrigger",
+            "aggregate",
+            "splitOut"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 60,
+          "gc_reason": "Uses salesforce; Integrates 7 services; High complexity (80/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0266_Functionitem_Zendesk_Create_Webhook",
+          "file_path": "workflows/Functionitem/0266_Functionitem_Zendesk_Create_Webhook.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 17,
+          "integrations": [
+            "httpRequest",
+            "pipedrive",
+            "cron",
+            "zendesk",
+            "functionItem"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 5 services; High complexity (80/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0920_HubSpot_Splitout_Create_Webhook",
+          "file_path": "workflows/Hubspot/0920_HubSpot_Splitout_Create_Webhook.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 31,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "hubspotTrigger",
+            "markdown",
+            "hubspot",
+            "googleCalendarTool",
+            "gmail",
+            "filter",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "webhook"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 65,
+          "gc_reason": "Uses hubspotTrigger; Uses hubspot; Integrates 12 services; High complexity (70/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0286_Zendesk_HubSpot_Create_Scheduled",
+          "file_path": "workflows/Zendesk/0286_Zendesk_HubSpot_Create_Scheduled.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 13,
+          "integrations": [
+            "zendesk",
+            "functionItem",
+            "hubspot",
+            "cron"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 60,
+          "gc_reason": "Uses hubspot; Integrates 4 services; High complexity (70/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0258_Microsoftexcel_Manual_Create_Triggered",
+          "file_path": "workflows/Microsoftexcel/0258_Microsoftexcel_Manual_Create_Triggered.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 12,
+          "integrations": [
+            "itemLists",
+            "renameKeys",
+            "manualTrigger",
+            "salesforce",
+            "microsoftExcel"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 50,
+          "gc_reason": "Uses salesforce; Integrates 5 services; High complexity (70/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0246_Functionitem_Pipedrive_Create_Scheduled",
+          "file_path": "workflows/Functionitem/0246_Functionitem_Pipedrive_Create_Scheduled.json",
+          "category": "CRM & Sales Automation",
+          "num_nodes": 11,
+          "integrations": [
+            "itemLists",
+            "httpRequest",
+            "stripe",
+            "pipedrive",
+            "cron",
+            "functionItem"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 60,
+          "gc_reason": "Uses stripe; Integrates 6 services; High complexity (70/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        }
+      ]
+    },
+    "Content Management & Publishing": {
+      "count": 48,
+      "workflows": [
+        {
+          "name": "Youtube Searcher",
+          "file_path": "workflows/Postgres/1788_Postgres_Code_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 21,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "youTube",
+            "manualTrigger",
+            "code",
+            "executeWorkflowTrigger",
+            "postgres"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses postgres; Integrates 8 services; High complexity (95/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Youtube_Automation",
+          "file_path": "workflows/Wait/2000_Wait_Code_Automate_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 33,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "youTube",
+            "manualTrigger",
+            "wait",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "removeDuplicates",
+            "scheduleTrigger"
+          ],
+          "complexity": 95,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 10 services; High complexity (95/100); Uses 3 advanced features",
+          "tags": [
+            {
+              "id": "5eZb3e5PJspoJjVN",
+              "name": "Privat",
+              "createdAt": "2025-02-22T09:31:58.972Z",
+              "updatedAt": "2025-02-22T09:31:58.972Z"
+            },
+            {
+              "id": "fSDcaaN3w5sV5e3S",
+              "name": "Templates",
+              "createdAt": "2025-02-23T15:20:47.262Z",
+              "updatedAt": "2025-02-23T15:20:47.262Z"
+            }
+          ],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0584_Strapi_Splitout_Create_Webhook",
+          "file_path": "workflows/Strapi/0584_Strapi_Splitout_Create_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 36,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "strapi",
+            "manualTrigger",
+            "switch",
+            "aggregate",
+            "googleDrive",
+            "executeWorkflow",
+            "webflow",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "wordpress"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 15 services; High complexity (90/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "1434_Strapi_Splitout_Automation_Webhook",
+          "file_path": "workflows/Strapi/1434_Strapi_Splitout_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 36,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "strapi",
+            "manualTrigger",
+            "switch",
+            "aggregate",
+            "googleDrive",
+            "executeWorkflow",
+            "webflow",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "wordpress"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 15 services; High complexity (90/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "RAG & GenAI App With WordPress Content",
+          "file_path": "workflows/Postgres/1752_Postgres_Wordpress_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 53,
+          "integrations": [
+            "wordpress",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "switch",
+            "postgres",
+            "aggregate",
+            "filter",
+            "supabase",
+            "@n8n/n8n-nodes-langchain",
+            "markdown",
+            "scheduleTrigger",
+            "respondToWebhook"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses postgres; Integrates 14 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "RAG & GenAI App With WordPress Content",
+          "file_path": "workflows/Postgres/1942_Postgres_Wordpress_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 53,
+          "integrations": [
+            "wordpress",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "switch",
+            "postgres",
+            "aggregate",
+            "filter",
+            "supabase",
+            "@n8n/n8n-nodes-langchain",
+            "markdown",
+            "scheduleTrigger",
+            "respondToWebhook"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses postgres; Integrates 14 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Write a WordPress post with AI (starting from a few keywords)",
+          "file_path": "workflows/Splitout/1753_Splitout_Code_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 37,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "respondToWebhook",
+            "code",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "formTrigger",
+            "wordpress"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 8 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0791_Stopanderror_Splitout_Create_Webhook",
+          "file_path": "workflows/Stopanderror/0791_Stopanderror_Splitout_Create_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 18,
+          "integrations": [
+            "httpRequest",
+            "rssFeedRead",
+            "stickyNote",
+            "emailSend",
+            "youTube",
+            "splitOut",
+            "filter",
+            "stopAndError",
+            "scheduleTrigger"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 9 services; High complexity (75/100)",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Auto-Tag Blog Posts in WordPress with AI",
+          "file_path": "workflows/Splitout/1980_Splitout_Code_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 32,
+          "integrations": [
+            "rssFeedReadTrigger",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "aggregate",
+            "code",
+            "filter",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "wordpress"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 12 services; High complexity (70/100)",
+          "tags": [
+            {
+              "id": "ijuVOmJpw5mCrzQX",
+              "name": "marketing",
+              "createdAt": "2025-01-28T16:42:03.029Z",
+              "updatedAt": "2025-01-28T16:42:03.029Z"
+            }
+          ],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Auto-Tag Blog Posts in WordPress with AI",
+          "file_path": "workflows/Splitout/1323_Splitout_Code_Automation_Webhook.json",
+          "category": "Content Management & Publishing",
+          "num_nodes": 32,
+          "integrations": [
+            "rssFeedReadTrigger",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "aggregate",
+            "code",
+            "filter",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "wordpress"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 12 services; High complexity (70/100)",
+          "tags": [
+            {
+              "id": "ijuVOmJpw5mCrzQX",
+              "name": "marketing",
+              "createdAt": "2025-01-28T16:42:03.029Z",
+              "updatedAt": "2025-01-28T16:42:03.029Z"
+            }
+          ],
+          "trigger_type": "Event Trigger"
+        }
+      ]
+    },
+    "AI & Machine Learning": {
+      "count": 32,
+      "workflows": [
+        {
+          "name": "Pyragogy AI Village - Orchestrazione Master (Architettura Profonda V2)",
+          "file_path": "workflows/Deep/generate-collaborative-handbooks-with-gpt4o-multi-agent-orchestration-human-review.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 35,
+          "integrations": [
+            "emailSend",
+            "github",
+            "switch",
+            "wait",
+            "openAi",
+            "slack",
+            "postgres",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": true,
+          "gc_score": 110,
+          "gc_reason": "Uses github; Uses openAi; Uses postgres; Integrates 9 services; High complexity (100/100); AI-powered automation; Uses 12 advanced features",
+          "tags": [
+            {
+              "id": "pyragogy",
+              "name": "Pyragogy"
+            },
+            {
+              "id": "multi-agent",
+              "name": "Multi-Agent"
+            },
+            {
+              "id": "orchestration",
+              "name": "Orchestration"
+            },
+            {
+              "id": "human-in-loop",
+              "name": "Human-in-Loop"
+            }
+          ],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "1653_Code_Webhook_Send_Webhook",
+          "file_path": "workflows/Code/1653_Code_Webhook_Send_Webhook.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 49,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "switch",
+            "gmail",
+            "openAi",
+            "code",
+            "crypto",
+            "gmailTrigger",
+            "html",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": true,
+          "gc_score": 90,
+          "gc_reason": "Uses openAi; Integrates 11 services; High complexity (100/100); AI-powered automation; Uses 9 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0299_Code_Webhook_Create_Webhook",
+          "file_path": "workflows/Code/0299_Code_Webhook_Create_Webhook.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 49,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "switch",
+            "gmail",
+            "openAi",
+            "code",
+            "crypto",
+            "gmailTrigger",
+            "html",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": true,
+          "gc_score": 90,
+          "gc_reason": "Uses openAi; Integrates 11 services; High complexity (100/100); AI-powered automation; Uses 9 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0298_Code_Readpdf_Send_Triggered",
+          "file_path": "workflows/Code/0298_Code_Readpdf_Send_Triggered.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 18,
+          "integrations": [
+            "stickyNote",
+            "readPDF",
+            "openAi",
+            "code",
+            "googleDrive",
+            "gmailTrigger"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 6 services; High complexity (80/100); AI-powered automation",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1656_Code_Readpdf_Send_Triggered",
+          "file_path": "workflows/Code/1656_Code_Readpdf_Send_Triggered.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 18,
+          "integrations": [
+            "stickyNote",
+            "readPDF",
+            "openAi",
+            "code",
+            "googleDrive",
+            "gmailTrigger"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 6 services; High complexity (80/100); AI-powered automation",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "News Extraction",
+          "file_path": "workflows/Code/2012_Code_Schedule_Create_Scheduled.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 36,
+          "integrations": [
+            "itemLists",
+            "httpRequest",
+            "stickyNote",
+            "nocoDb",
+            "openAi",
+            "code",
+            "html",
+            "scheduleTrigger"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 8 services; High complexity (75/100); AI-powered automation",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "News Extraction",
+          "file_path": "workflows/Code/1646_Code_Schedule_Create_Scheduled.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 36,
+          "integrations": [
+            "itemLists",
+            "httpRequest",
+            "stickyNote",
+            "nocoDb",
+            "openAi",
+            "code",
+            "html",
+            "scheduleTrigger"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 8 services; High complexity (75/100); AI-powered automation",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0429_Splitout_GoogleCalendar_Send_Webhook",
+          "file_path": "workflows/Splitout/0429_Splitout_GoogleCalendar_Send_Webhook.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 21,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "googleCalendar",
+            "switch",
+            "gmail",
+            "openAi",
+            "clearbit",
+            "filter",
+            "html",
+            "splitOut",
+            "scheduleTrigger"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 11 services; High complexity (70/100); AI-powered automation",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0290_Wait_Code_Update_Webhook",
+          "file_path": "workflows/Wait/0290_Wait_Code_Update_Webhook.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 11,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "splitInBatches",
+            "manualTrigger",
+            "wait",
+            "openAi",
+            "code",
+            "htmlExtract"
+          ],
+          "complexity": 70,
+          "is_game_changer": true,
+          "gc_score": 90,
+          "gc_reason": "Uses openAi; Integrates 8 services; High complexity (70/100); AI-powered automation; Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Telegram AI-bot",
+          "file_path": "workflows/Openai/1685_Openai_Telegram_Automate_Triggered.json",
+          "category": "AI & Machine Learning",
+          "num_nodes": 16,
+          "integrations": [
+            "telegramTrigger",
+            "stickyNote",
+            "switch",
+            "openAi",
+            "telegram"
+          ],
+          "complexity": 68,
+          "is_game_changer": false,
+          "gc_score": 80,
+          "gc_reason": "Uses openAi; Integrates 5 services; High complexity (68/100); AI-powered automation",
+          "tags": [
+            {
+              "id": "15",
+              "name": "tutorial",
+              "createdAt": "2022-10-04T20:07:25.607Z",
+              "updatedAt": "2022-10-04T20:07:25.607Z"
+            }
+          ],
+          "trigger_type": "Event Trigger"
+        }
+      ]
+    },
+    "Development & DevOps": {
+      "count": 28,
+      "workflows": [
+        {
+          "name": "[n8n] Advanced URL Parsing and Shortening Workflow - Switchy.io Integration",
+          "file_path": "workflows/Stopanderror/0392_Stopanderror_GitHub_Automate_Webhook.json",
+          "category": "Development & DevOps",
+          "num_nodes": 56,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "github",
+            "convertToFile",
+            "aggregate",
+            "html",
+            "stopAndError",
+            "formTrigger",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses github; Integrates 10 services; High complexity (100/100)",
+          "tags": [
+            {
+              "id": "RHVi",
+              "name": "Dub",
+              "createdAt": "2024-04-09T17:46:08.436Z",
+              "updatedAt": "2024-04-09T17:46:08.436Z"
+            },
+            {
+              "id": "U3dpdGNoeQ",
+              "name": "Switchy",
+              "createdAt": "2024-04-09T17:46:08.436Z",
+              "updatedAt": "2024-04-09T17:46:08.436Z"
+            },
+            {
+              "id": "UHhs",
+              "name": "Pxl",
+              "createdAt": "2024-04-09T17:46:08.436Z",
+              "updatedAt": "2024-04-09T17:46:08.436Z"
+            },
+            {
+              "id": "Tm9ydG9u",
+              "name": "Norton",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "Qml0ZGVmZW5kZXI",
+              "name": "Bitdefender",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "U3BsaXRJbkJhdGNoZXM",
+              "name": "SplitInBatches",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "SHR0cFJlcXVlc3Q",
+              "name": "HttpRequest",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "SHRtbA",
+              "name": "Html",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "Q29udmVydFRvRmlsZQ",
+              "name": "ConvertToFile",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "QWdncmVnYXRl",
+              "name": "Aggregate",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "R2l0aHVi",
+              "name": "Github",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "R2l0aHViQXBp",
+              "name": "GithubApi",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "U3RvcEFuZEVycm9y",
+              "name": "StopAndError",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "Rm9ybVRyaWdnZXI",
+              "name": "FormTrigger",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "UmVzcG9uZFRvV2ViaG9vaw",
+              "name": "RespondToWebhook",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            },
+            {
+              "id": "dGVtcGxhdGVz",
+              "name": "templates",
+              "createdAt": "2024-04-09T17:46:08.437Z",
+              "updatedAt": "2024-04-09T17:46:08.437Z"
+            }
+          ],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0718_Code_GitHub_Create_Scheduled",
+          "file_path": "workflows/Code/0718_Code_GitHub_Create_Scheduled.json",
+          "category": "Development & DevOps",
+          "num_nodes": 25,
+          "integrations": [
+            "httpRequest",
+            "n8n",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "github",
+            "switch",
+            "code",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "scheduleTrigger"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses github; Integrates 11 services; High complexity (90/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0516_Code_GitHub_Create_Scheduled",
+          "file_path": "workflows/Code/0516_Code_GitHub_Create_Scheduled.json",
+          "category": "Development & DevOps",
+          "num_nodes": 24,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "executeCommand",
+            "manualTrigger",
+            "github",
+            "switch",
+            "code",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "scheduleTrigger"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses github; Integrates 11 services; High complexity (90/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0667_Code_GitHub_Create_Scheduled",
+          "file_path": "workflows/Code/0667_Code_GitHub_Create_Scheduled.json",
+          "category": "Development & DevOps",
+          "num_nodes": 23,
+          "integrations": [
+            "httpRequest",
+            "n8n",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "github",
+            "switch",
+            "code",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "scheduleTrigger"
+          ],
+          "complexity": 85,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses github; Integrates 11 services; High complexity (85/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Backup Squarespace code Injections to Github",
+          "file_path": "workflows/Code/1844_Code_Schedule_Export_Webhook.json",
+          "category": "Development & DevOps",
+          "num_nodes": 17,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "github",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 85,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses github; Integrates 7 services; High complexity (85/100); Uses 2 advanced features",
+          "tags": [
+            {
+              "id": "oIxDbURnjwrJFwau",
+              "name": "Squarespace",
+              "createdAt": "2025-03-06T05:49:51.612Z",
+              "updatedAt": "2025-03-06T05:49:51.612Z"
+            }
+          ],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Backup workflows to git repository",
+          "file_path": "workflows/Code/0628_Code_Schedule_Export_Scheduled.json",
+          "category": "Development & DevOps",
+          "num_nodes": 17,
+          "integrations": [
+            "n8n",
+            "stickyNote",
+            "splitInBatches",
+            "github",
+            "code",
+            "scheduleTrigger"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses github; Integrates 6 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1149_GitHub_Manual_Create_Scheduled",
+          "file_path": "workflows/Github/1149_GitHub_Manual_Create_Scheduled.json",
+          "category": "Development & DevOps",
+          "num_nodes": 16,
+          "integrations": [
+            "httpRequest",
+            "splitInBatches",
+            "manualTrigger",
+            "github",
+            "switch",
+            "cron"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses github; Integrates 6 services; High complexity (75/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0561_Gitlab_Code_Create_Triggered",
+          "file_path": "workflows/Gitlab/0561_Gitlab_Code_Create_Triggered.json",
+          "category": "Development & DevOps",
+          "num_nodes": 21,
+          "integrations": [
+            "n8n",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "switch",
+            "code",
+            "gitlab",
+            "extractFromFile"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 55,
+          "gc_reason": "Uses gitlab; Integrates 8 services; High complexity (75/100); Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Building RAG Chatbot for Movie Recommendations with Qdrant and Open AI",
+          "file_path": "workflows/Splitout/1363_Splitout_GitHub_Create_Webhook.json",
+          "category": "Development & DevOps",
+          "num_nodes": 27,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "github",
+            "aggregate",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses github; Integrates 9 services; High complexity (75/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Building RAG Chatbot for Movie Recommendations with Qdrant and Open AI",
+          "file_path": "workflows/Splitout/1798_Splitout_GitHub_Create_Webhook.json",
+          "category": "Development & DevOps",
+          "num_nodes": 27,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "github",
+            "aggregate",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Uses github; Integrates 9 services; High complexity (75/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Social Media Management": {
+      "count": 17,
+      "workflows": [
+        {
+          "name": "My workflow",
+          "file_path": "workflows/Code/1875_Code_Schedule_Automate_Scheduled.json",
+          "category": "Social Media Management",
+          "num_nodes": 29,
+          "integrations": [
+            "reddit",
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "convertToFile",
+            "@n8n/n8n-nodes-langchain",
+            "code",
+            "googleDrive",
+            "aggregate",
+            "compression",
+            "scheduleTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 11 services; High complexity (100/100); Uses 6 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1336_Strapi_Webhook_Automate_Webhook",
+          "file_path": "workflows/Strapi/1336_Strapi_Webhook_Automate_Webhook.json",
+          "category": "Social Media Management",
+          "num_nodes": 14,
+          "integrations": [
+            "twitter",
+            "strapi",
+            "googleCloudNaturalLanguage",
+            "webhook",
+            "interval"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 5 services; High complexity (75/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0183_Strapi_Webhook_Automation_Webhook",
+          "file_path": "workflows/Strapi/0183_Strapi_Webhook_Automation_Webhook.json",
+          "category": "Social Media Management",
+          "num_nodes": 14,
+          "integrations": [
+            "twitter",
+            "strapi",
+            "googleCloudNaturalLanguage",
+            "webhook",
+            "interval"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 5 services; High complexity (75/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0906_Manual_GoogleSheets_Update_Triggered",
+          "file_path": "workflows/Manual/0906_Manual_GoogleSheets_Update_Triggered.json",
+          "category": "Social Media Management",
+          "num_nodes": 17,
+          "integrations": [
+            "googleSheets",
+            "reddit",
+            "stickyNote",
+            "manualTrigger",
+            "@n8n/n8n-nodes-langchain"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 5 services; High complexity (70/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Training Feedback Automation",
+          "file_path": "workflows/Linkedin/1951_Linkedin_Webhook_Automate_Webhook.json",
+          "category": "Social Media Management",
+          "num_nodes": 16,
+          "integrations": [
+            "emailSend",
+            "httpRequest",
+            "stickyNote",
+            "linkedIn",
+            "switch",
+            "airtableTrigger",
+            "webhook"
+          ],
+          "complexity": 56,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 7 services; Uses 2 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0439_Manual_Schedule_Create_Scheduled",
+          "file_path": "workflows/Manual/0439_Manual_Schedule_Create_Scheduled.json",
+          "category": "Social Media Management",
+          "num_nodes": 12,
+          "integrations": [
+            "twitter",
+            "stickyNote",
+            "manualTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "scheduleTrigger"
+          ],
+          "complexity": 45,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 5 services",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1704_Manual_Schedule_Automation_Scheduled",
+          "file_path": "workflows/Manual/1704_Manual_Schedule_Automation_Scheduled.json",
+          "category": "Social Media Management",
+          "num_nodes": 12,
+          "integrations": [
+            "twitter",
+            "stickyNote",
+            "manualTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "scheduleTrigger"
+          ],
+          "complexity": 45,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 5 services",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "New tweets",
+          "file_path": "workflows/Manual/0005_Manual_Twitter_Create_Triggered.json",
+          "category": "Social Media Management",
+          "num_nodes": 7,
+          "integrations": [
+            "twitter",
+            "manualTrigger",
+            "airtable"
+          ],
+          "complexity": 38,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "TwitterWorkflow",
+          "file_path": "workflows/Manual/0356_Manual_Twitter_Automate_Scheduled.json",
+          "category": "Social Media Management",
+          "num_nodes": 6,
+          "integrations": [
+            "twitter",
+            "manualTrigger",
+            "rocketchat",
+            "cron"
+          ],
+          "complexity": 33,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Twitter notifications",
+          "file_path": "workflows/Mattermost/0357_Mattermost_Twitter_Automation_Scheduled.json",
+          "category": "Social Media Management",
+          "num_nodes": 5,
+          "integrations": [
+            "twitter",
+            "mattermost",
+            "cron"
+          ],
+          "complexity": 28,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        }
+      ]
+    },
+    "Marketing Automation": {
+      "count": 14,
+      "workflows": [
+        {
+          "name": "1382_Lemlist_Slack_Automate_Webhook",
+          "file_path": "workflows/Lemlist/1382_Lemlist_Slack_Automate_Webhook.json",
+          "category": "Marketing Automation",
+          "num_nodes": 18,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "lemlistTrigger",
+            "switch",
+            "slack",
+            "@n8n/n8n-nodes-langchain",
+            "markdown",
+            "lemlist"
+          ],
+          "complexity": 54,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 8 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0504_Lemlist_Slack_Create_Webhook",
+          "file_path": "workflows/Lemlist/0504_Lemlist_Slack_Create_Webhook.json",
+          "category": "Marketing Automation",
+          "num_nodes": 18,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "lemlistTrigger",
+            "switch",
+            "slack",
+            "@n8n/n8n-nodes-langchain",
+            "markdown",
+            "lemlist"
+          ],
+          "complexity": 54,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 8 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0250_Manual_Baserow_Update_Webhook",
+          "file_path": "workflows/Manual/0250_Manual_Baserow_Update_Webhook.json",
+          "category": "Marketing Automation",
+          "num_nodes": 9,
+          "integrations": [
+            "sendGrid",
+            "baserow",
+            "httpRequest",
+            "manualTrigger",
+            "htmlExtract",
+            "cron"
+          ],
+          "complexity": 48,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 6 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0086_Zohocrm_Trello_Create_Triggered",
+          "file_path": "workflows/Zohocrm/0086_Zohocrm_Trello_Create_Triggered.json",
+          "category": "Marketing Automation",
+          "num_nodes": 9,
+          "integrations": [
+            "harvest",
+            "mailchimp",
+            "gmail",
+            "trello",
+            "shopifyTrigger",
+            "zohoCrm"
+          ],
+          "complexity": 47,
+          "is_game_changer": false,
+          "gc_score": 60,
+          "gc_reason": "Uses shopifyTrigger; Integrates 6 services; E-commerce + Marketing automation",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0795_Schedule_Mailchimp_Create_Scheduled",
+          "file_path": "workflows/Schedule/0795_Schedule_Mailchimp_Create_Scheduled.json",
+          "category": "Marketing Automation",
+          "num_nodes": 6,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "splitInBatches",
+            "manualTrigger",
+            "mailchimp",
+            "scheduleTrigger"
+          ],
+          "complexity": 43,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 6 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Email form",
+          "file_path": "workflows/Hunter/0361_Hunter_Noop_Send_Triggered.json",
+          "category": "Marketing Automation",
+          "num_nodes": 7,
+          "integrations": [
+            "sendGrid",
+            "formTrigger",
+            "stickyNote",
+            "hunter"
+          ],
+          "complexity": 32,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0120_Manual_GoogleSheets_Automate_Triggered",
+          "file_path": "workflows/Manual/0120_Manual_GoogleSheets_Automate_Triggered.json",
+          "category": "Marketing Automation",
+          "num_nodes": 4,
+          "integrations": [
+            "manualTrigger",
+            "lemlist",
+            "googleSheets",
+            "dropcontact"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Create, update and get a contact using the SendGrid node",
+          "file_path": "workflows/Manual/0408_Manual_Sendgrid_Create_Triggered.json",
+          "category": "Marketing Automation",
+          "num_nodes": 4,
+          "integrations": [
+            "sendGrid",
+            "manualTrigger"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Google Sheet to Mailchimp",
+          "file_path": "workflows/Manual/0349_Manual_GoogleSheets_Automation_Scheduled.json",
+          "category": "Marketing Automation",
+          "num_nodes": 4,
+          "integrations": [
+            "manualTrigger",
+            "googleSheets",
+            "mailchimp",
+            "interval"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Add subscriber to form, create tag and subscriber to the tag",
+          "file_path": "workflows/Manual/0653_Manual_Convertkit_Create_Triggered.json",
+          "category": "Marketing Automation",
+          "num_nodes": 4,
+          "integrations": [
+            "manualTrigger",
+            "convertKit"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Scheduling & Calendar": {
+      "count": 12,
+      "workflows": [
+        {
+          "name": "0829_Webhook_Code_Create_Webhook",
+          "file_path": "workflows/Webhook/0829_Webhook_Code_Create_Webhook.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 92,
+          "integrations": [
+            "itemLists",
+            "stickyNote",
+            "googleCalendar",
+            "airtable",
+            "code",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 7 advanced features",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "Inverview Scheduler",
+          "file_path": "workflows/Code/1813_Code_GoogleCalendar_Automation_Triggered.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 25,
+          "integrations": [
+            "stickyNote",
+            "googleCalendar",
+            "code",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain"
+          ],
+          "complexity": 90,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 5 services; High complexity (90/100); Uses 5 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0702_Webhook_GoogleCalendar_Create_Webhook",
+          "file_path": "workflows/Webhook/0702_Webhook_GoogleCalendar_Create_Webhook.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 33,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "stickyNote",
+            "googleCalendar",
+            "airtable",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 80,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 7 services; High complexity (80/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0168_Datetime_GoogleCalendar_Send_Scheduled",
+          "file_path": "workflows/Datetime/0168_Datetime_GoogleCalendar_Send_Scheduled.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 13,
+          "integrations": [
+            "emailSend",
+            "googleCalendar",
+            "switch",
+            "code",
+            "dateTime",
+            "cron"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 6 services; High complexity (75/100); Uses 4 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1297_Splitout_GoogleCalendar_Automation_Webhook",
+          "file_path": "workflows/Splitout/1297_Splitout_GoogleCalendar_Automation_Webhook.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 28,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "googleCalendar",
+            "switch",
+            "googleDrive",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 10 services; High complexity (70/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "0530_Splitout_GoogleCalendar_Create_Webhook",
+          "file_path": "workflows/Splitout/0530_Splitout_GoogleCalendar_Create_Webhook.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 28,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "googleCalendar",
+            "switch",
+            "googleDrive",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "splitOut",
+            "extractFromFile"
+          ],
+          "complexity": 70,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 10 services; High complexity (70/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Build a Chatbot, Voice Agent and Phone Agent with Voiceflow, Google Calendar and RAG",
+          "file_path": "workflows/Googlecalendar/1361_GoogleCalendar_Webhook_Create_Webhook.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 34,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "manualTrigger",
+            "googleCalendar",
+            "googleDrive",
+            "@n8n/n8n-nodes-langchain",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 55,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 8 services",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0313_HTTP_Schedule_Create_Scheduled",
+          "file_path": "workflows/Http/0313_HTTP_Schedule_Create_Scheduled.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 9,
+          "integrations": [
+            "googleCalendar",
+            "httpRequest",
+            "stickyNote",
+            "scheduleTrigger"
+          ],
+          "complexity": 42,
+          "is_game_changer": false,
+          "gc_score": 25,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "Automate Event Creation in Google Calendar from Google Sheets",
+          "file_path": "workflows/Googlecalendar/1346_GoogleCalendar_GoogleSheets_Automate_Triggered.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 5,
+          "integrations": [
+            "googleSheetsTrigger",
+            "googleCalendar",
+            "code",
+            "stickyNote"
+          ],
+          "complexity": 34,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "Google Cal to Zoom meeting",
+          "file_path": "workflows/Datetime/0348_Datetime_GoogleCalendar_Automation_Scheduled.json",
+          "category": "Scheduling & Calendar",
+          "num_nodes": 6,
+          "integrations": [
+            "zoom",
+            "manualTrigger",
+            "googleCalendar",
+            "dateTime",
+            "cron"
+          ],
+          "complexity": 33,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 5 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "E-commerce": {
+      "count": 8,
+      "workflows": [
+        {
+          "name": "0457_Splitout_Webhook_Create_Webhook",
+          "file_path": "workflows/Splitout/0457_Splitout_Webhook_Create_Webhook.json",
+          "category": "E-commerce",
+          "num_nodes": 40,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "dhl",
+            "wooCommerce",
+            "@n8n/n8n-nodes-langchain",
+            "code",
+            "executeWorkflowTrigger",
+            "aggregate",
+            "splitOut",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 11 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "[n8n] - Shopify Orders to D365 Business Central Sales Orders / Sales Invoices",
+          "file_path": "workflows/Splitout/1560_Splitout_Code_Automation_Webhook.json",
+          "category": "E-commerce",
+          "num_nodes": 39,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "shopify",
+            "code",
+            "filter",
+            "splitOut",
+            "scheduleTrigger"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 50,
+          "gc_reason": "Uses shopify; Integrates 8 services; High complexity (100/100)",
+          "tags": [
+            {
+              "id": "2RJGhx5RHCJdXr52",
+              "name": "d365 business central",
+              "createdAt": "2023-08-08T23:10:56.527Z",
+              "updatedAt": "2023-08-08T23:10:56.527Z"
+            },
+            {
+              "id": "OPc1YLQyTimMr498",
+              "name": "shopify",
+              "createdAt": "2023-07-22T15:30:38.620Z",
+              "updatedAt": "2023-07-22T15:30:38.620Z"
+            }
+          ],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1283_Splitout_Webhook_Automation_Webhook",
+          "file_path": "workflows/Splitout/1283_Splitout_Webhook_Automation_Webhook.json",
+          "category": "E-commerce",
+          "num_nodes": 40,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "dhl",
+            "wooCommerce",
+            "@n8n/n8n-nodes-langchain",
+            "code",
+            "executeWorkflowTrigger",
+            "aggregate",
+            "splitOut",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 100,
+          "is_game_changer": false,
+          "gc_score": 45,
+          "gc_reason": "Integrates 11 services; High complexity (100/100); Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0707_HTTP_Stripe_Create_Webhook",
+          "file_path": "workflows/Http/0707_HTTP_Stripe_Create_Webhook.json",
+          "category": "E-commerce",
+          "num_nodes": 10,
+          "integrations": [
+            "stripe",
+            "stripeTrigger",
+            "httpRequest",
+            "quickbooks"
+          ],
+          "complexity": 68,
+          "is_game_changer": false,
+          "gc_score": 65,
+          "gc_reason": "Uses stripe; Uses stripeTrigger; Integrates 4 services; High complexity (68/100)",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0801_Filter_Schedule_Import_Webhook",
+          "file_path": "workflows/Filter/0801_Filter_Schedule_Import_Webhook.json",
+          "category": "E-commerce",
+          "num_nodes": 13,
+          "integrations": [
+            "httpRequest",
+            "stickyNote",
+            "splitInBatches",
+            "shopify",
+            "manualTrigger",
+            "filter",
+            "scheduleTrigger"
+          ],
+          "complexity": 66,
+          "is_game_changer": false,
+          "gc_score": 50,
+          "gc_reason": "Uses shopify; Integrates 7 services; High complexity (66/100)",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Create, update and get a product from WooCommerce",
+          "file_path": "workflows/Manual/0293_Manual_Woocommerce_Create_Triggered.json",
+          "category": "E-commerce",
+          "num_nodes": 4,
+          "integrations": [
+            "wooCommerce",
+            "manualTrigger"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Updating Shopify tags on Onfleet events",
+          "file_path": "workflows/Shopify/0185_Shopify_Onfleet_Automation_Triggered.json",
+          "category": "E-commerce",
+          "num_nodes": 2,
+          "integrations": [
+            "shopify",
+            "onfleetTrigger"
+          ],
+          "complexity": 13,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Uses shopify",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1016_Manual_Shopify_Automate_Triggered",
+          "file_path": "workflows/Manual/1016_Manual_Shopify_Automate_Triggered.json",
+          "category": "E-commerce",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "shopify"
+          ],
+          "complexity": 13,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Uses shopify",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Document Processing & OCR": {
+      "count": 6,
+      "workflows": [
+        {
+          "name": "Extract expenses from emails and add to Google Sheet",
+          "file_path": "workflows/Googlesheets/1188_GoogleSheets_Emailreadimap_Create.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 6,
+          "integrations": [
+            "googleSheets",
+            "emailReadImap",
+            "mindee"
+          ],
+          "complexity": 33,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Unknown"
+        },
+        {
+          "name": "Expense Tracker App",
+          "file_path": "workflows/Http/1030_HTTP_Typeform_Monitor_Webhook.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 5,
+          "integrations": [
+            "airtable",
+            "mindee",
+            "httpRequest",
+            "typeformTrigger"
+          ],
+          "complexity": 23,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "1120_Airtable_Mindee_Automate_Webhook",
+          "file_path": "workflows/Airtable/1120_Airtable_Mindee_Automate_Webhook.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 4,
+          "integrations": [
+            "airtable",
+            "mindee",
+            "webhook"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Webhook"
+        },
+        {
+          "name": "0148_Awstextract_Telegram_Automate_Triggered",
+          "file_path": "workflows/Awstextract/0148_Awstextract_Telegram_Automate_Triggered.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 4,
+          "integrations": [
+            "telegramTrigger",
+            "awsS3",
+            "airtable",
+            "awsTextract"
+          ],
+          "complexity": 16,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        },
+        {
+          "name": "0112_Manual_Awstextract_Automate_Triggered",
+          "file_path": "workflows/Manual/0112_Manual_Awstextract_Automate_Triggered.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 3,
+          "integrations": [
+            "manualTrigger",
+            "awsS3",
+            "awsTextract"
+          ],
+          "complexity": 13,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Extract information from an image of a receipt",
+          "file_path": "workflows/Manual/1128_Manual_HTTP_Automation_Webhook.json",
+          "category": "Document Processing & OCR",
+          "num_nodes": 3,
+          "integrations": [
+            "manualTrigger",
+            "httpRequest",
+            "mindee"
+          ],
+          "complexity": 13,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Finance & Accounting": {
+      "count": 6,
+      "workflows": [
+        {
+          "name": "1208_Quickbooks_Automate",
+          "file_path": "workflows/Quickbooks/1208_Quickbooks_Automate.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 3,
+          "integrations": [
+            "quickbooks"
+          ],
+          "complexity": 13,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Unknown"
+        },
+        {
+          "name": "Create a coupon on Paddle",
+          "file_path": "workflows/Manual/1019_Manual_Paddle_Create_Triggered.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "paddle"
+          ],
+          "complexity": 10,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Create a new customer in Chargebee",
+          "file_path": "workflows/Manual/0018_Manual_Chargebee_Create_Triggered.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "chargebee"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "1011_Manual_Xero_Automate_Triggered",
+          "file_path": "workflows/Manual/1011_Manual_Xero_Automate_Triggered.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "xero"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "",
+          "file_path": "workflows/Manual/0957_Manual_Paypal_Automation_Triggered.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "payPal"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Create a QuickBooks invoice on a new Onfleet Task creation",
+          "file_path": "workflows/Quickbooks/0186_Quickbooks_Onfleet_Create_Triggered.json",
+          "category": "Finance & Accounting",
+          "num_nodes": 2,
+          "integrations": [
+            "quickbooks",
+            "onfleetTrigger"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Event Trigger"
+        }
+      ]
+    },
+    "Image & Video Processing": {
+      "count": 5,
+      "workflows": [
+        {
+          "name": "0150_Awsrekognition_GoogleSheets_Automation_Webhook",
+          "file_path": "workflows/Awsrekognition/0150_Awsrekognition_GoogleSheets_Automation_Webhook.json",
+          "category": "Image & Video Processing",
+          "num_nodes": 6,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "awsRekognition"
+          ],
+          "complexity": 31,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Unknown"
+        },
+        {
+          "name": "0156_HTTP_Awsrekognition_Automation_Webhook",
+          "file_path": "workflows/Http/0156_HTTP_Awsrekognition_Automation_Webhook.json",
+          "category": "Image & Video Processing",
+          "num_nodes": 4,
+          "integrations": [
+            "googleSheets",
+            "httpRequest",
+            "awsRekognition"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Unknown"
+        },
+        {
+          "name": "Cocktail Recipe Sharing",
+          "file_path": "workflows/Http/0964_HTTP_Bannerbear_Automation_Scheduled.json",
+          "category": "Image & Video Processing",
+          "num_nodes": 4,
+          "integrations": [
+            "cron",
+            "rocketchat",
+            "httpRequest",
+            "bannerbear"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 4 services",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "1012_Manual_Bannerbear_Automate_Triggered",
+          "file_path": "workflows/Manual/1012_Manual_Bannerbear_Automate_Triggered.json",
+          "category": "Image & Video Processing",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "bannerbear"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "1013_Manual_Bannerbear_Automate_Triggered",
+          "file_path": "workflows/Manual/1013_Manual_Bannerbear_Automate_Triggered.json",
+          "category": "Image & Video Processing",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "bannerbear"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    },
+    "Data Pipeline & ETL": {
+      "count": 2,
+      "workflows": [
+        {
+          "name": "Tech Radar",
+          "file_path": "workflows/Code/1836_Code_Googledocs_Automation_Webhook.json",
+          "category": "Data Pipeline & ETL",
+          "num_nodes": 53,
+          "integrations": [
+            "googleSheets",
+            "stickyNote",
+            "googleDriveTrigger",
+            "mySql",
+            "mySqlTool",
+            "googleDocs",
+            "googleDrive",
+            "code",
+            "executeWorkflow",
+            "executeWorkflowTrigger",
+            "@n8n/n8n-nodes-langchain",
+            "cron",
+            "webhook",
+            "respondToWebhook"
+          ],
+          "complexity": 75,
+          "is_game_changer": false,
+          "gc_score": 65,
+          "gc_reason": "Integrates 14 services; High complexity (75/100); Complete data pipeline; Uses 3 advanced features",
+          "tags": [],
+          "trigger_type": "Scheduled"
+        },
+        {
+          "name": "0099_Webhook_Airtable_Automate_Webhook",
+          "file_path": "workflows/Webhook/0099_Webhook_Airtable_Automate_Webhook.json",
+          "category": "Data Pipeline & ETL",
+          "num_nodes": 11,
+          "integrations": [
+            "redis",
+            "airtable",
+            "webhook"
+          ],
+          "complexity": 61,
+          "is_game_changer": false,
+          "gc_score": 35,
+          "gc_reason": "Integrates 3 services; High complexity (61/100)",
+          "tags": [],
+          "trigger_type": "Webhook"
+        }
+      ]
+    },
+    "Analytics & Monitoring": {
+      "count": 2,
+      "workflows": [
+        {
+          "name": "Get analytics of a website and store it Airtable",
+          "file_path": "workflows/Manual/0389_Manual_Googleanalytics_Import_Triggered.json",
+          "category": "Analytics & Monitoring",
+          "num_nodes": 4,
+          "integrations": [
+            "manualTrigger",
+            "googleAnalytics",
+            "airtable"
+          ],
+          "complexity": 18,
+          "is_game_changer": false,
+          "gc_score": 15,
+          "gc_reason": "Integrates 3 services",
+          "tags": [],
+          "trigger_type": "Manual"
+        },
+        {
+          "name": "Track an event in Segment",
+          "file_path": "workflows/Manual/0098_Manual_Segment_Monitor_Triggered.json",
+          "category": "Analytics & Monitoring",
+          "num_nodes": 2,
+          "integrations": [
+            "manualTrigger",
+            "segment"
+          ],
+          "complexity": 8,
+          "is_game_changer": false,
+          "gc_score": 0,
+          "gc_reason": "Standard workflow",
+          "tags": [],
+          "trigger_type": "Manual"
+        }
+      ]
+    }
+  },
+  "game_changers": [
+    {
+      "name": "Pyragogy AI Village - Orchestrazione Master (Architettura Profonda V2)",
+      "file_path": "workflows/Deep/generate-collaborative-handbooks-with-gpt4o-multi-agent-orchestration-human-review.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 35,
+      "integrations": [
+        "emailSend",
+        "github",
+        "switch",
+        "wait",
+        "openAi",
+        "slack",
+        "postgres",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": true,
+      "gc_score": 110,
+      "gc_reason": "Uses github; Uses openAi; Uses postgres; Integrates 9 services; High complexity (100/100); AI-powered automation; Uses 12 advanced features",
+      "tags": [
+        {
+          "id": "pyragogy",
+          "name": "Pyragogy"
+        },
+        {
+          "id": "multi-agent",
+          "name": "Multi-Agent"
+        },
+        {
+          "id": "orchestration",
+          "name": "Orchestration"
+        },
+        {
+          "id": "human-in-loop",
+          "name": "Human-in-Loop"
+        }
+      ],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "OpenAI-model-examples",
+      "file_path": "workflows/Readbinaryfiles/1583_Readbinaryfiles_Code_Automation_Webhook.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 27,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "manualTrigger",
+        "readBinaryFiles",
+        "openAi",
+        "code",
+        "html"
+      ],
+      "complexity": 60,
+      "is_game_changer": true,
+      "gc_score": 90,
+      "gc_reason": "Uses openAi; Integrates 7 services; High complexity (60/100); AI-powered automation; Uses 2 advanced features",
+      "tags": [],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "OpenAI-model-examples",
+      "file_path": "workflows/Readbinaryfiles/0171_Readbinaryfiles_Code_Automation_Webhook.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 27,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "manualTrigger",
+        "readBinaryFiles",
+        "openAi",
+        "code",
+        "html"
+      ],
+      "complexity": 60,
+      "is_game_changer": true,
+      "gc_score": 90,
+      "gc_reason": "Uses openAi; Integrates 7 services; High complexity (60/100); AI-powered automation; Uses 2 advanced features",
+      "tags": [],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "0290_Wait_Code_Update_Webhook",
+      "file_path": "workflows/Wait/0290_Wait_Code_Update_Webhook.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 11,
+      "integrations": [
+        "googleSheets",
+        "httpRequest",
+        "splitInBatches",
+        "manualTrigger",
+        "wait",
+        "openAi",
+        "code",
+        "htmlExtract"
+      ],
+      "complexity": 70,
+      "is_game_changer": true,
+      "gc_score": 90,
+      "gc_reason": "Uses openAi; Integrates 8 services; High complexity (70/100); AI-powered automation; Uses 2 advanced features",
+      "tags": [],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "1653_Code_Webhook_Send_Webhook",
+      "file_path": "workflows/Code/1653_Code_Webhook_Send_Webhook.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 49,
+      "integrations": [
+        "googleSheets",
+        "stickyNote",
+        "switch",
+        "gmail",
+        "openAi",
+        "code",
+        "crypto",
+        "gmailTrigger",
+        "html",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": true,
+      "gc_score": 90,
+      "gc_reason": "Uses openAi; Integrates 11 services; High complexity (100/100); AI-powered automation; Uses 9 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "0299_Code_Webhook_Create_Webhook",
+      "file_path": "workflows/Code/0299_Code_Webhook_Create_Webhook.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 49,
+      "integrations": [
+        "googleSheets",
+        "stickyNote",
+        "switch",
+        "gmail",
+        "openAi",
+        "code",
+        "crypto",
+        "gmailTrigger",
+        "html",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": true,
+      "gc_score": 90,
+      "gc_reason": "Uses openAi; Integrates 11 services; High complexity (100/100); AI-powered automation; Uses 9 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    }
+  ],
+  "top_by_complexity": [
+    {
+      "name": "0674_Limit_Webhook_Automation_Webhook",
+      "file_path": "workflows/Limit/0674_Limit_Webhook_Automation_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 40,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "limit",
+        "code",
+        "gmailTrigger",
+        "aggregate",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Selenium Ultimate Scraper Workflow",
+      "file_path": "workflows/Limit/1711_Limit_Code_Automate_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 63,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "limit",
+        "convertToFile",
+        "@n8n/n8n-nodes-langchain",
+        "code",
+        "html",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 35,
+      "gc_reason": "Integrates 9 services; High complexity (100/100)",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "0673_Limit_Code_Create_Webhook",
+      "file_path": "workflows/Limit/0673_Limit_Code_Create_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 41,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "limit",
+        "microsoftOutlookTrigger",
+        "code",
+        "aggregate",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "⚡AI-Powered YouTube Playlist & Video Summarization and Analysis v2",
+      "file_path": "workflows/Limit/0971_Limit_Splitout_Automation_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 72,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "summarize",
+        "n8n-nodes-youtube-transcription-dmr",
+        "limit",
+        "redis",
+        "switch",
+        "code",
+        "@n8n/n8n-nodes-langchain",
+        "splitOut"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 8 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Selenium Ultimate Scraper Workflow",
+      "file_path": "workflows/Limit/1900_Limit_Code_Automate_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 63,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "limit",
+        "convertToFile",
+        "@n8n/n8n-nodes-langchain",
+        "code",
+        "html",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 35,
+      "gc_reason": "Integrates 9 services; High complexity (100/100)",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "Pyragogy AI Village - Orchestrazione Master (Architettura Profonda V2)",
+      "file_path": "workflows/Deep/generate-collaborative-handbooks-with-gpt4o-multi-agent-orchestration-human-review.json",
+      "category": "AI & Machine Learning",
+      "num_nodes": 35,
+      "integrations": [
+        "emailSend",
+        "github",
+        "switch",
+        "wait",
+        "openAi",
+        "slack",
+        "postgres",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": true,
+      "gc_score": 110,
+      "gc_reason": "Uses github; Uses openAi; Uses postgres; Integrates 9 services; High complexity (100/100); AI-powered automation; Uses 12 advanced features",
+      "tags": [
+        {
+          "id": "pyragogy",
+          "name": "Pyragogy"
+        },
+        {
+          "id": "multi-agent",
+          "name": "Multi-Agent"
+        },
+        {
+          "id": "orchestration",
+          "name": "Orchestration"
+        },
+        {
+          "id": "human-in-loop",
+          "name": "Human-in-Loop"
+        }
+      ],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "Business Canvas Generator",
+      "file_path": "workflows/Stickynote/1907_Stickynote_Converttofile_Automation_Triggered.json",
+      "category": "General Automation",
+      "num_nodes": 28,
+      "integrations": [
+        "@n8n/n8n-nodes-langchain",
+        "stickyNote",
+        "code",
+        "convertToFile"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 4 services; High complexity (100/100); Uses 11 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Suspicious_login_detection",
+      "file_path": "workflows/Postgres/2014_Postgres_Webhook_Automation_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 43,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "manualTrigger",
+        "switch",
+        "gmail",
+        "code",
+        "slack",
+        "html",
+        "postgres",
+        "webhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 55,
+      "gc_reason": "Uses postgres; Integrates 10 services; High complexity (100/100); Uses 3 advanced features",
+      "tags": [
+        {
+          "id": "GCHVocImoXoEVnzP",
+          "name": "🛠️ In progress",
+          "createdAt": "2023-10-31T02:17:21.618Z",
+          "updatedAt": "2023-10-31T02:17:21.618Z"
+        },
+        {
+          "id": "QPJKatvLSxxtrE8U",
+          "name": "Secops",
+          "createdAt": "2023-10-31T02:15:11.396Z",
+          "updatedAt": "2023-10-31T02:15:11.396Z"
+        },
+        {
+          "id": "hF4M6DtfFqOn2HK2",
+          "name": "createdBy:Milorad",
+          "createdAt": "2023-10-31T02:20:20.366Z",
+          "updatedAt": "2023-10-31T02:20:20.366Z"
+        }
+      ],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "Auto WordPress Blog Generator (GPT + Postgres + WP Media)",
+      "file_path": "workflows/Postgres/0263_Postgres_Code_Automation_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 46,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "code",
+        "@n8n/n8n-nodes-langchain",
+        "postgres",
+        "scheduleTrigger"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 55,
+      "gc_reason": "Uses postgres; Integrates 6 services; High complexity (100/100); Uses 7 advanced features",
+      "tags": [
+        {
+          "id": "k8Hqq1bbCQoesJjj",
+          "name": "Wordpress",
+          "createdAt": "2025-02-26T04:04:38.319Z",
+          "updatedAt": "2025-02-26T04:04:38.319Z"
+        }
+      ],
+      "trigger_type": "Scheduled"
+    },
+    {
+      "name": "Spotify Sync Liked Songs to Playlist",
+      "file_path": "workflows/Schedule/1867_Schedule_Filter_Sync_Scheduled.json",
+      "category": "General Automation",
+      "num_nodes": 40,
+      "integrations": [
+        "stickyNote",
+        "summarize",
+        "splitInBatches",
+        "compareDatasets",
+        "manualTrigger",
+        "gotify",
+        "filter",
+        "spotify",
+        "scheduleTrigger",
+        "sort"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 35,
+      "gc_reason": "Integrates 10 services; High complexity (100/100)",
+      "tags": [
+        {
+          "id": "TYGC4owzlQuowxvB",
+          "name": "Spotify",
+          "createdAt": "2024-03-14T16:54:47.712Z",
+          "updatedAt": "2024-03-14T16:54:47.712Z"
+        }
+      ],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "Basic PDF Digital Sign Service",
+      "file_path": "workflows/Webhook/1722_Webhook_Code_Automation_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 32,
+      "integrations": [
+        "stickyNote",
+        "switch",
+        "convertToFile",
+        "readWriteFile",
+        "code",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 8 advanced features",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "0829_Webhook_Code_Create_Webhook",
+      "file_path": "workflows/Webhook/0829_Webhook_Code_Create_Webhook.json",
+      "category": "Scheduling & Calendar",
+      "num_nodes": 92,
+      "integrations": [
+        "itemLists",
+        "stickyNote",
+        "googleCalendar",
+        "airtable",
+        "code",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 7 advanced features",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "0453_Webhook_Code_Create_Webhook",
+      "file_path": "workflows/Webhook/0453_Webhook_Code_Create_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 34,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "switch",
+        "executeWorkflow",
+        "slack",
+        "code",
+        "executeWorkflowTrigger",
+        "postgres",
+        "webhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 55,
+      "gc_reason": "Uses postgres; Integrates 9 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "Standup Bot - Worker",
+      "file_path": "workflows/Webhook/0066_Webhook_Cron_Automate_Scheduled.json",
+      "category": "General Automation",
+      "num_nodes": 29,
+      "integrations": [
+        "httpRequest",
+        "mattermost",
+        "switch",
+        "executeWorkflow",
+        "cron",
+        "webhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 6 services; High complexity (100/100); Uses 8 advanced features",
+      "tags": [],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "Realtime Notion Todoist 2-way Sync Template",
+      "file_path": "workflows/Webhook/1897_Webhook_Filter_Sync_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 246,
+      "integrations": [
+        "splitInBatches",
+        "compareDatasets",
+        "filter",
+        "aggregate",
+        "splitOut",
+        "executionData",
+        "switch",
+        "formTrigger",
+        "httpRequest",
+        "notion",
+        "code",
+        "executeWorkflow",
+        "html",
+        "form",
+        "webhook",
+        "scheduleTrigger",
+        "todoist",
+        "stickyNote",
+        "redis",
+        "wait",
+        "gmail",
+        "crypto",
+        "executeWorkflowTrigger",
+        "stopAndError",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 25 services; High complexity (100/100); Uses 20 advanced features",
+      "tags": [
+        {
+          "id": "RKga6I6NviNI12bx",
+          "name": "template",
+          "createdAt": "2024-09-19T19:09:21.997Z",
+          "updatedAt": "2024-09-19T19:09:21.997Z"
+        }
+      ],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "0789_Telegram_Code_Create_Triggered",
+      "file_path": "workflows/Telegram/0789_Telegram_Code_Create_Triggered.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 37,
+      "integrations": [
+        "telegramTrigger",
+        "googleSheets",
+        "stickyNote",
+        "switch",
+        "gmail",
+        "code",
+        "telegram",
+        "googleDrive"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 13 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "1439_Telegram_Code_Create_Webhook",
+      "file_path": "workflows/Telegram/1439_Telegram_Code_Create_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 43,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "stickyNote",
+        "convertToFile",
+        "code",
+        "telegram",
+        "@n8n/n8n-nodes-langchain",
+        "extractFromFile"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 5 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "0201_Telegram_Executecommand_Process_Webhook",
+      "file_path": "workflows/Telegram/0201_Telegram_Executecommand_Process_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 21,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "spreadsheetFile",
+        "executeCommand",
+        "writeBinaryFile",
+        "switch",
+        "telegram",
+        "readBinaryFile"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 3 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "0383_Telegram_Wait_Create_Webhook",
+      "file_path": "workflows/Telegram/0383_Telegram_Wait_Create_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 36,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "stickyNote",
+        "splitInBatches",
+        "redis",
+        "switch",
+        "wait",
+        "code",
+        "telegram",
+        "filter"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 3 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "0690_Telegram_Webhook_Send_Webhook",
+      "file_path": "workflows/Telegram/0690_Telegram_Webhook_Send_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 35,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "stickyNote",
+        "switch",
+        "code",
+        "gmailTrigger",
+        "@n8n/n8n-nodes-langchain",
+        "webhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "1606_Telegram_Webhook_Automation_Webhook",
+      "file_path": "workflows/Telegram/1606_Telegram_Webhook_Automation_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 35,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "stickyNote",
+        "switch",
+        "code",
+        "gmailTrigger",
+        "@n8n/n8n-nodes-langchain",
+        "webhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "rss-telegram",
+      "file_path": "workflows/Telegram/0944_Telegram_Rssfeedread_Automation_Scheduled.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 18,
+      "integrations": [
+        "rssFeedRead",
+        "splitInBatches",
+        "manualTrigger",
+        "telegram",
+        "cron"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 5 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [],
+      "trigger_type": "Scheduled"
+    },
+    {
+      "name": "0462_Telegram_Code_Create_Webhook",
+      "file_path": "workflows/Telegram/0462_Telegram_Code_Create_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 43,
+      "integrations": [
+        "telegramTrigger",
+        "httpRequest",
+        "stickyNote",
+        "convertToFile",
+        "code",
+        "telegram",
+        "@n8n/n8n-nodes-langchain",
+        "extractFromFile"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 8 services; High complexity (100/100); Uses 5 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Automate Google Analytics Reporting - AlexK1919",
+      "file_path": "workflows/Googleanalytics/0475_Googleanalytics_Code_Automate_Scheduled.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 23,
+      "integrations": [
+        "googleAnalytics",
+        "stickyNote",
+        "manualTrigger",
+        "gmail",
+        "code",
+        "scheduleTrigger"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 6 services; High complexity (100/100); Uses 9 advanced features",
+      "tags": [
+        {
+          "id": "BimZXo1NKE7JdlXm",
+          "name": "Google Analytics",
+          "createdAt": "2024-11-13T18:08:04.053Z",
+          "updatedAt": "2024-11-13T18:08:04.053Z"
+        },
+        {
+          "id": "nezaWFCGa7eZsVKu",
+          "name": "Utility",
+          "createdAt": "2024-11-13T18:08:08.207Z",
+          "updatedAt": "2024-11-13T18:08:08.207Z"
+        }
+      ],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "MONDAY GET FULL ITEM",
+      "file_path": "workflows/Mondaycom/1781_Mondaycom_Splitout_Import_Triggered.json",
+      "category": "General Automation",
+      "num_nodes": 26,
+      "integrations": [
+        "mondayCom",
+        "stickyNote",
+        "code",
+        "executeWorkflow",
+        "executeWorkflowTrigger",
+        "aggregate",
+        "splitOut"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 7 advanced features",
+      "tags": [
+        {
+          "id": "uKg1PU2D27Vsr8ud",
+          "name": "MONDAY",
+          "createdAt": "2023-12-05T07:54:13.266Z",
+          "updatedAt": "2023-12-05T07:54:13.266Z"
+        }
+      ],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "1333_Splitout_GoogleCalendar_Automate_Webhook",
+      "file_path": "workflows/Splitout/1333_Splitout_GoogleCalendar_Automate_Webhook.json",
+      "category": "Communication & Notifications",
+      "num_nodes": 61,
+      "integrations": [
+        "html",
+        "httpRequest",
+        "stickyNote",
+        "googleCalendar",
+        "switch",
+        "gmail",
+        "whatsApp",
+        "executeWorkflow",
+        "aggregate",
+        "executeWorkflowTrigger",
+        "@n8n/n8n-nodes-langchain",
+        "splitOut",
+        "scheduleTrigger"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 35,
+      "gc_reason": "Integrates 13 services; High complexity (100/100)",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Find Top Keywords",
+      "file_path": "workflows/Splitout/1642_Splitout_Code_Automation_Webhook.json",
+      "category": "General Automation",
+      "num_nodes": 35,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "splitInBatches",
+        "manualTrigger",
+        "nocoDb",
+        "code",
+        "filter",
+        "splitOut",
+        "scheduleTrigger"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 9 services; High complexity (100/100); Uses 5 advanced features",
+      "tags": [],
+      "trigger_type": "Manual"
+    },
+    {
+      "name": "0560_Splitout_Filter_Import_Webhook",
+      "file_path": "workflows/Splitout/0560_Splitout_Filter_Import_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 26,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "switch",
+        "mqttTrigger",
+        "filter",
+        "spotify",
+        "splitOut"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 7 services; High complexity (100/100); Uses 2 advanced features",
+      "tags": [],
+      "trigger_type": "Event Trigger"
+    },
+    {
+      "name": "Bitrix24 Open Chanel RAG Chatbot Application Workflow example with Webhook Integration",
+      "file_path": "workflows/Splitout/1355_Splitout_Webhook_Automate_Webhook.json",
+      "category": "Webhooks & API Integration",
+      "num_nodes": 34,
+      "integrations": [
+        "httpRequest",
+        "stickyNote",
+        "switch",
+        "executeWorkflow",
+        "filter",
+        "executeWorkflowTrigger",
+        "@n8n/n8n-nodes-langchain",
+        "splitOut",
+        "webhook",
+        "respondToWebhook"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 4 advanced features",
+      "tags": [
+        {
+          "id": "2ziILYLz4IbTkFf5",
+          "name": "Tech demo",
+          "createdAt": "2025-02-17T08:43:26.445Z",
+          "updatedAt": "2025-02-17T08:43:26.445Z"
+        },
+        {
+          "id": "BedOB2iRpKR26bcZ",
+          "name": "Chatbot",
+          "createdAt": "2025-02-17T08:43:26.436Z",
+          "updatedAt": "2025-02-17T08:43:26.436Z"
+        },
+        {
+          "id": "DvSHJwHwuObn0cxx",
+          "name": "Open Channels",
+          "createdAt": "2025-03-04T07:27:28.499Z",
+          "updatedAt": "2025-03-04T07:27:28.499Z"
+        },
+        {
+          "id": "YJcjKoBRFN1HXH5e",
+          "name": "Bitrix24",
+          "createdAt": "2025-02-17T08:43:26.424Z",
+          "updatedAt": "2025-02-17T08:43:26.424Z"
+        }
+      ],
+      "trigger_type": "Webhook"
+    },
+    {
+      "name": "1556_Splitout_Code_Monitor_Scheduled",
+      "file_path": "workflows/Splitout/1556_Splitout_Code_Monitor_Scheduled.json",
+      "category": "General Automation",
+      "num_nodes": 37,
+      "integrations": [
+        "googleSheets",
+        "httpRequest",
+        "stickyNote",
+        "limit",
+        "code",
+        "filter",
+        "spotify",
+        "@n8n/n8n-nodes-langchain",
+        "splitOut",
+        "scheduleTrigger"
+      ],
+      "complexity": 100,
+      "is_game_changer": false,
+      "gc_score": 45,
+      "gc_reason": "Integrates 10 services; High complexity (100/100); Uses 3 advanced features",
+      "tags": [],
+      "trigger_type": "Scheduled"
+    }
+  ]
+}
