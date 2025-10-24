@@ -1,0 +1,281 @@
+{
+  "name": "Webhook Router Workflow",
+  "nodes": [
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [240, 300],
+      "webhookId": "webhook-router-001",
+      "parameters": {
+        "path": "webhook-router",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.set",
+      "position": [480, 300],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "in_action",
+              "name": "action",
+              "type": "string",
+              "value": "={{ $json.body?.action || 'ping' }}"
+            },
+            {
+              "id": "in_payload",
+              "name": "payload",
+              "type": "object",
+              "value": "={{ $json.body?.payload || {\"id\":123,\"text\":\"hello\"} }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a3c2b8b7-4a30-4a66-9c6a-4a61e8f7bb04",
+      "name": "Route by action",
+      "type": "n8n-nodes-base.switch",
+      "position": [720, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "ping",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "ping"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "process",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "process"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b5f3a9e0-bbfb-4b6b-9b46-cb6bde7f0a05",
+      "name": "HTTP Service A",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [980, 360],
+      "parameters": {
+        "url": "https://httpbin.org/post",
+        "method": "POST",
+        "specifyBody": "json",
+        "sendBody": true,
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "retryOnFail": true,
+          "maxRetries": 2
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d4a9c2b3-3e1e-4f59-9d73-1c8d61e3bb06",
+      "name": "Compose Ping",
+      "type": "n8n-nodes-base.set",
+      "position": [980, 220],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok1",
+              "name": "ok",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "msg1",
+              "name": "message",
+              "type": "string",
+              "value": "pong"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c7b5e8d1-7a3d-4e12-8d8f-4b1a5e2caa07",
+      "name": "Compose Result",
+      "type": "n8n-nodes-base.set",
+      "position": [1240, 360],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok2",
+              "name": "ok",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "data2",
+              "name": "data",
+              "type": "object",
+              "value": "={{ $json.json || {} }}"
+            },
+            {
+              "id": "src2",
+              "name": "source",
+              "type": "string",
+              "value": "serviceA"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e0f1a2b3-c4d5-4e6f-8a7b-9c0d1e2f3a08",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1500, 280],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Route by action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by action": {
+      "main": [
+        [
+          {
+            "node": "Compose Ping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Service A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Service A": {
+      "main": [
+        [
+          {
+            "node": "Compose Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Ping": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Result": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-24T00:00:00.000Z",
+  "versionId": "1"
+}
