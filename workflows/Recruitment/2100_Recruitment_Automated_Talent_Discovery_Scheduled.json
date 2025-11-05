@@ -1,0 +1,1088 @@
+{
+  "meta": {
+    "instanceId": "automated-recruitment-system-v1"
+  },
+  "name": "Automated Talent Discovery & Recruitment System",
+  "nodes": [
+    {
+      "id": "trigger-daily-schedule",
+      "name": "Schedule Trigger - Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 500],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1
+            }
+          ]
+        },
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 9,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "trigger-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [100, 300],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "merge-triggers",
+      "name": "Merge Triggers",
+      "type": "n8n-nodes-base.merge",
+      "position": [300, 400],
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "options": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sticky-note-scouts",
+      "name": "SCOUTS - Talent Discovery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [480, 200],
+      "parameters": {
+        "width": 1400,
+        "height": 300,
+        "content": "## SCOUTS: Multi-Platform Talent Discovery\n\nParallel searches across:\n- GitHub (active repos, contributions)\n- Twitter/X (tech discussions, engagement)\n- Dev.to (blog posts, tutorials)\n- LinkedIn (via Apify - profiles, activity)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "scout-github",
+      "name": "Scout GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 400],
+      "parameters": {
+        "url": "https://api.github.com/search/users",
+        "method": "GET",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "location:Brazil followers:<100 repos:>5 type:user"
+            },
+            {
+              "name": "per_page",
+              "value": "50"
+            },
+            {
+              "name": "sort",
+              "value": "repositories"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "scout-twitter",
+      "name": "Scout Twitter/X",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 600],
+      "parameters": {
+        "url": "https://api.twitter.com/2/tweets/search/recent",
+        "method": "GET",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "(javascript OR python OR typescript) -is:retweet has:links"
+            },
+            {
+              "name": "max_results",
+              "value": "50"
+            },
+            {
+              "name": "tweet.fields",
+              "value": "author_id,created_at,public_metrics"
+            },
+            {
+              "name": "expansions",
+              "value": "author_id"
+            },
+            {
+              "name": "user.fields",
+              "value": "username,name,description,public_metrics,verified"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "scout-devto",
+      "name": "Scout Dev.to",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [500, 800],
+      "parameters": {
+        "url": "https://dev.to/feed/tag/career",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "scout-linkedin",
+      "name": "Scout LinkedIn (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 1000],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/apify~linkedin-profile-scraper/runs",
+        "method": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "profileUrls",
+              "value": "={{ $json.searchUrls }}"
+            },
+            {
+              "name": "proxyConfiguration",
+              "value": "{ \"useApifyProxy\": true }"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "process-github-users",
+      "name": "Process GitHub Users",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 400],
+      "parameters": {
+        "jsCode": "// Extract and enrich GitHub user data\nconst items = [];\n\nfor (const user of $input.all()) {\n  const userData = user.json.items || [];\n  \n  for (const u of userData) {\n    items.push({\n      json: {\n        source: 'github',\n        username: u.login,\n        url: u.html_url,\n        avatar: u.avatar_url,\n        followers: u.followers || 0,\n        repos: u.public_repos || 0,\n        score: u.score || 0,\n        raw_data: u\n      }\n    });\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "process-twitter-users",
+      "name": "Process Twitter Users",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 600],
+      "parameters": {
+        "jsCode": "// Extract and enrich Twitter user data\nconst items = [];\n\nfor (const tweet of $input.all()) {\n  const users = tweet.json.includes?.users || [];\n  \n  for (const u of users) {\n    // Filter for users with tech focus and low follower count\n    if (u.public_metrics?.followers_count < 1000) {\n      items.push({\n        json: {\n          source: 'twitter',\n          username: u.username,\n          name: u.name,\n          url: `https://twitter.com/${u.username}`,\n          bio: u.description,\n          followers: u.public_metrics?.followers_count || 0,\n          tweets: u.public_metrics?.tweet_count || 0,\n          verified: u.verified || false,\n          raw_data: u\n        }\n      });\n    }\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "process-devto-authors",
+      "name": "Process Dev.to Authors",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 800],
+      "parameters": {
+        "jsCode": "// Extract author information from Dev.to posts\nconst items = [];\nconst seenAuthors = new Set();\n\nfor (const post of $input.all()) {\n  const author = post.json.author || post.json['dc:creator'];\n  const link = post.json.link;\n  \n  if (author && !seenAuthors.has(author)) {\n    seenAuthors.add(author);\n    items.push({\n      json: {\n        source: 'devto',\n        username: author,\n        url: link,\n        title: post.json.title,\n        published: post.json.pubDate,\n        raw_data: post.json\n      }\n    });\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "process-linkedin-profiles",
+      "name": "Process LinkedIn Profiles",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 1000],
+      "parameters": {
+        "jsCode": "// Extract LinkedIn profile data\nconst items = [];\n\nfor (const profile of $input.all()) {\n  const data = profile.json;\n  \n  items.push({\n    json: {\n      source: 'linkedin',\n      name: data.fullName,\n      username: data.publicIdentifier,\n      url: data.profileUrl,\n      headline: data.headline,\n      location: data.location,\n      connections: data.connectionsCount || 0,\n      raw_data: data\n    }\n  });\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "merge-all-candidates",
+      "name": "Merge All Candidates",
+      "type": "n8n-nodes-base.merge",
+      "position": [900, 700],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sticky-note-validators",
+      "name": "VALIDATORS - Quality Checks",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [1080, 600],
+      "parameters": {
+        "width": 1200,
+        "height": 300,
+        "content": "## VALIDATORS: Multi-Stage Filtering\n\n1. Portfolio Quality: Check for real projects\n2. Activity Recency: Last activity < 30 days\n3. Employment Status: Verify current availability\n4. Location Filter: Geographic preferences"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "enrich-candidate-data",
+      "name": "Enrich Candidate Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1100, 800],
+      "parameters": {
+        "url": "https://api.github.com/users/{{ $json.username }}",
+        "method": "GET",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "validate-portfolio",
+      "name": "Validate Portfolio Quality",
+      "type": "n8n-nodes-base.code",
+      "position": [1300, 800],
+      "parameters": {
+        "jsCode": "// Validate portfolio quality\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  \n  // Quality criteria\n  const hasRepos = (data.repos || data.public_repos || 0) >= 3;\n  const hasFollowers = (data.followers || 0) < 500; // Low reach\n  const hasActivity = true; // Will be checked in next step\n  \n  // Portfolio quality score (0-100)\n  let portfolioScore = 0;\n  \n  if (hasRepos) portfolioScore += 40;\n  if (data.bio || data.description) portfolioScore += 20;\n  if (data.blog || data.website) portfolioScore += 20;\n  if (data.hireable === true || data.available_for_hire) portfolioScore += 20;\n  \n  // Pass candidates with portfolio score >= 40\n  if (portfolioScore >= 40 && hasFollowers) {\n    items.push({\n      json: {\n        ...data,\n        validation: {\n          portfolioScore,\n          hasRepos,\n          hasFollowers,\n          timestamp: new Date().toISOString()\n        }\n      }\n    });\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "validate-activity",
+      "name": "Validate Activity Recency",
+      "type": "n8n-nodes-base.code",
+      "position": [1500, 800],
+      "parameters": {
+        "jsCode": "// Check recent activity (last 30 days)\nconst items = [];\nconst thirtyDaysAgo = new Date();\nthirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  \n  // Check last activity date\n  const lastActivity = new Date(\n    data.updated_at || \n    data.last_modified_date || \n    data.published || \n    new Date()\n  );\n  \n  const isRecent = lastActivity >= thirtyDaysAgo;\n  \n  if (isRecent) {\n    items.push({\n      json: {\n        ...data,\n        validation: {\n          ...data.validation,\n          lastActivity: lastActivity.toISOString(),\n          isRecent\n        }\n      }\n    });\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "validate-employment",
+      "name": "Validate Employment Status",
+      "type": "n8n-nodes-base.code",
+      "position": [1700, 800],
+      "parameters": {
+        "jsCode": "// Validate employment status signals\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  \n  // Employment indicators (looking for availability signals)\n  const bio = (data.bio || data.description || data.headline || '').toLowerCase();\n  \n  const availabilitySignals = [\n    'available',\n    'looking',\n    'freelance',\n    'open to opportunities',\n    'seeking',\n    'for hire',\n    'hireable'\n  ];\n  \n  const employmentSignals = [\n    'engineer at',\n    'developer at',\n    'working at',\n    'employed at'\n  ];\n  \n  const hasAvailability = availabilitySignals.some(signal => bio.includes(signal));\n  const hasEmployment = employmentSignals.some(signal => bio.includes(signal));\n  \n  // Pass if: explicitly available OR no employment mentioned OR hireable flag\n  const isAvailable = hasAvailability || !hasEmployment || data.hireable === true;\n  \n  if (isAvailable) {\n    items.push({\n      json: {\n        ...data,\n        validation: {\n          ...data.validation,\n          employmentStatus: hasAvailability ? 'available' : 'unknown',\n          hasAvailability,\n          hasEmployment\n        }\n      }\n    });\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "validate-location",
+      "name": "Filter by Location",
+      "type": "n8n-nodes-base.filter",
+      "position": [1900, 800],
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.location }}",
+              "rightValue": "Brazil",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "leftValue": "={{ $json.location }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sticky-note-scorer",
+      "name": "SCORER - AI-Powered Ranking",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [2080, 600],
+      "parameters": {
+        "width": 1000,
+        "height": 300,
+        "content": "## SCORER: Multi-Dimensional Analysis\n\n- Technical Skills: 0-40 points\n- Communication: 0-30 points  \n- Cultural Fit: 0-30 points\n- Claude AI Analysis: Deep profile review"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "score-technical",
+      "name": "Score Technical Skills",
+      "type": "n8n-nodes-base.code",
+      "position": [2100, 800],
+      "parameters": {
+        "jsCode": "// Score technical skills (0-40 points)\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  let technicalScore = 0;\n  \n  // Repository count (0-15 points)\n  const repos = data.repos || data.public_repos || 0;\n  technicalScore += Math.min(15, Math.floor(repos / 2));\n  \n  // Activity level (0-10 points)\n  const followers = data.followers || 0;\n  const contributions = data.public_gists || 0;\n  technicalScore += Math.min(10, Math.floor((followers + contributions) / 5));\n  \n  // Tech stack diversity (0-15 points)\n  const bio = (data.bio || data.description || '').toLowerCase();\n  const techKeywords = ['javascript', 'python', 'typescript', 'react', 'node', 'go', 'rust', 'java'];\n  const matchedTech = techKeywords.filter(tech => bio.includes(tech)).length;\n  technicalScore += Math.min(15, matchedTech * 3);\n  \n  items.push({\n    json: {\n      ...data,\n      scoring: {\n        technical: Math.min(40, technicalScore),\n        technicalBreakdown: {\n          repos: Math.min(15, Math.floor(repos / 2)),\n          activity: Math.min(10, Math.floor((followers + contributions) / 5)),\n          diversity: Math.min(15, matchedTech * 3)\n        }\n      }\n    }\n  });\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "score-communication",
+      "name": "Score Communication",
+      "type": "n8n-nodes-base.code",
+      "position": [2300, 800],
+      "parameters": {
+        "jsCode": "// Score communication skills (0-30 points)\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  let communicationScore = 0;\n  \n  // Bio/description quality (0-10 points)\n  const bio = data.bio || data.description || '';\n  if (bio.length > 50) communicationScore += 5;\n  if (bio.length > 100) communicationScore += 5;\n  \n  // External presence (0-10 points)\n  if (data.blog || data.website) communicationScore += 5;\n  if (data.twitter_username || data.url?.includes('twitter')) communicationScore += 5;\n  \n  // Content creation (0-10 points)\n  const tweets = data.tweets || 0;\n  const articles = data.public_gists || 0;\n  communicationScore += Math.min(10, Math.floor((tweets + articles) / 50));\n  \n  items.push({\n    json: {\n      ...data,\n      scoring: {\n        ...data.scoring,\n        communication: Math.min(30, communicationScore),\n        communicationBreakdown: {\n          bioQuality: Math.min(10, bio.length > 50 ? (bio.length > 100 ? 10 : 5) : 0),\n          externalPresence: (data.blog || data.website ? 5 : 0) + (data.twitter_username ? 5 : 0),\n          contentCreation: Math.min(10, Math.floor((tweets + articles) / 50))\n        }\n      }\n    }\n  });\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "analyze-with-claude",
+      "name": "Analyze with Claude AI",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [2500, 800],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this candidate profile and provide:\n\n1. Cultural Fit Score (0-30): Assess metacognitive ability, problem-solving approach, and alignment with innovative thinking\n2. Key Strengths: Top 3 technical or soft skills\n3. Red Flags: Any concerns or gaps\n4. Recommended Next Step: Interview, portfolio review, or pass\n\nCandidate Data:\n{{ JSON.stringify($json, null, 2) }}\n\nProvide analysis in JSON format:\n{\n  \"culturalFitScore\": <0-30>,\n  \"strengths\": [\"...\", \"...\", \"...\"],\n  \"redFlags\": [\"...\"],\n  \"recommendation\": \"interview|portfolio|pass\",\n  \"reasoning\": \"...\"\n}",
+        "options": {}
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "claude-chat-model",
+      "name": "Claude Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [2700, 920],
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "claude-api-credentials",
+          "name": "Anthropic Claude API"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "calculate-final-score",
+      "name": "Calculate Final Score",
+      "type": "n8n-nodes-base.code",
+      "position": [2700, 800],
+      "parameters": {
+        "jsCode": "// Calculate final composite score\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  const data = candidate.json;\n  \n  // Parse Claude's analysis\n  let claudeAnalysis = {};\n  try {\n    claudeAnalysis = typeof data.output === 'string' ? \n      JSON.parse(data.output) : data.output || {};\n  } catch (e) {\n    claudeAnalysis = { culturalFitScore: 15 }; // Default mid-range\n  }\n  \n  const technicalScore = data.scoring?.technical || 0;\n  const communicationScore = data.scoring?.communication || 0;\n  const culturalFitScore = claudeAnalysis.culturalFitScore || 0;\n  \n  const finalScore = technicalScore + communicationScore + culturalFitScore;\n  \n  items.push({\n    json: {\n      ...data,\n      scoring: {\n        ...data.scoring,\n        culturalFit: culturalFitScore,\n        final: finalScore,\n        breakdown: {\n          technical: technicalScore,\n          communication: communicationScore,\n          culturalFit: culturalFitScore\n        }\n      },\n      claudeAnalysis,\n      ranking: finalScore >= 70 ? 'high' : finalScore >= 50 ? 'medium' : 'low'\n    }\n  });\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sort-by-score",
+      "name": "Sort by Final Score",
+      "type": "n8n-nodes-base.sort",
+      "position": [2900, 800],
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "scoring.final",
+              "order": "descending"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "filter-top-candidates",
+      "name": "Filter Top 10 Weekly",
+      "type": "n8n-nodes-base.limit",
+      "position": [3100, 800],
+      "parameters": {
+        "maxItems": 10
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-outreach",
+      "name": "OUTREACH - Personalized Engagement",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [3280, 600],
+      "parameters": {
+        "width": 900,
+        "height": 300,
+        "content": "## OUTREACH: Intelligent Communication\n\n1. Generate personalized message\n2. Send via appropriate platform\n3. Track response status"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "generate-personalized-message",
+      "name": "Generate Personalized DM",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [3300, 800],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a personalized direct message for this candidate.\n\nGuidelines:\n- Mention specific project/contribution that caught our attention\n- Reference the \"treasure hunt\" challenge concept\n- Keep it authentic and non-salesy\n- Max 280 characters for Twitter, 500 for others\n- Include clear call-to-action\n\nCandidate Profile:\nName: {{ $json.name || $json.username }}\nSource: {{ $json.source }}\nKey Strength: {{ $json.claudeAnalysis?.strengths?.[0] }}\nTop Project: {{ $json.repos?.[0]?.name || 'recent work' }}\n\nGenerate the message in JSON format:\n{\n  \"subject\": \"...\",\n  \"message\": \"...\",\n  \"platform\": \"{{ $json.source }}\"\n}",
+        "options": {}
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "route-by-platform",
+      "name": "Route by Platform",
+      "type": "n8n-nodes-base.switch",
+      "position": [3500, 800],
+      "parameters": {
+        "mode": "expression",
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "string": [
+                  {
+                    "value1": "={{ $json.source }}",
+                    "value2": "github"
+                  }
+                ]
+              },
+              "output": 0
+            },
+            {
+              "conditions": {
+                "string": [
+                  {
+                    "value1": "={{ $json.source }}",
+                    "value2": "twitter"
+                  }
+                ]
+              },
+              "output": 1
+            },
+            {
+              "conditions": {
+                "string": [
+                  {
+                    "value1": "={{ $json.source }}",
+                    "value2": "linkedin"
+                  }
+                ]
+              },
+              "output": 2
+            }
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "send-github-email",
+      "name": "Send via GitHub Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [3700, 600],
+      "parameters": {
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.generatedMessage?.subject || 'Opportunity: Join Our Team' }}",
+        "emailType": "html",
+        "message": "={{ $json.generatedMessage?.message }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP Account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "send-twitter-dm",
+      "name": "Send Twitter DM",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [3700, 800],
+      "parameters": {
+        "url": "https://api.twitter.com/2/dm_conversations/with/{{ $json.id }}/messages",
+        "method": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.generatedMessage?.message }}"
+            }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "send-linkedin-message",
+      "name": "Send LinkedIn Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [3700, 1000],
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/messages",
+        "method": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipients",
+              "value": "={{ [$json.username] }}"
+            },
+            {
+              "name": "body",
+              "value": "={{ $json.generatedMessage?.message }}"
+            }
+          ]
+        },
+        "authentication": "oAuth2",
+        "nodeCredentialType": "linkedInOAuth2Api"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "log-outreach",
+      "name": "Log Outreach Attempt",
+      "type": "n8n-nodes-base.code",
+      "position": [3900, 800],
+      "parameters": {
+        "jsCode": "// Log outreach for tracking\nconst items = [];\n\nfor (const candidate of $input.all()) {\n  items.push({\n    json: {\n      ...candidate.json,\n      outreach: {\n        sentAt: new Date().toISOString(),\n        platform: candidate.json.source,\n        messageId: candidate.json.messageId || 'pending',\n        status: 'sent'\n      }\n    }\n  });\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "save-to-database",
+      "name": "Save to Candidate Database",
+      "type": "n8n-nodes-base.postgres",
+      "position": [4100, 800],
+      "parameters": {
+        "operation": "insert",
+        "table": "candidates",
+        "columns": "username, source, score, technical_score, communication_score, cultural_fit_score, profile_url, outreach_sent_at, status, raw_data",
+        "values": "={{ $json.username }}, {{ $json.source }}, {{ $json.scoring.final }}, {{ $json.scoring.technical }}, {{ $json.scoring.communication }}, {{ $json.scoring.culturalFit }}, {{ $json.url }}, {{ $json.outreach.sentAt }}, 'contacted', {{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "Postgres Database"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "merge-all-outreach",
+      "name": "Merge All Outreach",
+      "type": "n8n-nodes-base.merge",
+      "position": [4100, 600],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "generate-weekly-report",
+      "name": "Generate Weekly Report",
+      "type": "n8n-nodes-base.code",
+      "position": [4300, 800],
+      "parameters": {
+        "jsCode": "// Generate comprehensive weekly report\nconst candidates = $input.all();\n\nconst report = {\n  generatedAt: new Date().toISOString(),\n  week: new Date().toISOString().split('T')[0],\n  summary: {\n    totalScanned: candidates.length,\n    topCandidates: candidates.filter(c => c.json.ranking === 'high').length,\n    mediumCandidates: candidates.filter(c => c.json.ranking === 'medium').length,\n    contacted: candidates.filter(c => c.json.outreach?.status === 'sent').length\n  },\n  candidates: candidates.map(c => ({\n    name: c.json.name || c.json.username,\n    source: c.json.source,\n    url: c.json.url,\n    finalScore: c.json.scoring.final,\n    breakdown: c.json.scoring.breakdown,\n    ranking: c.json.ranking,\n    strengths: c.json.claudeAnalysis?.strengths || [],\n    recommendation: c.json.claudeAnalysis?.recommendation,\n    contacted: c.json.outreach?.status === 'sent'\n  })),\n  topCandidates: candidates\n    .filter(c => c.json.ranking === 'high')\n    .slice(0, 5)\n    .map(c => ({\n      name: c.json.name || c.json.username,\n      score: c.json.scoring.final,\n      url: c.json.url,\n      keyStrength: c.json.claudeAnalysis?.strengths?.[0],\n      reasoning: c.json.claudeAnalysis?.reasoning\n    }))\n};\n\nreturn [{ json: report }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-weekly-report",
+      "name": "Send Weekly Report Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [4500, 800],
+      "parameters": {
+        "toEmail": "hiring-team@company.com",
+        "subject": "Weekly Talent Discovery Report - {{ $json.week }}",
+        "emailType": "html",
+        "message": "=<h2>Automated Recruitment System - Weekly Report</h2>\n\n<h3>Summary</h3>\n<ul>\n  <li>Total Candidates Scanned: {{ $json.summary.totalScanned }}</li>\n  <li>High Priority: {{ $json.summary.topCandidates }}</li>\n  <li>Medium Priority: {{ $json.summary.mediumCandidates }}</li>\n  <li>Contacted: {{ $json.summary.contacted }}</li>\n</ul>\n\n<h3>Top 5 Candidates</h3>\n{{ $json.topCandidates.map(c => `\n  <div style=\"border: 1px solid #ccc; padding: 10px; margin: 10px 0;\">\n    <h4>${c.name} - Score: ${c.score}/100</h4>\n    <p><strong>Profile:</strong> <a href=\"${c.url}\">${c.url}</a></p>\n    <p><strong>Key Strength:</strong> ${c.keyStrength}</p>\n    <p><strong>Reasoning:</strong> ${c.reasoning}</p>\n  </div>\n`).join('') }}\n\n<p><em>Generated on {{ $json.generatedAt }}</em></p>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials",
+          "name": "SMTP Account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sticky-note-reporting",
+      "name": "REPORTING - Weekly Summary",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [4280, 600],
+      "parameters": {
+        "width": 500,
+        "height": 300,
+        "content": "## REPORTING\n\nWeekly digest to hiring team:\n- Candidate statistics\n- Top 5 profiles\n- Engagement metrics"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger - Daily": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Triggers": {
+      "main": [
+        [
+          {
+            "node": "Scout GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scout Twitter/X",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scout Dev.to",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scout LinkedIn (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout GitHub": {
+      "main": [
+        [
+          {
+            "node": "Process GitHub Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout Twitter/X": {
+      "main": [
+        [
+          {
+            "node": "Process Twitter Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout Dev.to": {
+      "main": [
+        [
+          {
+            "node": "Process Dev.to Authors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout LinkedIn (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Process LinkedIn Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process GitHub Users": {
+      "main": [
+        [
+          {
+            "node": "Merge All Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Twitter Users": {
+      "main": [
+        [
+          {
+            "node": "Merge All Candidates",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process Dev.to Authors": {
+      "main": [
+        [
+          {
+            "node": "Merge All Candidates",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Process LinkedIn Profiles": {
+      "main": [
+        [
+          {
+            "node": "Merge All Candidates",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge All Candidates": {
+      "main": [
+        [
+          {
+            "node": "Enrich Candidate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich Candidate Data": {
+      "main": [
+        [
+          {
+            "node": "Validate Portfolio Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Portfolio Quality": {
+      "main": [
+        [
+          {
+            "node": "Validate Activity Recency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Activity Recency": {
+      "main": [
+        [
+          {
+            "node": "Validate Employment Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Employment Status": {
+      "main": [
+        [
+          {
+            "node": "Filter by Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by Location": {
+      "main": [
+        [
+          {
+            "node": "Score Technical Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Technical Skills": {
+      "main": [
+        [
+          {
+            "node": "Score Communication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Communication": {
+      "main": [
+        [
+          {
+            "node": "Analyze with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Calculate Final Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze with Claude AI",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate Personalized DM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Final Score": {
+      "main": [
+        [
+          {
+            "node": "Sort by Final Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort by Final Score": {
+      "main": [
+        [
+          {
+            "node": "Filter Top 10 Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Top 10 Weekly": {
+      "main": [
+        [
+          {
+            "node": "Generate Personalized DM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Personalized DM": {
+      "main": [
+        [
+          {
+            "node": "Route by Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Platform": {
+      "main": [
+        [
+          {
+            "node": "Send via GitHub Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Twitter DM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send LinkedIn Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Outreach Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via GitHub Email": {
+      "main": [
+        [
+          {
+            "node": "Log Outreach Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Twitter DM": {
+      "main": [
+        [
+          {
+            "node": "Log Outreach Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send LinkedIn Message": {
+      "main": [
+        [
+          {
+            "node": "Log Outreach Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Outreach Attempt": {
+      "main": [
+        [
+          {
+            "node": "Merge All Outreach",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save to Candidate Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Outreach": {
+      "main": [
+        [
+          {
+            "node": "Generate Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Candidate Database": {
+      "main": [
+        [
+          {
+            "node": "Generate Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Report Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "recruitment",
+      "id": "recruitment-tag"
+    },
+    {
+      "name": "automation",
+      "id": "automation-tag"
+    },
+    {
+      "name": "ai-powered",
+      "id": "ai-tag"
+    }
+  ],
+  "createdAt": "2025-11-05T00:00:00.000Z",
+  "updatedAt": "2025-11-05T00:00:00.000Z",
+  "versionId": "1.0.0"
+}
