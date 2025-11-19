@@ -1,0 +1,32 @@
+# Output directories (arquivos gerados - não versionar)
+output/
+output_simple/
+data/
+reports/
+
+# Virtual environment
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Generated files
+*.xlsx
+*.xls
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.csv
+*.json
+
+# Exceptions: keep example/template files if needed
+# !examples/*.csv
