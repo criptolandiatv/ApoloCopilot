@@ -1,0 +1,419 @@
+{
+  "name": "🦠 BACTÉRIAS - Obsessão por Reparo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bacterias-ativacao",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-bacterias",
+      "name": "🔗 Webhook Ativação BACTÉRIAS",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 380],
+      "webhookId": "bacterias-webhook-id",
+      "notesInFlow": true,
+      "notes": "RECEBE DEFEITOS DOS CAÇADORES\nInicia processo de reparo obsessivo\nTrigger automático via webhook"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 50,
+        "databaseId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DATABASE_DEFEITOS}}",
+          "mode": "id"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status",
+              "condition": "equals",
+              "returnType": "select",
+              "selectValue": "AGUARDANDO_BACTERIAS"
+            }
+          ]
+        }
+      },
+      "id": "carregar-defeitos",
+      "name": "📥 Carregar Defeitos Pendentes",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [460, 380],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "BUSCA DEFEITOS NO NOTION\nFiltro: Status = AGUARDANDO_BACTERIAS\nPrepara para análise de reparo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 4000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ É UMA BACTÉRIA DE REPARO.\n\nIDENTIDADE: Você NÃO nega defeitos. NÃO é otimista burro. ACEITA brutalidade das críticas. Cria OBSESSÃO por correção.\n\nPRINCÍPIO:\nAceitar → Dissecar → Reparar Obsessivamente\nCada defeito = oportunidade de NUNCA MAIS errar\nReparo é religião. Obsessão é método.\n\nMETODOLOGIA:\n1. ACEITAR: \"Sim, isto está quebrado e pode nos matar\"\n2. DISSECAR: Raiz profunda. Por que existe?\n3. CONTRAPONTO: Não negar, mas encontrar ângulo de ataque\n4. PLANO OBSESSIVO: Passos concretos, não discurso\n5. MÉTRICA: Número que PROVA correção, não feeling\n6. PRAZO: Deadline real com consequência\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"defeito_aceito\": \"reconhecimento brutal sem negação\",\n  \"raiz_do_problema\": \"causa profunda não sintoma\",\n  \"porque_existe\": \"análise honesta\",\n  \"contraponto_construtivo\": \"ângulo para atacar problema\",\n  \"plano_obsessivo\": [\n    {\n      \"acao\": \"ação específica 1\",\n      \"prazo_dias\": 7,\n      \"responsavel\": \"ADMIN\",\n      \"resultado_esperado\": \"output tangível\"\n    }\n  ],\n  \"metrica_de_reparo\": \"número que prova defeito eliminado\",\n  \"criterio_sucesso\": \"como saberemos (número não opinião)\",\n  \"prazo_maximo_dias\": 30,\n  \"consequencia_se_falhar\": \"o que acontece\"\n}\n\nPLANOS CONCRETOS, NÃO DISCURSO."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"DEFEITO DOS CAÇADORES:\\n\\n\" + $json.properties['Análise Completa'].rich_text[0].plain_text + \"\\n\\nCATEGORIA: \" + $json.properties.Categoria.select.name + \"\\nSEVERIDADE: \" + $json.properties.Severidade.select.name + \"\\nPROBABILIDADE COLAPSO: \" + $json.properties['Probabilidade Colapso %'].number + \"%\\nPRAZO ATÉ MORTE: \" + $json.properties['Prazo Morte (meses)'].number + \" meses\\n\\nCRIE OBSESSÃO POR REPARO.\"}]"
+            }
+          ]
+        }
+      },
+      "id": "bacteria-contrapontos",
+      "name": "🧬 BACTÉRIA #1: Contrapontos Inteligentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 260],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ACEITA O DEFEITO\nDisseca raiz do problema\nCria plano obsessivo de reparo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 2000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ PRIORIZA REPAROS POR RISCO DE COLAPSO.\n\nMATRIZ DE LETALIDADE:\n• P1 - COLAPSO IMINENTE (0-3 meses): Morte rápida\n• P2 - MORTE LENTA (3-12 meses): Hemorragia gradual  \n• P3 - FRAGILIDADE CRÔNICA (12+ meses): Doença degenerativa\n\nCRITÉRIOS:\n1. Velocidade do colapso (urgência)\n2. Impacto direto na margem ($ perdido)\n3. Dependência de fatores externos (CAC, algoritmo, etc)\n4. Complexidade do reparo (esforço × resultado)\n\nFÓRMULA PRIORIDADE:\n(Velocidade × Impacto Margem) / (Dependência Externa × Complexidade)\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"prioridade\": \"P1\",\n  \"score_letalidade\": 9.5,\n  \"justificativa\": \"por que esta prioridade\",\n  \"tempo_ate_colapso_dias\": 45,\n  \"impacto_margem_estimado_percentual\": -40,\n  \"dependencia_externa\": \"alta/média/baixa\",\n  \"complexidade_reparo\": \"alta/média/baixa\"\n}\n\nORDENE POR RISCO DE MORTE."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"PLANO DE REPARO:\\n\" + $json.content[0].text + \"\\n\\nDEFEITO ORIGINAL:\\nCategoria: \" + $('📥 Carregar Defeitos Pendentes').item.json.properties.Categoria.select.name + \"\\nPrazo Morte: \" + $('📥 Carregar Defeitos Pendentes').item.json.properties['Prazo Morte (meses)'].number + \" meses\\nProb Colapso: \" + $('📥 Carregar Defeitos Pendentes').item.json.properties['Probabilidade Colapso %'].number + \"%\\n\\nPRIORIZE POR LETALIDADE.\"}]"
+            }
+          ]
+        }
+      },
+      "id": "bacteria-priorizacao",
+      "name": "🎯 BACTÉRIA #2: Priorização por Letalidade",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "CALCULA PRIORIDADE\nP1 = morte iminente\nP2 = morte lenta\nP3 = fragilidade crônica"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CRIA CHECKLIST EXECUTÁVEL\nconst bacteria1 = $input.item(0).json;\nconst bacteria2 = $input.item(1).json;\n\nlet plano, prioridade;\n\ntry {\n  plano = JSON.parse(bacteria1.content[0].text);\n  prioridade = JSON.parse(bacteria2.content[0].text);\n} catch (e) {\n  return [{\n    json: {\n      erro: 'Erro ao parsear JSON das bactérias',\n      bacteria1_raw: bacteria1.content[0].text,\n      bacteria2_raw: bacteria2.content[0].text\n    }\n  }];\n}\n\nconst defeitoOriginal = $('📥 Carregar Defeitos Pendentes').item.json;\n\nconst checklist = [];\n\nif (plano.plano_obsessivo && Array.isArray(plano.plano_obsessivo)) {\n  plano.plano_obsessivo.forEach((acao, index) => {\n    checklist.push({\n      id: `REPARO_${Date.now()}_${index}`,\n      defeito_id: defeitoOriginal.id,\n      defeito_origem: defeitoOriginal.properties.Defeito.title[0].plain_text,\n      categoria: defeitoOriginal.properties.Categoria.select.name,\n      prioridade: prioridade.prioridade || 'P2',\n      score_letalidade: prioridade.score_letalidade || 5,\n      acao: acao.acao,\n      prazo_dias: acao.prazo_dias,\n      responsavel: acao.responsavel || 'ADMIN',\n      resultado_esperado: acao.resultado_esperado,\n      metrica_sucesso: plano.metrica_de_reparo,\n      criterio_sucesso: plano.criterio_sucesso,\n      consequencia_falha: plano.consequencia_se_falhar,\n      status: 'PENDENTE',\n      data_criacao: new Date().toISOString()\n    });\n  });\n}\n\nconst resumo = {\n  total_acoes: checklist.length,\n  prioridade_geral: prioridade.prioridade,\n  defeito_origem: defeitoOriginal.properties.Defeito.title[0].plain_text,\n  tempo_ate_colapso_dias: prioridade.tempo_ate_colapso_dias,\n  plano_completo: plano,\n  acoes: checklist\n};\n\nreturn [{ json: resumo }];"
+      },
+      "id": "bacteria-checklist",
+      "name": "✅ BACTÉRIA #3: Checklist Executável",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 380],
+      "notesInFlow": true,
+      "notes": "TRANSFORMA PLANO EM AÇÕES\nCada ação = tarefa concreta\nMétrica + prazo + responsável"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "tableId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DATABASE_REPAROS}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "ID Reparo",
+              "textContent": "={{$json.acoes[$index].id}}"
+            },
+            {
+              "key": "Defeito Origem",
+              "relationId": "={{$json.acoes[$index].defeito_id}}"
+            },
+            {
+              "key": "Categoria",
+              "selectValue": "={{$json.acoes[$index].categoria}}"
+            },
+            {
+              "key": "Prioridade",
+              "selectValue": "={{$json.acoes[$index].prioridade}}"
+            },
+            {
+              "key": "Score Letalidade",
+              "numberValue": "={{$json.acoes[$index].score_letalidade}}"
+            },
+            {
+              "key": "Ação",
+              "textContent": "={{$json.acoes[$index].acao}}"
+            },
+            {
+              "key": "Prazo (dias)",
+              "numberValue": "={{$json.acoes[$index].prazo_dias}}"
+            },
+            {
+              "key": "Data Limite",
+              "date": "={{new Date(Date.now() + $json.acoes[$index].prazo_dias * 24 * 60 * 60 * 1000).toISOString()}}"
+            },
+            {
+              "key": "Responsável",
+              "peopleValue": "={{$json.acoes[$index].responsavel}}"
+            },
+            {
+              "key": "Resultado Esperado",
+              "textContent": "={{$json.acoes[$index].resultado_esperado}}"
+            },
+            {
+              "key": "Métrica Sucesso",
+              "textContent": "={{$json.acoes[$index].metrica_sucesso}}"
+            },
+            {
+              "key": "Critério Sucesso",
+              "textContent": "={{$json.acoes[$index].criterio_sucesso}}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "PENDENTE"
+            }
+          ]
+        }
+      },
+      "id": "salvar-reparos-notion",
+      "name": "💾 Criar Tasks no Notion - REPAROS",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 380],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "SALVA AÇÕES NO NOTION\nDatabase PLANOS_REPARO\nStatus: PENDENTE"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$('📥 Carregar Defeitos Pendentes').item.json.id}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "Status",
+              "selectValue": "EM_REPARO"
+            },
+            {
+              "key": "Bactérias Ativadas Em",
+              "date": "={{new Date().toISOString()}}"
+            },
+            {
+              "key": "Total Ações Criadas",
+              "numberValue": "={{$json.total_acoes}}"
+            },
+            {
+              "key": "Prioridade Atribuída",
+              "selectValue": "={{$json.prioridade_geral}}"
+            }
+          ]
+        }
+      },
+      "id": "atualizar-defeito-status",
+      "name": "🔄 Atualizar Status Defeito",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 180],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "MUDA STATUS NO NOTION\nAGUARDANDO_BACTERIAS → EM_REPARO\nRegistra timestamp"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{$env.SLACK_CHANNEL_BACTERIAS}}",
+          "mode": "id"
+        },
+        "text": "=🦠 *BACTÉRIAS ATIVADAS - OBSESSÃO POR REPARO*\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 **Defeito Origem:** {{$json.defeito_origem}}\n⚡ **Prioridade:** {{$json.prioridade_geral}}\n📊 **Score Letalidade:** {{$json.score_letalidade}}/10\n⏰ **Tempo até Colapso:** {{$json.tempo_ate_colapso_dias}} dias\n\n✅ **Total Ações Criadas:** {{$json.total_acoes}}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n*PRÓXIMAS AÇÕES:*\n{{$json.acoes.map((a, i) => `${i+1}. ${a.acao} (${a.prazo_dias}d)`).join('\\n')}}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n🔥 *\"Reparo é religião. Obsessão é método.\"*\n\n🔗 [Ver Plano no Notion]({{$env.NOTION_REPAROS_URL}})",
+        "otherOptions": {}
+      },
+      "id": "notificar-slack-bacterias",
+      "name": "💬 Notificar Slack - OBSESSÃO",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1340, 380],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "4",
+          "name": "Slack Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ALERTA NO SLACK\nBactérias ativadas\nPlano de reparo criado\nObsessão iniciada"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "🔗 Webhook Ativação BACTÉRIAS": {
+      "main": [
+        [
+          {
+            "node": "📥 Carregar Defeitos Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Carregar Defeitos Pendentes": {
+      "main": [
+        [
+          {
+            "node": "🧬 BACTÉRIA #1: Contrapontos Inteligentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧬 BACTÉRIA #1: Contrapontos Inteligentes": {
+      "main": [
+        [
+          {
+            "node": "🎯 BACTÉRIA #2: Priorização por Letalidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 BACTÉRIA #2: Priorização por Letalidade": {
+      "main": [
+        [
+          {
+            "node": "✅ BACTÉRIA #3: Checklist Executável",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ BACTÉRIA #3: Checklist Executável": {
+      "main": [
+        [
+          {
+            "node": "💾 Criar Tasks no Notion - REPAROS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🔄 Atualizar Status Defeito",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Criar Tasks no Notion - REPAROS": {
+      "main": [
+        [
+          {
+            "node": "💬 Notificar Slack - OBSESSÃO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "bacterias-workflow",
+  "meta": {
+    "instanceId": "sua-instancia-n8n"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "1",
+      "name": "SISTEMA_CAÇADORES_BACTERIAS"
+    }
+  ]
+}

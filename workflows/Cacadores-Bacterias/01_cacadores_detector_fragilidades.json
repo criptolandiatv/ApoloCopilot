@@ -1,0 +1,461 @@
+{
+  "name": "🔍 CAÇADORES - Detector de Fragilidades Mortais",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "cacadores-trigger",
+      "name": "⏰ Trigger Caça (6h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notesInFlow": true,
+      "notes": "INICIA CAÇADA A CADA 6 HORAS\nPessimismo inteligente em ação"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$env.GDRIVE_MODELO_NEGOCIO_ID}}",
+          "mode": "id"
+        }
+      },
+      "id": "load-context",
+      "name": "📂 Carregar Contexto Negócio",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [460, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1",
+          "name": "Google Drive Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "Puxa doc com modelo de negócio,\nmétricas atuais, decisões recentes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 4000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ É UM CAÇADOR DE DEFEITOS MORTAIS.\n\nIDENTIDADE: Investidor bilionário cínico. 40 anos de experiência. Viu 1000 startups morrerem. ODEIA otimismo burro.\n\nPRINCÍPIOS SAGRADOS:\n• Modelo de negócio é DEUS (modelo nota 10 + líder nota 5 > modelo nota 5 + líder nota 10)\n• CAC tende ao infinito → quem não tem canal próprio será ESMAGADO\n• Margem é ponto de inflexão (sem margem = masturbação empresarial)\n• Dependência de tráfego pago = escravidão moderna\n\nPERGUNTAS MORTAIS:\n1. Este modelo tem mutação maligna no RNA desde o início?\n2. CAC explodindo sem canal próprio de distribuição?\n3. Dependência de tráfego pago criando escravidão?\n4. Margem sustenta crescimento ou é ilusão temporária?\n5. Modelo escala ou quebra ao crescer?\n6. Vantagem competitiva real ou discurso de otário?\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"defeito_critico\": \"descrição brutal\",\n  \"probabilidade_colapso_percentual\": 85,\n  \"prazo_ate_morte_meses\": 18,\n  \"por_que_e_mediocre\": \"explicação cruel mas inteligente\",\n  \"evidencias\": [\"dado 1\", \"número 2\", \"fato 3\"],\n  \"impacto_margem\": \"como destrói a margem\",\n  \"inevitabilidade\": \"por que é impossível escapar\"\n}\n\nSEJA CIRÚRGICO E IMPIEDOSO. NÃO SEJA GENTIL."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"CONTEXTO DO NEGÓCIO:\\n\" + $json.content + \"\\n\\nMÉTRICAS ATUAIS:\\n\" + JSON.stringify($json.metricas) + \"\\n\\nANALISE BRUTAL: O que vai MATAR este negócio?\"}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cacador-modelo",
+      "name": "🎯 CAÇADOR #1: Modelo Negócio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 180],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ATACA O MODELO DE NEGÓCIO\nBusca mutação maligna no RNA\nCAC, margem, escalabilidade"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 4000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ DETECTA INVERSÃO DE PRIORIDADES FATAL.\n\nPRINCÍPIO SAGRADO:\nComunidade > Produto (SEMPRE)\nQuem controla audiência controla o jogo\nCreator com comunidade sem produto = potencial desperdiçado\nEmpresa com produto sem comunidade = futuro cadáver\n\nPERGUNTAS MORTAIS:\n1. Construindo produto antes de audiência? SUICÍDIO.\n2. CAC subindo enquanto comunidade estagnou? MORTE LENTA.\n3. Investindo em features antes de canal distribuição? BURRICE.\n4. Dependência de algoritmos de terceiros? ESCRAVIDÃO.\n5. Quanto % receita de comunidade própria vs tráfego pago?\n6. Se CAC dobrar amanhã, negócio sobrevive?\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"inversao_detectada\": \"descrição inversão fatal\",\n  \"risco_nivel\": \"CRÍTICO\",\n  \"tempo_ate_colapso_meses\": 12,\n  \"evidencia_numerica\": {\n    \"tamanho_comunidade\": 0,\n    \"engajamento_percentual\": 0,\n    \"receita_organica_percentual\": 0,\n    \"dependencia_paga_percentual\": 95\n  },\n  \"tapa_na_cara\": \"por que isto é inversão suicida\",\n  \"consequencia_inevitavel\": \"o que acontecerá\"\n}\n\nSEJA CRUEL mas PRECISO."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"ESTADO ATUAL:\\n- Tamanho comunidade: \" + $json.comunidade_tamanho + \"\\n- Engajamento: \" + $json.engajamento + \"%\\n- Crescimento orgânico: \" + $json.crescimento_organico + \"\\n- % receita comunidade: \" + $json.receita_comunidade + \"%\\n\\nProduto: \" + $json.produto_descricao + \"\\n\\nDETECTE A INVERSÃO MORTAL.\"}]"
+            }
+          ]
+        }
+      },
+      "id": "cacador-produto",
+      "name": "🎯 CAÇADOR #2: Produto vs Comunidade",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 380],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ATACA INVERSÃO DE PRIORIDADES\nProduto brilhando mais que comunidade?\nCAC explodindo sem audiência própria?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 4000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ DETECTA PENSAMENTO DE GRANDE EMPRESA EM STARTUP.\n\n\"Empresa que cresce e para de pensar como pequena está no início do seu fim\" - Benchimol\n\nSINTOMAS FATAIS:\n1. Otimismo burro ignorando problemas (pensamento positivo = LIXO)\n2. Celebrando vitórias passadas vs caçar próximo erro\n3. Foco em crescimento sem obsessão por margem\n4. Cultura \"colaborativa\" = fraqueza disfarçada\n5. Líder sem cicatrizes = louco de sorte\n6. Ausência de paranoia produtiva diária\n\nPERGUNTAS:\n1. Última vez líder disse \"isto pode nos matar\"?\n2. % tempo buscando defeitos vs celebrando?\n3. Última mudança estratégica radical por fragilidade?\n4. Líder tem cicatrizes de fracassos?\n5. Existe ritual diário de caça a erros?\n6. Cultura incentiva ou pune pessimismo inteligente?\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"sintoma_cultural_fatal\": \"descrição\",\n  \"nivel_mediocridade\": \"ALTO\",\n  \"comparacao_brutal\": \"como se compara a empresas que faliram\",\n  \"frase_mais_perigosa_dita\": \"citação que revela pensamento grande empresa\",\n  \"falta_de_paranoia\": \"onde paranoia está ausente\",\n  \"inevitabilidade_cultural\": \"por que leva ao colapso\",\n  \"prazo_transformacao_ou_morte_meses\": 24\n}\n\nCultura forte > genialidade. SEJA IMPIEDOSO."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"CULTURA ATUAL:\\n\" + $json.notas_diarias + \"\\n\\nDECISÕES RECENTES:\\n\" + $json.decisoes_recentes + \"\\n\\nRITUAIS:\\n- Freq análise risco: \" + $json.freq_analise_risco + \"\\n- Última mudança estratégica: \" + $json.ultima_mudanca + \"\\n- % tempo caça defeitos: \" + $json.tempo_caca_defeitos + \"%\\n\\nDETECTE A MEDIOCRIDADE CULTURAL.\"}]"
+            }
+          ]
+        }
+      },
+      "id": "cacador-cultura",
+      "name": "🎯 CAÇADOR #3: Cultura & Execução",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 580],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ATACA CULTURA MEDÍOCRE\nPensamento de grande empresa?\nOtimismo burro? Falta de paranoia?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CONSOLIDA OS 3 CAÇADORES\nconst items = $input.all();\n\nconst defeitos = [];\n\nitems.forEach((item, index) => {\n  let categoria = '';\n  let cacador = '';\n  \n  if (index === 0) {\n    categoria = 'MODELO_NEGOCIO';\n    cacador = 'CAÇADOR #1';\n  } else if (index === 1) {\n    categoria = 'PRODUTO_COMUNIDADE';\n    cacador = 'CAÇADOR #2';\n  } else if (index === 2) {\n    categoria = 'CULTURA_EXECUCAO';\n    cacador = 'CAÇADOR #3';\n  }\n  \n  try {\n    const response = JSON.parse(item.json.content[0].text);\n    \n    defeitos.push({\n      id: `DEF_${Date.now()}_${index}`,\n      categoria: categoria,\n      cacador: cacador,\n      severidade: 'CRÍTICA',\n      defeito: response.defeito_critico || response.inversao_detectada || response.sintoma_cultural_fatal,\n      probabilidade_colapso: response.probabilidade_colapso_percentual || 0,\n      prazo_morte_meses: response.prazo_ate_morte_meses || response.tempo_ate_colapso_meses || response.prazo_transformacao_ou_morte_meses || 0,\n      analise_completa: item.json.content[0].text,\n      timestamp: new Date().toISOString(),\n      status: 'AGUARDANDO_BACTERIAS'\n    });\n  } catch (e) {\n    // Se não for JSON válido, salva raw\n    defeitos.push({\n      id: `DEF_${Date.now()}_${index}`,\n      categoria: categoria,\n      cacador: cacador,\n      severidade: 'CRÍTICA',\n      defeito: 'Erro ao parsear resposta',\n      analise_completa: item.json.content[0].text,\n      timestamp: new Date().toISOString(),\n      status: 'AGUARDANDO_BACTERIAS',\n      erro: e.message\n    });\n  }\n});\n\nconst relatorio = {\n  data_caca: new Date().toISOString(),\n  total_defeitos: defeitos.length,\n  defeitos: defeitos,\n  status_geral: '⚠️ VULNERÁVEL',\n  acao_imediata: '🦠 ATIVAR BACTÉRIAS'\n};\n\nreturn [{ json: relatorio }];"
+        },
+        "id": "consolidar-cacadores",
+        "name": "📋 Consolidar Relatório CAÇADORES",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [900, 380],
+        "notesInFlow": true,
+        "notes": "UNIFICA OS 3 CAÇADORES\nCria relatório consolidado\nPrepara para BACTÉRIAS"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "tableId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DATABASE_DEFEITOS}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "ID",
+              "textContent": "={{$json.defeitos[$index].id}}"
+            },
+            {
+              "key": "Categoria",
+              "selectValue": "={{$json.defeitos[$index].categoria}}"
+            },
+            {
+              "key": "Caçador",
+              "selectValue": "={{$json.defeitos[$index].cacador}}"
+            },
+            {
+              "key": "Severidade",
+              "selectValue": "={{$json.defeitos[$index].severidade}}"
+            },
+            {
+              "key": "Defeito",
+              "textContent": "={{$json.defeitos[$index].defeito}}"
+            },
+            {
+              "key": "Probabilidade Colapso %",
+              "numberValue": "={{$json.defeitos[$index].probabilidade_colapso}}"
+            },
+            {
+              "key": "Prazo Morte (meses)",
+              "numberValue": "={{$json.defeitos[$index].prazo_morte_meses}}"
+            },
+            {
+              "key": "Análise Completa",
+              "textContent": "={{$json.defeitos[$index].analise_completa}}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "AGUARDANDO_BACTERIAS"
+            },
+            {
+              "key": "Data Detecção",
+              "date": "={{$json.timestamp}}"
+            }
+          ]
+        }
+      },
+      "id": "salvar-notion-defeitos",
+      "name": "💾 Salvar no Notion - DEFEITOS",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 380],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "REGISTRA DEFEITOS NO NOTION\nCada caçador = 1 linha\nStatus: AGUARDANDO_BACTERIAS"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.N8N_WEBHOOK_BACTERIAS_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "defeitos",
+              "value": "={{JSON.stringify($json.defeitos)}}"
+            },
+            {
+              "name": "total",
+              "value": "={{$json.total_defeitos}}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{$json.data_caca}}"
+            }
+          ]
+        }
+      },
+      "id": "trigger-bacterias",
+      "name": "🦠 ATIVAR BACTÉRIAS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 380],
+      "notesInFlow": true,
+      "notes": "WEBHOOK → WORKFLOW BACTÉRIAS\nInicia obsessão por reparo\nLoop de correção começa"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{$env.SLACK_CHANNEL_CACADORES}}",
+          "mode": "id"
+        },
+        "text": "=🔍 *CAÇADA CONCLUÍDA*\n\n📊 *RELATÓRIO DE FRAGILIDADES MORTAIS*\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n🎯 **Total de Defeitos:** {{$json.total_defeitos}}\n⚠️ **Status Geral:** {{$json.status_geral}}\n⏰ **Timestamp:** {{$json.data_caca}}\n\n🦠 **Próxima Ação:** {{$json.acao_imediata}}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n💀 *\"Pensamento positivo é lixo. Caçamos defeitos para nunca mais errar.\"*\n\n🔗 [Ver Defeitos no Notion]({{$env.NOTION_DEFEITOS_URL}})",
+        "otherOptions": {}
+      },
+      "id": "notificar-slack",
+      "name": "💬 Notificar Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1340, 180],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "4",
+          "name": "Slack Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "NOTIFICA CAÇADA CONCLUÍDA\nDefeitos identificados\nBactérias ativadas"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏰ Trigger Caça (6h)": {
+      "main": [
+        [
+          {
+            "node": "📂 Carregar Contexto Negócio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Carregar Contexto Negócio": {
+      "main": [
+        [
+          {
+            "node": "🎯 CAÇADOR #1: Modelo Negócio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🎯 CAÇADOR #2: Produto vs Comunidade",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🎯 CAÇADOR #3: Cultura & Execução",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 CAÇADOR #1: Modelo Negócio": {
+      "main": [
+        [
+          {
+            "node": "📋 Consolidar Relatório CAÇADORES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 CAÇADOR #2: Produto vs Comunidade": {
+      "main": [
+        [
+          {
+            "node": "📋 Consolidar Relatório CAÇADORES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 CAÇADOR #3: Cultura & Execução": {
+      "main": [
+        [
+          {
+            "node": "📋 Consolidar Relatório CAÇADORES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Consolidar Relatório CAÇADORES": {
+      "main": [
+        [
+          {
+            "node": "💾 Salvar no Notion - DEFEITOS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "💬 Notificar Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Salvar no Notion - DEFEITOS": {
+      "main": [
+        [
+          {
+            "node": "🦠 ATIVAR BACTÉRIAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "cacadores-workflow",
+  "meta": {
+    "instanceId": "sua-instancia-n8n"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "1",
+      "name": "SISTEMA_CAÇADORES_BACTERIAS"
+    }
+  ]
+}

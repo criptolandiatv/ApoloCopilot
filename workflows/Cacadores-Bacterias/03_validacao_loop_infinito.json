@@ -1,0 +1,517 @@
+{
+  "name": "♻️ VALIDAÇÃO - Loop Infinito de Melhoria",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "trigger-semanal",
+      "name": "📅 Trigger Validação Semanal",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 380],
+      "notesInFlow": true,
+      "notes": "VALIDA REPAROS SEMANALMENTE\nReparo real ou ilusão?\nLoop infinito de melhoria"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 100,
+        "databaseId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DATABASE_REPAROS}}",
+          "mode": "id"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status",
+              "condition": "equals",
+              "returnType": "select",
+              "selectValue": "CONCLUÍDO"
+            }
+          ]
+        }
+      },
+      "id": "carregar-reparos-concluidos",
+      "name": "📥 Carregar Reparos CONCLUÍDOS",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [460, 380],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "BUSCA REPAROS CONCLUÍDOS\nStatus = CONCLUÍDO\nPronto para validação brutal"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-20250514"
+            },
+            {
+              "name": "max_tokens",
+              "value": 3000
+            },
+            {
+              "name": "system",
+              "value": "VOCÊ VALIDA SE REPAROS FORAM REAIS OU ILUSÓRIOS.\n\nIDENTIDADE: Juiz impiedoso. Zero tolerância para teatro ou maquiagem de problemas. Reparo ilusório é PIOR que defeito exposto.\n\nQUESTÕES CRÍTICAS:\n1. Métrica de sucesso foi REALMENTE atingida? (números concretos)\n2. Defeito foi ELIMINADO ou apenas maquiado?\n3. Novos defeitos surgiram do reparo? (efeito colateral)\n4. Reparo fortaleceu ou fragilizou outro aspecto?\n5. É sustentável ou gambiarra temporária?\n6. Evidência objetiva vs sentimento subjetivo?\n\nCRITÉRIOS VALIDAÇÃO:\n• VALIDADO: Reparo real, defeito eliminado, métrica atingida\n• REJEITADO: Ilusão, defeito persiste ou transformou\n• NOVO_DEFEITO: Reparo criou problema maior\n• GAMBIARRA: Solução temporária insustentável\n\nFORMATO SAÍDA (JSON STRICT):\n{\n  \"status_validacao\": \"VALIDADO\",\n  \"defeito_eliminado\": true,\n  \"metrica_antes\": 0,\n  \"metrica_depois\": 0,\n  \"metrica_atingida\": true,\n  \"novos_defeitos_criados\": [],\n  \"sustentabilidade\": \"alta/média/baixa\",\n  \"justificativa_brutal\": \"por que validado ou rejeitado\",\n  \"evidencias_objetivas\": [\"fato 1\", \"número 2\"],\n  \"recomendacao\": \"manter/refazer/abandonar\"\n}\n\nSEJA IMPIEDOSO. Reparo ilusório volta para BACTÉRIAS."
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"REPARO CONCLUÍDO:\\n\\nAÇÃO: \" + $json.properties.Ação.rich_text[0].plain_text + \"\\n\\nRESULTADO ESPERADO: \" + $json.properties['Resultado Esperado'].rich_text[0].plain_text + \"\\n\\nMÉTRICA SUCESSO: \" + $json.properties['Métrica Sucesso'].rich_text[0].plain_text + \"\\n\\nCRITÉRIO SUCESSO: \" + $json.properties['Critério Sucesso'].rich_text[0].plain_text + \"\\n\\nDEFEITO ORIGEM: \" + $json.properties['Defeito Origem'].relation[0].id + \"\\n\\nVALIDE: Real ou ilusão?\"}]"
+            }
+          ]
+        }
+      },
+      "id": "claude-validador",
+      "name": "⚖️ Claude VALIDADOR - Real ou Ilusão?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 380],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2",
+          "name": "Anthropic API"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "VALIDA BRUTALMENTE\nMétrica atingida?\nDefeito eliminado ou maquiado?\nNovos defeitos criados?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "validado",
+              "leftValue": "={{JSON.parse($json.content[0].text).status_validacao}}",
+              "rightValue": "VALIDADO",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "rejeitado",
+              "leftValue": "={{JSON.parse($json.content[0].text).status_validacao}}",
+              "rightValue": "REJEITADO",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "novo-defeito",
+              "leftValue": "={{JSON.parse($json.content[0].text).status_validacao}}",
+              "rightValue": "NOVO_DEFEITO",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "switch-validacao",
+      "name": "🔀 Decisão: VALIDADO ou REJEITADO?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 380],
+      "notesInFlow": true,
+      "notes": "ROTEAMENTO:\nVALIDADO → Arquivo\nREJEITADO → Volta BACTÉRIAS\nNOVO_DEFEITO → Volta CAÇADORES"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$('📥 Carregar Reparos CONCLUÍDOS').item.json.id}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "Status",
+              "selectValue": "VALIDADO"
+            },
+            {
+              "key": "Validado Em",
+              "date": "={{new Date().toISOString()}}"
+            },
+            {
+              "key": "Validação",
+              "textContent": "={{JSON.parse($json.content[0].text).justificativa_brutal}}"
+            }
+          ]
+        }
+      },
+      "id": "marcar-validado",
+      "name": "✅ Marcar VALIDADO",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 180],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "REPARO REAL CONFIRMADO\nStatus → VALIDADO\nArquiva reparo bem-sucedido"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$('📥 Carregar Reparos CONCLUÍDOS').item.json.id}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "Status",
+              "selectValue": "REJEITADO"
+            },
+            {
+              "key": "Rejeitado Em",
+              "date": "={{new Date().toISOString()}}"
+            },
+            {
+              "key": "Motivo Rejeição",
+              "textContent": "={{JSON.parse($json.content[0].text).justificativa_brutal}}"
+            }
+          ]
+        }
+      },
+      "id": "marcar-rejeitado",
+      "name": "❌ Marcar REJEITADO",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 380],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "REPARO ILUSÓRIO\nStatus → REJEITADO\nVolta para BACTÉRIAS"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.N8N_WEBHOOK_BACTERIAS_URL}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "defeito_id",
+              "value": "={{$('📥 Carregar Reparos CONCLUÍDOS').item.json.properties['Defeito Origem'].relation[0].id}}"
+            },
+            {
+              "name": "motivo_rejeicao",
+              "value": "={{JSON.parse($json.content[0].text).justificativa_brutal}}"
+            },
+            {
+              "name": "tipo",
+              "value": "REPROCESSAR"
+            }
+          ]
+        }
+      },
+      "id": "reativar-bacterias",
+      "name": "🔄 Reativar BACTÉRIAS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 480],
+      "notesInFlow": true,
+      "notes": "WEBHOOK → BACTÉRIAS\nDefeito não foi corrigido\nNova tentativa de reparo"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "tableId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DATABASE_DEFEITOS}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "Categoria",
+              "selectValue": "EFEITO_COLATERAL"
+            },
+            {
+              "key": "Defeito",
+              "textContent": "=NOVO DEFEITO: {{JSON.parse($json.content[0].text).novos_defeitos_criados[0]}}"
+            },
+            {
+              "key": "Origem",
+              "textContent": "=Reparo ID: {{$('📥 Carregar Reparos CONCLUÍDOS').item.json.properties['ID Reparo'].title[0].plain_text}}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "AGUARDANDO_BACTERIAS"
+            }
+          ]
+        }
+      },
+      "id": "criar-novo-defeito",
+      "name": "🆕 Criar NOVO DEFEITO",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1120, 580],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "EFEITO COLATERAL DETECTADO\nReparo criou novo problema\nCria defeito e aciona BACTÉRIAS"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CALCULA MÉTRICA: ERRAR CADA VEZ MENOS\nconst historico = $input.all();\n\n// Agrupar por período (30 dias)\nconst agora = Date.now();\nconst mes_atual = historico.filter(h => {\n  const data = new Date(h.json.properties['Data Criação'].created_time).getTime();\n  return data > agora - (30 * 24 * 60 * 60 * 1000);\n});\n\nconst mes_anterior = historico.filter(h => {\n  const data = new Date(h.json.properties['Data Criação'].created_time).getTime();\n  return data > agora - (60 * 24 * 60 * 60 * 1000) && data < agora - (30 * 24 * 60 * 60 * 1000);\n});\n\nconst taxa_erro_atual = mes_atual.length;\nconst taxa_erro_anterior = mes_anterior.length;\n\nconst melhoria_percentual = taxa_erro_anterior > 0 \n  ? ((taxa_erro_anterior - taxa_erro_atual) / taxa_erro_anterior) * 100\n  : 0;\n\nconst status = melhoria_percentual > 0 ? '📈 EVOLUINDO' : \n               melhoria_percentual < 0 ? '📉 REGREDINDO' : \n               '➡️ ESTAGNADO';\n\nreturn [{\n  json: {\n    periodo: new Date().toISOString(),\n    taxa_erro_atual: taxa_erro_atual,\n    taxa_erro_anterior: taxa_erro_anterior,\n    melhoria_percentual: Math.round(melhoria_percentual * 100) / 100,\n    status: status,\n    objetivo: 'ERRAR CADA VEZ MENOS PARA SEMPRE',\n    total_historico: historico.length\n  }\n}];"
+      },
+      "id": "calcular-taxa-erro",
+      "name": "📊 Calcular Taxa de Erro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 180],
+      "notesInFlow": true,
+      "notes": "MÉTRICA PRIMÁRIA\nCompara mês atual vs anterior\nERRAR CADA VEZ MENOS"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$env.NOTION_DASHBOARD_PAGE_ID}}",
+          "mode": "id"
+        },
+        "properties": {
+          "properties": [
+            {
+              "key": "Taxa Erro Atual",
+              "numberValue": "={{$json.taxa_erro_atual}}"
+            },
+            {
+              "key": "Taxa Erro Anterior",
+              "numberValue": "={{$json.taxa_erro_anterior}}"
+            },
+            {
+              "key": "Melhoria %",
+              "numberValue": "={{$json.melhoria_percentual}}"
+            },
+            {
+              "key": "Status Evolução",
+              "selectValue": "={{$json.status}}"
+            },
+            {
+              "key": "Última Atualização",
+              "date": "={{new Date().toISOString()}}"
+            }
+          ]
+        }
+      },
+      "id": "atualizar-dashboard",
+      "name": "📈 Atualizar Dashboard Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [1340, 180],
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "ATUALIZA DASHBOARD\nMétrica principal visível\nERRAR CADA VEZ MENOS"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{$env.SLACK_CHANNEL_VALIDACAO}}",
+          "mode": "id"
+        },
+        "text": "=♻️ *VALIDAÇÃO SEMANAL CONCLUÍDA*\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n📊 *MÉTRICA PRIMÁRIA: ERRAR CADA VEZ MENOS*\n\n📉 **Taxa Erro Atual:** {{$json.taxa_erro_atual}} defeitos/mês\n📊 **Taxa Mês Anterior:** {{$json.taxa_erro_anterior}} defeitos/mês\n📈 **Melhoria:** {{$json.melhoria_percentual}}%\n\n{{$json.status}}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n✅ **Reparos Validados:** {{$json.validados}}\n❌ **Reparos Rejeitados:** {{$json.rejeitados}}\n🆕 **Novos Defeitos Criados:** {{$json.novos_defeitos}}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *\"{{$json.objetivo}}\"*\n\n🔗 [Ver Dashboard]({{$env.NOTION_DASHBOARD_URL}})",
+        "otherOptions": {}
+      },
+      "id": "notificar-slack-validacao",
+      "name": "💬 Notificar Slack - EVOLUÇÃO",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1340, 380],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "4",
+          "name": "Slack Admin"
+        }
+      },
+      "notesInFlow": true,
+      "notes": "RELATÓRIO SEMANAL\nMelhoria % clara\nLoop infinito funcionando"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📅 Trigger Validação Semanal": {
+      "main": [
+        [
+          {
+            "node": "📥 Carregar Reparos CONCLUÍDOS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📊 Calcular Taxa de Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Carregar Reparos CONCLUÍDOS": {
+      "main": [
+        [
+          {
+            "node": "⚖️ Claude VALIDADOR - Real ou Ilusão?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚖️ Claude VALIDADOR - Real ou Ilusão?": {
+      "main": [
+        [
+          {
+            "node": "🔀 Decisão: VALIDADO ou REJEITADO?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Decisão: VALIDADO ou REJEITADO?": {
+      "main": [
+        [
+          {
+            "node": "✅ Marcar VALIDADO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "❌ Marcar REJEITADO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🆕 Criar NOVO DEFEITO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❌ Marcar REJEITADO": {
+      "main": [
+        [
+          {
+            "node": "🔄 Reativar BACTÉRIAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Calcular Taxa de Erro": {
+      "main": [
+        [
+          {
+            "node": "📈 Atualizar Dashboard Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📈 Atualizar Dashboard Notion": {
+      "main": [
+        [
+          {
+            "node": "💬 Notificar Slack - EVOLUÇÃO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "validacao-workflow",
+  "meta": {
+    "instanceId": "sua-instancia-n8n"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "1",
+      "name": "SISTEMA_CAÇADORES_BACTERIAS"
+    }
+  ]
+}
