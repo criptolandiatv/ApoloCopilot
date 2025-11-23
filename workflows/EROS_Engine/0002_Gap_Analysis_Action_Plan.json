@@ -1,0 +1,274 @@
+{
+  "name": "EROS: Gap Analysis & Action Plan",
+  "nodes": [
+    {
+      "id": "webhook-trigger-002",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [200, 400],
+      "parameters": {
+        "path": "eros/gap-analysis",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 1.1,
+      "webhookId": "eros-gap-analysis"
+    },
+    {
+      "id": "sticky-setup-002",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 200],
+      "parameters": {
+        "color": 5,
+        "width": 450,
+        "height": 220,
+        "content": "## 📊 EROS Gap Analysis & Action Plan\n\n**INPUT:** POST to webhook\n```json\n{\n  \"target_profile\": { ...analysis from analyzer... },\n  \"self_assessment\": {\n    \"career_status\": \"1-10 + description\",\n    \"financial_security\": \"1-10\",\n    \"body_condition\": \"1-10\",\n    \"emotional_stability\": \"1-10\",\n    \"social_circle_quality\": \"1-10\"\n  }\n}\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "validate-input-002",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "position": [400, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.item.json.body;\n\nif (!body.target_profile || !body.self_assessment) {\n  throw new Error('Missing required fields: target_profile and self_assessment');\n}\n\nreturn {\n  target_profile: body.target_profile,\n  self_assessment: body.self_assessment,\n  analysis_date: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "prepare-gap-analysis-prompt-002",
+      "name": "Prepare Gap Analysis Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\nconst targetProfile = data.target_profile;\nconst selfAssessment = data.self_assessment;\n\nconst systemPrompt = `Você é um estrategista de desenvolvimento pessoal masculino focado em atratividade para relacionamentos de alto calibre.\n\n# FRAMEWORK DE MASCULINIDADE ATRATIVA\n\n## PILARES FUNDAMENTAIS\n\n### 1. EIXO ESTRUTURAL (Foundation)\n- Missão Clara: tem projeto de vida além do relacionamento?\n- Estabilidade Financeira: consegue bancar lifestyle sem stress?\n- Autonomia Emocional: não depende dela pra validação?\n\n### 2. MAGNETISMO SOCIAL (Presence)\n- Sociabilidade Calibrada: confortável em grupos, eventos, viagens?\n- Network de Valor: círculo social que agrega ou diminui?\n- Liderança Situacional: puxa rolê ou espera ser puxado?\n\n### 3. ESTÉTICA INTENCIONAL (Presentation)\n- Corpo Cuidado: academia, postura, energia física?\n- Estilo Coerente: roupa/barba/cabelo pensado ou desleixado?\n- Presença Visual: fotografa bem? Sabe ocupar espaço?\n\n### 4. PROFUNDIDADE EMOCIONAL (Depth)\n- Auto-Conhecimento: faz terapia? Conhece seus padrões?\n- Regulação Emocional: consegue segurar a onda ou surta fácil?\n- Vulnerabilidade Estratégica: abre-se na medida certa?\n\n### 5. CAPITAL CULTURAL (Substance)\n- Repertório: consegue conversar sobre arte, mundo, cultura?\n- Curiosidade Genuína: interesse real por aprender coisas?\n- Experiências: tem histórias interessantes pra contar?\n\n# REGRAS CRÍTICAS\n- Seja BRUTAL e honesto nos gaps - delicadeza não serve aqui\n- Toda ação deve ser ESPECÍFICA e MENSURÁVEL\n- Foque em mudanças REAIS, não coaching motivacional genérico\n- Equilibre \"seja você mesmo\" com \"evolua estrategicamente\"\n- ÉTICA: tudo deve visar conexão genuína, não manipulação`;\n\nconst userPrompt = `Analise a compatibilidade atual e crie plano de ação para fechar gaps.\n\n# PERFIL DELA (Target)\n\n${JSON.stringify(targetProfile, null, 2)}\n\n# PERFIL DELE (Atual)\n\n**Profissional:**\n- Status de carreira: ${selfAssessment.career_status}\n- Segurança financeira: ${selfAssessment.financial_security}/10\n\n**Social:**\n- Qualidade círculo social: ${selfAssessment.social_circle_quality}/10\n- Frequência eventos: ${selfAssessment.event_frequency || 'não informado'}\n\n**Físico:**\n- Condição física: ${selfAssessment.body_condition}/10\n- Nível de estilo: ${selfAssessment.style_intentionality || 'não informado'}/10\n\n**Emocional:**\n- Estabilidade emocional: ${selfAssessment.emotional_stability}/10\n- Auto-conhecimento: ${selfAssessment.self_awareness_level || 'não informado'}/10\n\n**Lifestyle:**\n- Viagens/ano: ${selfAssessment.adventure_frequency || 'não informado'}\n- Engajamento cultural: ${selfAssessment.cultural_engagement || 'não informado'}\n\n---\n\n# TAREFA\n\nRetorne análise completa em formato JSON:\n\n\\`\\`\\`json\n{\n  \"compatibility_score\": {\n    \"overall\": 0-100,\n    \"breakdown\": {\n      \"archetypal_match\": 0-100,\n      \"lifestyle_match\": 0-100,\n      \"values_match\": 0-100,\n      \"aesthetic_match\": 0-100\n    },\n    \"verdict\": \"READY / NEAR_READY / SIGNIFICANT_GAPS / NOT_READY\",\n    \"reasoning\": \"explicação detalhada do score\"\n  },\n  \"gap_analysis\": {\n    \"critical_gaps\": [\n      {\n        \"pillar\": \"nome do pilar\",\n        \"current_state\": \"descrição + score 1-10\",\n        \"required_state\": \"descrição + score 1-10\",\n        \"gap_size\": \"CRITICAL / MODERATE / MINOR\",\n        \"impact_on_attraction\": \"HIGH / MEDIUM / LOW\",\n        \"specific_deficiency\": \"o que especificamente está faltando\"\n      }\n    ],\n    \"strengths_to_leverage\": [\n      \"força atual que já o posiciona bem\"\n    ]\n  },\n  \"action_plan\": {\n    \"quick_wins_30_days\": [\n      {\n        \"action\": \"ação específica e mensurável\",\n        \"pillar\": \"qual pilar atende\",\n        \"effort\": \"horas/semana necessárias\",\n        \"expected_impact\": \"o que muda\",\n        \"how_to_implement\": \"passo a passo\"\n      }\n    ],\n    \"strategic_investments_90_days\": [\n      {\n        \"action\": \"...\",\n        \"pillar\": \"...\",\n        \"effort\": \"...\",\n        \"expected_impact\": \"...\",\n        \"milestones\": [\"marco 1\", \"marco 2\", \"marco 3\"]\n      }\n    ],\n    \"long_term_building_6_12_months\": [\n      {\n        \"domain\": \"área de desenvolvimento\",\n        \"goal\": \"objetivo específico\",\n        \"why_it_matters\": \"impacto na atratividade\",\n        \"roadmap\": [\"fase 1\", \"fase 2\", \"fase 3\"]\n      }\n    ]\n  },\n  \"strategic_positioning\": {\n    \"narrative_framework\": {\n      \"origin_story\": \"como contar de onde veio\",\n      \"current_chapter\": \"o que está construindo agora\",\n      \"future_vision\": \"pra onde está indo\",\n      \"key_messages\": [\"mensagem 1\", \"mensagem 2\", \"mensagem 3\"]\n    },\n    \"social_proof_roadmap\": {\n      \"instagram_strategy\": {\n        \"content_pillars\": [\"pilar 1\", \"pilar 2\", \"pilar 3\"],\n        \"aesthetic_direction\": \"descrição do visual/vibe\",\n        \"posting_frequency\": \"X posts/semana\"\n      },\n      \"network_cultivation\": {\n        \"target_circles\": [\"círculo 1\", \"círculo 2\"],\n        \"events_to_attend\": [\"evento 1\", \"evento 2\"]\n      }\n    },\n    \"intersection_design\": {\n      \"primary_venues\": [\n        {\n          \"place\": \"nome do lugar/evento\",\n          \"why\": \"por que ela está lá\",\n          \"frequency\": \"quantas vezes ir\",\n          \"approach\": \"como se posicionar lá\"\n        }\n      ]\n    }\n  },\n  \"approach_playbook\": {\n    \"first_interaction\": {\n      \"ideal_context\": \"situação ideal pra primeira interação\",\n      \"opening_strategy\": \"como iniciar conversa\",\n      \"conversation_hooks\": [\"assunto 1\", \"assunto 2\"],\n      \"what_to_avoid\": [\"erro 1\", \"erro 2\"]\n    },\n    \"communication_style\": {\n      \"text_game\": \"tom e frequência de mensagens\",\n      \"depth_balance\": \"quando ser profundo vs leve\"\n    }\n  },\n  \"measurement_framework\": {\n    \"kpis_to_track\": [\n      {\n        \"metric\": \"métrica específica\",\n        \"current\": \"valor atual\",\n        \"target_30_days\": \"meta\",\n        \"how_to_measure\": \"como medir\"\n      }\n    ]\n  }\n}\n\\`\\`\\`\n\nRetorne APENAS o JSON, sem texto adicional.`;\n\nreturn {\n  system_prompt: systemPrompt,\n  user_prompt: userPrompt,\n  analysis_date: data.analysis_date\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "claude-gap-analysis-002",
+      "name": "Claude Gap Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [800, 400],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApi.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250929\",\n  \"max_tokens\": 8192,\n  \"temperature\": 0.7,\n  \"system\": {{ $json.system_prompt | quote }},\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ $json.user_prompt | quote }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-api-cred",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "id": "parse-gap-analysis-002",
+      "name": "Parse Gap Analysis",
+      "type": "n8n-nodes-base.code",
+      "position": [1000, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const response = $input.item.json;\nconst content = response.content[0].text;\n\n// Extract JSON from response\nlet jsonText = content;\nconst jsonMatch = content.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nif (jsonMatch) {\n  jsonText = jsonMatch[1];\n}\n\nlet analysis;\ntry {\n  analysis = JSON.parse(jsonText);\n} catch (error) {\n  analysis = {\n    error: \"Failed to parse gap analysis\",\n    raw_response: content\n  };\n}\n\nreturn {\n  gap_analysis: analysis,\n  analyzed_at: $('Prepare Gap Analysis Prompt').item.json.analysis_date,\n  tokens_used: {\n    input: response.usage.input_tokens,\n    output: response.usage.output_tokens\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-analysis-002",
+      "name": "Store Analysis",
+      "type": "n8n-nodes-base.code",
+      "position": [1200, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Store in database (Supabase in production)\nconst result = $input.item.json;\n\nreturn {\n  success: true,\n  analysis_id: 'generated-uuid',\n  gap_analysis: result.gap_analysis,\n  analyzed_at: result.analyzed_at,\n  message: 'Gap analysis completed successfully'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format-telegram-report-002",
+      "name": "Format Telegram Report",
+      "type": "n8n-nodes-base.code",
+      "position": [1200, 550],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\nconst analysis = data.gap_analysis;\n\nif (analysis.error) {\n  return {\n    message: `❌ Erro ao gerar gap analysis\\n\\n${analysis.error}`\n  };\n}\n\nconst compat = analysis.compatibility_score;\nconst gaps = analysis.gap_analysis;\nconst plan = analysis.action_plan;\n\n// Emoji based on verdict\nconst verdictEmoji = {\n  'READY': '✅',\n  'NEAR_READY': '🟡',\n  'SIGNIFICANT_GAPS': '🟠',\n  'NOT_READY': '🔴'\n};\n\nconst message = `📊 *EROS Gap Analysis Report*\\n\\n${verdictEmoji[compat.verdict] || '⚪️'} *COMPATIBILIDADE: ${compat.overall}/100*\\n\\n*Breakdown:*\\n• Arquétipos: ${compat.breakdown.archetypal_match}/100\\n• Lifestyle: ${compat.breakdown.lifestyle_match}/100\\n• Valores: ${compat.breakdown.values_match}/100\\n• Estética: ${compat.breakdown.aesthetic_match}/100\\n\\n*Status:* ${compat.verdict}\\n${compat.reasoning}\\n\\n*━━━ GAPS CRÍTICOS ━━━*\\n\\n${gaps.critical_gaps.slice(0, 3).map((g, i) => \n  `*${i+1}. ${g.pillar}* (${g.gap_size})\\n📍 Atual: ${g.current_state}\\n🎯 Necessário: ${g.required_state}\\n💥 Impacto: ${g.impact_on_attraction}\\n`\n).join('\\n')}\\n*━━━ QUICK WINS (30 dias) ━━━*\\n\\n${plan.quick_wins_30_days.slice(0, 3).map((action, i) => \n  `*${i+1}. ${action.action}*\\n⚡️ Esforço: ${action.effort}\\n✨ Impacto: ${action.expected_impact}\\n`\n).join('\\n')}\\n*━━━ STRATEGIC INVESTMENTS (90 dias) ━━━*\\n\\n${plan.strategic_investments_90_days.slice(0, 2).map((action, i) => \n  `*${i+1}. ${action.action}*\\n📈 Marcos: ${action.milestones.join(' → ')}\\n`\n).join('\\n')}\\n*━━━ APPROACH PLAYBOOK ━━━*\\n\\n*Primeira Interação:*\\n📍 ${analysis.approach_playbook.first_interaction.ideal_context}\\n🎯 ${analysis.approach_playbook.first_interaction.opening_strategy}\\n\\n*Conversation Hooks:*\\n${analysis.approach_playbook.first_interaction.conversation_hooks.map(h => `• ${h}`).join('\\n')}\\n\\n━━━━━━━━━━━━━━━\\n⏱ ${new Date(data.analyzed_at).toLocaleString('pt-BR')}`;\n\nreturn { message };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-telegram-002",
+      "name": "Send Telegram Report",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1400, 550],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "YOUR_CHAT_ID",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "webhook-response-002",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1400, 400],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-kpis-002",
+      "name": "KPIs Tracking",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 600],
+      "parameters": {
+        "color": 6,
+        "width": 450,
+        "height": 140,
+        "content": "## 📈 Next Steps\n\nAfter getting your gap analysis:\n1. Track KPIs weekly using Personal Brand Tracker\n2. Re-run this analysis monthly\n3. Adjust action plan based on progress\n4. Focus on Quick Wins first!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gap Analysis Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gap Analysis Prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude Gap Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Gap Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse Gap Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gap Analysis": {
+      "main": [
+        [
+          {
+            "node": "Store Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format Telegram Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Analysis": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Telegram Report": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-23T00:00:00.000Z",
+      "updatedAt": "2025-11-23T00:00:00.000Z",
+      "id": "eros-engine",
+      "name": "EROS Engine"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "eros-engine-instance"
+  },
+  "id": "eros-gap-analysis",
+  "createdAt": "2025-11-23T00:00:00.000Z",
+  "updatedAt": "2025-11-23T00:00:00.000Z"
+}

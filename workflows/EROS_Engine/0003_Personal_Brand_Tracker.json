@@ -1,0 +1,376 @@
+{
+  "name": "EROS: Personal Brand Tracker",
+  "nodes": [
+    {
+      "id": "schedule-daily-003",
+      "name": "Daily Check-In Reminder",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [200, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "telegram-command-003",
+      "name": "Telegram Commands",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [200, 500],
+      "parameters": {
+        "updates": ["message"]
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "sticky-setup-003",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 100],
+      "parameters": {
+        "color": 5,
+        "width": 450,
+        "height": 180,
+        "content": "## 📈 EROS Personal Brand Tracker\n\n**Daily Check-In:** Automatic at 21:00\n\n**Telegram Commands:**\n- `/checkin` - Manual daily check-in\n- `/weekly` - Weekly review\n- `/monthly` - Monthly deep dive\n- `/stats` - View current scores"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "route-by-trigger-003",
+      "name": "Route By Trigger",
+      "type": "n8n-nodes-base.switch",
+      "position": [400, 400],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value": "={{$node[\"Telegram Commands\"].json[\"message\"][\"text\"]}}",
+              "value2": "/checkin"
+            },
+            {
+              "operation": "equal",
+              "value": "={{$node[\"Telegram Commands\"].json[\"message\"][\"text\"]}}",
+              "value2": "/weekly"
+            },
+            {
+              "operation": "equal",
+              "value": "={{$node[\"Telegram Commands\"].json[\"message\"][\"text\"]}}",
+              "value2": "/monthly"
+            },
+            {
+              "operation": "equal",
+              "value": "={{$node[\"Telegram Commands\"].json[\"message\"][\"text\"]}}",
+              "value2": "/stats"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-daily-checkin-003",
+      "name": "Send Daily Check-In",
+      "type": "n8n-nodes-base.telegram",
+      "position": [600, 200],
+      "parameters": {
+        "text": "🎯 *EROS Daily Check-In*\\n\\nResponda às perguntas abaixo (S/N ou descrição):\\n\\n1️⃣ Academia hoje?\\n2️⃣ Interação social de qualidade?\\n3️⃣ Progresso em projeto pessoal?\\n4️⃣ Autocuidado estético? (barba/roupa/pele)\\n5️⃣ Momento de vulnerabilidade/profundidade?\\n\\nResponda usando:\\n`/log 1:S 2:S+jantar com amigos 3:N 4:S 5:S`",
+        "chatId": "YOUR_CHAT_ID",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "process-checkin-response-003",
+      "name": "Process Check-In Response",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 350],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Parse check-in response\nconst text = $input.item.json.message.text;\n\n// Expected format: /log 1:S 2:S+description 3:N 4:S 5:S\nconst responses = {};\nconst matches = text.matchAll(/(\\d+):([SN])(?:\\+([^\\s]+))?/gi);\n\nfor (const match of matches) {\n  const questionNum = match[1];\n  const answer = match[2].toUpperCase();\n  const description = match[3] || '';\n  \n  responses[questionNum] = {\n    answer: answer === 'S',\n    description: description\n  };\n}\n\nconst score = Object.values(responses).filter(r => r.answer).length;\n\nconst pillars = {\n  estetica_intencional: responses['1']?.answer && responses['4']?.answer ? 10 : 5,\n  magnetismo_social: responses['2']?.answer ? 10 : 5,\n  eixo_estrutural: responses['3']?.answer ? 10 : 5,\n  profundidade_emocional: responses['5']?.answer ? 10 : 5,\n  capital_cultural: responses['2']?.description?.includes('cultura') ? 10 : 5\n};\n\nreturn {\n  date: new Date().toISOString().split('T')[0],\n  responses: responses,\n  daily_score: score,\n  pillar_scores: pillars,\n  chat_id: $input.item.json.message.chat.id\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-daily-data-003",
+      "name": "Store Daily Data",
+      "type": "n8n-nodes-base.code",
+      "position": [800, 350],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Store in database (Supabase in production)\nconst data = $input.item.json;\n\n// Calculate streak\n// In production, fetch from DB and increment\nconst currentStreak = 5; // Example\n\nreturn {\n  success: true,\n  date: data.date,\n  daily_score: data.daily_score,\n  pillar_scores: data.pillar_scores,\n  current_streak: currentStreak,\n  chat_id: data.chat_id\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-daily-summary-003",
+      "name": "Send Daily Summary",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1000, 350],
+      "parameters": {
+        "text": "=✅ *Check-In Registrado*\\n\\n*Score do dia:* {{ $json.daily_score }}/5\\n*Streak atual:* 🔥 {{ $json.current_streak }} dias\\n\\n*Pilares:*\\n• Eixo Estrutural: {{ $json.pillar_scores.eixo_estrutural }}/10\\n• Magnetismo Social: {{ $json.pillar_scores.magnetismo_social }}/10\\n• Estética Intencional: {{ $json.pillar_scores.estetica_intencional }}/10\\n• Profundidade Emocional: {{ $json.pillar_scores.profundidade_emocional }}/10\\n• Capital Cultural: {{ $json.pillar_scores.capital_cultural }}/10\\n\\n💪 Continue assim!",
+        "chatId": "={{ $json.chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "generate-weekly-review-003",
+      "name": "Generate Weekly Review",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 450],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Generate weekly review\n// In production, fetch last 7 days from DB\n\nconst mockWeekData = {\n  avg_scores: {\n    eixo_estrutural: 7,\n    magnetismo_social: 6,\n    estetica_intencional: 8,\n    profundidade_emocional: 5,\n    capital_cultural: 6\n  },\n  highlights: \"3 interações sociais de qualidade, 5 treinos completos\",\n  gaps: \"Baixa profundidade emocional - apenas 2 dias com momentos genuínos\",\n  focus_next_week: [\n    \"Agendar 1 sessão de terapia\",\n    \"Ler pelo menos 1 livro\",\n    \"Organizar 1 evento social\"\n  ]\n};\n\nconst message = `📊 *EROS Weekly Review*\\n\\n*Scores da Semana:*\\n• Eixo Estrutural: ${mockWeekData.avg_scores.eixo_estrutural}/10\\n• Magnetismo Social: ${mockWeekData.avg_scores.magnetismo_social}/10\\n• Estética Intencional: ${mockWeekData.avg_scores.estetica_intencional}/10\\n• Profundidade Emocional: ${mockWeekData.avg_scores.profundidade_emocional}/10\\n• Capital Cultural: ${mockWeekData.avg_scores.capital_cultural}/10\\n\\n⚡️ *Highlights da semana:*\\n${mockWeekData.highlights}\\n\\n⚠️ *Gaps identificados:*\\n${mockWeekData.gaps}\\n\\n🎯 *Foco para próxima semana:*\\n${mockWeekData.focus_next_week.map((f, i) => `${i+1}. ${f}`).join('\\n')}`;\n\nreturn {\n  message: message,\n  chat_id: $input.item.json.message?.chat?.id || 'YOUR_CHAT_ID'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-weekly-review-003",
+      "name": "Send Weekly Review",
+      "type": "n8n-nodes-base.telegram",
+      "position": [800, 450],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $json.chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "generate-monthly-review-003",
+      "name": "Generate Monthly Review",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 550],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Generate monthly deep dive\n// In production, fetch last 30 days + run gap analysis again\n\nconst mockMonthData = {\n  compatibility_score_change: \"+15 points\",\n  pillar_trends: {\n    eixo_estrutural: \"+2\",\n    magnetismo_social: \"+1\",\n    estetica_intencional: \"+3\",\n    profundidade_emocional: \"0\",\n    capital_cultural: \"+1\"\n  },\n  actions_completed: 8,\n  actions_total: 10,\n  next_focus: \"Intensificar trabalho em Profundidade Emocional\"\n};\n\nconst message = `📈 *EROS Monthly Deep Dive*\\n\\n*Progresso Geral:*\\nCompatibility Score: ${mockMonthData.compatibility_score_change}\\n\\n*Evolução dos Pilares:*\\n• Eixo Estrutural: ${mockMonthData.pillar_trends.eixo_estrutural}\\n• Magnetismo Social: ${mockMonthData.pillar_trends.magnetismo_social}\\n• Estética Intencional: ${mockMonthData.pillar_trends.estetica_intencional}\\n• Profundidade Emocional: ${mockMonthData.pillar_trends.profundidade_emocional}\\n• Capital Cultural: ${mockMonthData.pillar_trends.capital_cultural}\\n\\n*Action Plan:*\\nConcluídas: ${mockMonthData.actions_completed}/${mockMonthData.actions_total}\\n\\n🎯 *Foco próximo mês:*\\n${mockMonthData.next_focus}\\n\\n💡 Sugestão: Rode /gap novamente para atualizar seu plano de ação!`;\n\nreturn {\n  message: message,\n  chat_id: $input.item.json.message?.chat?.id || 'YOUR_CHAT_ID'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-monthly-review-003",
+      "name": "Send Monthly Review",
+      "type": "n8n-nodes-base.telegram",
+      "position": [800, 550],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $json.chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "get-current-stats-003",
+      "name": "Get Current Stats",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 650],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Get current stats dashboard\n// In production, fetch from DB\n\nconst mockStats = {\n  current_streak: 12,\n  total_checkins: 45,\n  avg_daily_score: 4.2,\n  current_pillar_scores: {\n    eixo_estrutural: 7,\n    magnetismo_social: 8,\n    estetica_intencional: 9,\n    profundidade_emocional: 6,\n    capital_cultural: 7\n  },\n  compatibility_score: 75,\n  interactions_logged: 8,\n  posts_created: 6\n};\n\nconst message = `📊 *EROS Dashboard*\\n\\n*Streak Atual:* 🔥 ${mockStats.current_streak} dias\\n*Total Check-ins:* ${mockStats.total_checkins}\\n*Score Médio Diário:* ${mockStats.avg_daily_score}/5\\n\\n*Pilares Atuais:*\\n• Eixo Estrutural: ${mockStats.current_pillar_scores.eixo_estrutural}/10\\n• Magnetismo Social: ${mockStats.current_pillar_scores.magnetismo_social}/10\\n• Estética Intencional: ${mockStats.current_pillar_scores.estetica_intencional}/10\\n• Profundidade Emocional: ${mockStats.current_pillar_scores.profundidade_emocional}/10\\n• Capital Cultural: ${mockStats.current_pillar_scores.capital_cultural}/10\\n\\n*Compatibility Score:* ${mockStats.compatibility_score}/100\\n\\n*Atividade:*\\n• Interações registradas: ${mockStats.interactions_logged}\\n• Posts criados: ${mockStats.posts_created}\\n\\n💪 Continue evoluindo!`;\n\nreturn {\n  message: message,\n  chat_id: $input.item.json.message?.chat?.id || 'YOUR_CHAT_ID'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-stats-003",
+      "name": "Send Stats",
+      "type": "n8n-nodes-base.telegram",
+      "position": [800, 650],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $json.chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "connections": {
+    "Daily Check-In Reminder": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Check-In",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Commands": {
+      "main": [
+        [
+          {
+            "node": "Route By Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Trigger": {
+      "main": [
+        [
+          {
+            "node": "Process Check-In Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Weekly Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Monthly Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Current Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Check-In Response": {
+      "main": [
+        [
+          {
+            "node": "Store Daily Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Daily Data": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Weekly Review": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Monthly Review": {
+      "main": [
+        [
+          {
+            "node": "Send Monthly Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Stats": {
+      "main": [
+        [
+          {
+            "node": "Send Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-23T00:00:00.000Z",
+      "updatedAt": "2025-11-23T00:00:00.000Z",
+      "id": "eros-engine",
+      "name": "EROS Engine"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "eros-engine-instance"
+  },
+  "id": "eros-personal-brand-tracker",
+  "createdAt": "2025-11-23T00:00:00.000Z",
+  "updatedAt": "2025-11-23T00:00:00.000Z"
+}

@@ -1,0 +1,369 @@
+{
+  "name": "EROS: Interaction Intelligence",
+  "nodes": [
+    {
+      "id": "webhook-trigger-004",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [200, 400],
+      "parameters": {
+        "path": "eros/log-interaction",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 1.1,
+      "webhookId": "eros-interaction-intelligence"
+    },
+    {
+      "id": "telegram-trigger-004",
+      "name": "Telegram Quick Log",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [200, 550],
+      "parameters": {
+        "updates": ["message"]
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "sticky-setup-004",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 200],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 200,
+        "content": "## 🧠 EROS Interaction Intelligence\n\n**Telegram Quick Log:**\n`/interact @username type:dm energy:8 green:ela riu muito yellow:chegou atrasada next:convite café`\n\n**Webhook POST:**\n```json\n{\n  \"person\": \"@username\",\n  \"type\": \"dm/presencial/evento\",\n  \"energy\": 1-10,\n  \"topics\": [\"topic1\"],\n  \"flags\": {\"green\": [], \"yellow\": [], \"red\": []}\n}\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "route-input-004",
+      "name": "Route Input Source",
+      "type": "n8n-nodes-base.switch",
+      "position": [400, 475],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value": "={{$node[\"Telegram Quick Log\"].json[\"message\"][\"text\"]}}",
+              "value2": "/interact"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "parse-telegram-interaction-004",
+      "name": "Parse Telegram Interaction",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 550],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Parse Telegram quick log format\n// Expected: /interact @username type:dm energy:8 green:ela riu muito yellow:chegou atrasada next:convite café\n\nconst text = $input.item.json.message.text;\nconst chatId = $input.item.json.message.chat.id;\n\n// Extract username\nconst usernameMatch = text.match(/@(\\w+)/);\nconst username = usernameMatch ? usernameMatch[1] : 'unknown';\n\n// Extract type\nconst typeMatch = text.match(/type:(\\w+)/);\nconst interactionType = typeMatch ? typeMatch[1] : 'presencial';\n\n// Extract energy\nconst energyMatch = text.match(/energy:(\\d+)/);\nconst energy = energyMatch ? parseInt(energyMatch[1]) : 5;\n\n// Extract flags\nconst greenMatch = text.match(/green:([^\\s]+(?:\\s+[^\\s:]+)*?)(?=\\s+(?:yellow|red|next):|$)/);\nconst yellowMatch = text.match(/yellow:([^\\s]+(?:\\s+[^\\s:]+)*?)(?=\\s+(?:green|red|next):|$)/);\nconst redMatch = text.match(/red:([^\\s]+(?:\\s+[^\\s:]+)*?)(?=\\s+(?:green|yellow|next):|$)/);\nconst nextMatch = text.match(/next:([^\\s]+(?:\\s+[^\\s:]+)*?)$/);\n\nconst greenFlags = greenMatch ? [greenMatch[1].trim()] : [];\nconst yellowFlags = yellowMatch ? [yellowMatch[1].trim()] : [];\nconst redFlags = redMatch ? [redMatch[1].trim()] : [];\nconst nextMove = nextMatch ? nextMatch[1].trim() : '';\n\nreturn {\n  person: username,\n  interaction_type: interactionType,\n  interaction_date: new Date().toISOString(),\n  her_energy: energy,\n  topics_discussed: [],\n  green_flags: greenFlags,\n  yellow_flags: yellowFlags,\n  red_flags: redFlags,\n  next_move: nextMove,\n  chat_id: chatId,\n  source: 'telegram'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "parse-webhook-interaction-004",
+      "name": "Parse Webhook Interaction",
+      "type": "n8n-nodes-base.code",
+      "position": [600, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Parse webhook interaction data\nconst body = $input.item.json.body;\n\nreturn {\n  person: body.person,\n  interaction_type: body.type || 'presencial',\n  interaction_date: body.date || new Date().toISOString(),\n  her_energy: body.energy || 5,\n  topics_discussed: body.topics || [],\n  green_flags: body.flags?.green || [],\n  yellow_flags: body.flags?.yellow || [],\n  red_flags: body.flags?.red || [],\n  next_move: body.next_move || '',\n  source: 'webhook'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fetch-profile-data-004",
+      "name": "Fetch Profile Data",
+      "type": "n8n-nodes-base.code",
+      "position": [800, 475],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Fetch stored profile analysis for this person\n// In production, query Supabase prospects table\n\nconst person = $input.item.json.person;\n\n// Mock profile data - in production, fetch from DB\nconst mockProfile = {\n  archetypal_profile: {\n    primary: {\n      name: \"Hetaira\",\n      percentage: 60\n    },\n    secondary: {\n      name: \"Donzela\",\n      percentage: 30\n    }\n  },\n  relationship_indicators: {\n    attachment_style_hypothesis: \"seguro\",\n    relationship_readiness: 7\n  }\n};\n\n// Mock interaction history - in production, fetch from DB\nconst mockHistory = [\n  {\n    date: \"2025-11-20\",\n    energy: 7,\n    type: \"dm\"\n  },\n  {\n    date: \"2025-11-18\",\n    energy: 6,\n    type: \"presencial\"\n  }\n];\n\nreturn {\n  ...($input.item.json),\n  profile: mockProfile,\n  history: mockHistory\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "prepare-analysis-prompt-004",
+      "name": "Prepare Analysis Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [1000, 475],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\n\nconst systemPrompt = `Você é um consultor de relacionamentos focado em inteligência estratégica e padrões comportamentais.\n\n# FRAMEWORK DE ANÁLISE\n\n## ESTÁGIOS DE RELACIONAMENTO\n1. **Reconnaissance**: ainda se conhecendo superficialmente\n2. **Building Rapport**: começando a construir conexão\n3. **Deepening**: conversas ficando mais profundas\n4. **Defining**: sinalizando/testando intenções\n5. **Committed**: relacionamento estabelecido\n\n## SINAIS DE ATRAÇÃO\n- Energia alta e consistente\n- Iniciativa de contato\n- Vulnerabilidade compartilhada\n- Toque físico (se presencial)\n- Risada genuína\n- Perguntas pessoais\n\n## RED FLAGS\n- Energia inconsistente sem justificativa\n- Sempre ocupada/indisponível\n- Fala muito de ex\n- Comportamento manipulativo\n- Falta de reciprocidade\n\n# REGRAS\n- Base-se em FATOS, não wishful thinking\n- Seja honesto sobre sinais negativos\n- Não force escalation se ela não está pronta\n- Equilibre estratégia com autenticidade`;\n\nconst userPrompt = `Analise esta interação recente e forneça strategic recommendation.\n\n# PERFIL DELA\n\n**Arquétipos:**\n- Primário: ${data.profile.archetypal_profile.primary.name} (${data.profile.archetypal_profile.primary.percentage}%)\n- Secundário: ${data.profile.archetypal_profile.secondary.name} (${data.profile.archetypal_profile.secondary.percentage}%)\n\n**Relationship Indicators:**\n- Attachment style: ${data.profile.relationship_indicators.attachment_style_hypothesis}\n- Readiness: ${data.profile.relationship_indicators.relationship_readiness}/10\n\n# HISTÓRICO DE INTERAÇÕES\n\n${data.history.map((h, i) => `${i+1}. ${h.date} - ${h.type} - Energia: ${h.energy}/10`).join('\\n')}\n\n# ESTA INTERAÇÃO\n\n**Data:** ${new Date(data.interaction_date).toLocaleDateString('pt-BR')}\n**Tipo:** ${data.interaction_type}\n**Energia dela:** ${data.her_energy}/10\n**Tópicos:** ${data.topics_discussed.join(', ') || 'não informado'}\n**Green flags:** ${data.green_flags.join(', ') || 'nenhuma'}\n**Yellow flags:** ${data.yellow_flags.join(', ') || 'nenhuma'}\n**Red flags:** ${data.red_flags.join(', ') || 'nenhuma'}\n**Seu próximo movimento pretendido:** ${data.next_move || 'não definido'}\n\n---\n\n# TAREFA\n\nRetorne análise em formato JSON:\n\n\\`\\`\\`json\n{\n  \"congruence_analysis\": {\n    \"is_congruent\": true/false,\n    \"observations\": \"análise de congruência com perfil arquetípico\"\n  },\n  \"stage_assessment\": {\n    \"current_stage\": \"nome do estágio\",\n    \"confidence\": \"high/medium/low\",\n    \"evidence\": [\"evidência 1\", \"evidência 2\"],\n    \"ready_for_next_stage\": true/false,\n    \"what_needs_to_happen\": \"o que precisa pra avançar\"\n  },\n  \"energy_reading\": {\n    \"her_interest_level\": 1-10,\n    \"trend\": \"increasing/stable/decreasing\",\n    \"attraction_signals\": [\"sinal 1\", \"sinal 2\"],\n    \"disinterest_signals\": [\"sinal 1 se houver\"],\n    \"interpretation\": \"o que isso significa\"\n  },\n  \"flags_assessment\": {\n    \"green_validated\": [\"flag verde confirmada\"],\n    \"yellow_concern_level\": \"low/medium/high\",\n    \"red_severity\": \"none/minor/major/deal-breaker\",\n    \"overall_health\": \"healthy/concerning/unhealthy\"\n  },\n  \"strategic_recommendation\": {\n    \"next_contact\": {\n      \"when\": \"timing específico (ex: amanhã, 2 dias, 1 semana)\",\n      \"why\": \"reasoning\",\n      \"via\": \"texto/chamada/presencial\",\n      \"suggested_message\": \"sugestão de abertura\"\n    },\n    \"next_interaction\": {\n      \"type\": \"digital/presencial\",\n      \"suggested_activity\": \"atividade específica\",\n      \"why_this\": \"alinhamento com arquétipos\"\n    },\n    \"conversation_strategy\": {\n      \"topics_to_explore\": [\n        {\n          \"topic\": \"assunto\",\n          \"why\": \"o que revela/constrói\"\n        }\n      ],\n      \"questions_to_ask\": [\"pergunta 1\", \"pergunta 2\"],\n      \"vulnerabilities_to_share\": [\"vulnerabilidade apropriada pro estágio\"]\n    },\n    \"escalation_advice\": {\n      \"ready_for_escalation\": true/false,\n      \"type_of_escalation\": \"física/emocional/compromisso\",\n      \"how_to_test\": \"como testar prontidão\",\n      \"green_lights\": [\"sinal que indica vai\"],\n      \"if_resistance\": \"como recuar com graça\"\n    },\n    \"risks_to_avoid\": [\"erro fatal específico\"]\n  },\n  \"learning_insights\": {\n    \"patterns_confirmed\": [\"padrão confirmado\"],\n    \"surprises\": [\"algo inesperado\"],\n    \"model_adjustments\": \"ajustes no modelo dela se necessário\"\n  },\n  \"evaluation_of_his_next_move\": {\n    \"is_good_move\": true/false,\n    \"reasoning\": \"por que sim ou não\",\n    \"alternative_if_bad\": \"sugestão melhor se o movimento dele for ruim\"\n  }\n}\n\\`\\`\\`\n\nRetorne APENAS o JSON.`;\n\nreturn {\n  system_prompt: systemPrompt,\n  user_prompt: userPrompt,\n  person: data.person,\n  chat_id: data.chat_id,\n  source: data.source\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "claude-interaction-analysis-004",
+      "name": "Claude Interaction Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1200, 475],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApi.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250929\",\n  \"max_tokens\": 4096,\n  \"temperature\": 0.7,\n  \"system\": {{ $json.system_prompt | quote }},\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ $json.user_prompt | quote }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-api-cred",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "id": "parse-analysis-response-004",
+      "name": "Parse Analysis Response",
+      "type": "n8n-nodes-base.code",
+      "position": [1400, 475],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const response = $input.item.json;\nconst content = response.content[0].text;\n\n// Extract JSON\nlet jsonText = content;\nconst jsonMatch = content.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nif (jsonMatch) {\n  jsonText = jsonMatch[1];\n}\n\nlet analysis;\ntry {\n  analysis = JSON.parse(jsonText);\n} catch (error) {\n  analysis = {\n    error: \"Failed to parse analysis\",\n    raw_response: content\n  };\n}\n\nreturn {\n  person: $('Prepare Analysis Prompt').item.json.person,\n  analysis: analysis,\n  analyzed_at: new Date().toISOString(),\n  chat_id: $('Prepare Analysis Prompt').item.json.chat_id,\n  source: $('Prepare Analysis Prompt').item.json.source\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-interaction-004",
+      "name": "Store Interaction",
+      "type": "n8n-nodes-base.code",
+      "position": [1600, 475],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Store interaction in database\nconst data = $input.item.json;\n\n// In production: insert into Supabase interactions table\n\nreturn {\n  success: true,\n  interaction_id: 'generated-uuid',\n  person: data.person,\n  analysis: data.analysis,\n  analyzed_at: data.analyzed_at\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format-telegram-insights-004",
+      "name": "Format Telegram Insights",
+      "type": "n8n-nodes-base.code",
+      "position": [1600, 625],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\nconst analysis = data.analysis;\n\nif (analysis.error) {\n  return {\n    message: `❌ Erro ao analisar interação\\n\\n${analysis.error}`,\n    chat_id: data.chat_id\n  };\n}\n\nconst stage = analysis.stage_assessment;\nconst energy = analysis.energy_reading;\nconst flags = analysis.flags_assessment;\nconst rec = analysis.strategic_recommendation;\nconst eval_move = analysis.evaluation_of_his_next_move;\n\n// Stage emoji\nconst stageEmoji = {\n  'Reconnaissance': '🔍',\n  'Building Rapport': '🤝',\n  'Deepening': '💫',\n  'Defining': '🎯',\n  'Committed': '❤️'\n};\n\n// Health emoji\nconst healthEmoji = {\n  'healthy': '✅',\n  'concerning': '⚠️',\n  'unhealthy': '🔴'\n};\n\nconst message = `🧠 *EROS Interaction Intelligence*\\n\\n*@${data.person}*\\n\\n${stageEmoji[stage.current_stage] || '📍'} *Estágio:* ${stage.current_stage}\\n${stage.ready_for_next_stage ? '✅' : '⏸'} Pronto para próximo estágio: ${stage.ready_for_next_stage ? 'Sim' : 'Não'}\\n\\n*━━━ ENERGY READING ━━━*\\n\\n💫 *Nível de interesse:* ${energy.her_interest_level}/10\\n📈 *Tendência:* ${energy.trend === 'increasing' ? '📈 Crescendo' : energy.trend === 'stable' ? '➡️ Estável' : '📉 Decrescendo'}\\n\\n*Sinais de Atração:*\\n${energy.attraction_signals.map(s => `✨ ${s}`).join('\\n')}\\n\\n${energy.disinterest_signals.length > 0 ? `*Sinais de Desinteresse:*\\n${energy.disinterest_signals.map(s => `⚠️ ${s}`).join('\\n')}\\n` : ''}\\n*Interpretação:*\\n${energy.interpretation}\\n\\n*━━━ FLAGS ━━━*\\n\\n${healthEmoji[flags.overall_health]} *Saúde Geral:* ${flags.overall_health}\\n\\n${flags.green_validated.length > 0 ? `*Green Flags:*\\n${flags.green_validated.map(f => `✅ ${f}`).join('\\n')}\\n\\n` : ''}${flags.yellow_concern_level !== 'low' ? `*Yellow Flags:* ⚠️ Nível ${flags.yellow_concern_level}\\n\\n` : ''}${flags.red_severity !== 'none' ? `*⚠️ RED FLAGS:* ${flags.red_severity}\\n\\n` : ''}*━━━ STRATEGIC RECOMMENDATION ━━━*\\n\\n*Próximo Contato:*\\n⏰ Quando: ${rec.next_contact.when}\\n📱 Via: ${rec.next_contact.via}\\n💬 Sugestão: \"${rec.next_contact.suggested_message}\"\\n\\n*Próxima Interação:*\\n🎯 ${rec.next_interaction.suggested_activity}\\n💡 Por quê: ${rec.next_interaction.why_this}\\n\\n*Tópicos para Explorar:*\\n${rec.conversation_strategy.topics_to_explore.map(t => `• ${t.topic}\\n  └ ${t.why}`).join('\\n')}\\n\\n*Perguntas para Fazer:*\\n${rec.conversation_strategy.questions_to_ask.map(q => `❓ ${q}`).join('\\n')}\\n\\n*━━━ ESCALATION ADVICE ━━━*\\n\\n${rec.escalation_advice.ready_for_escalation ? '✅' : '⏸'} *Pronto para escalar:* ${rec.escalation_advice.ready_for_escalation ? 'SIM' : 'NÃO'}\\n${rec.escalation_advice.ready_for_escalation ? `🎯 Tipo: ${rec.escalation_advice.type_of_escalation}\\n🧪 Como testar: ${rec.escalation_advice.how_to_test}\\n` : ''}\\n*━━━ AVALIAÇÃO DO SEU MOVIMENTO ━━━*\\n\\n${eval_move.is_good_move ? '✅' : '❌'} *Seu plano é bom:* ${eval_move.is_good_move ? 'SIM' : 'NÃO'}\\n${eval_move.reasoning}\\n${!eval_move.is_good_move ? `\\n💡 Alternativa: ${eval_move.alternative_if_bad}` : ''}\\n\\n*⚠️ EVITAR:*\\n${rec.risks_to_avoid.map(r => `• ${r}`).join('\\n')}\\n\\n━━━━━━━━━━━━━━━\\n⏱ ${new Date(data.analyzed_at).toLocaleString('pt-BR')}`;\n\nreturn {\n  message: message,\n  chat_id: data.chat_id || 'YOUR_CHAT_ID'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-telegram-insights-004",
+      "name": "Send Telegram Insights",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1800, 625],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $json.chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "webhook-response-004",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1800, 475],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Route Input Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Quick Log": {
+      "main": [
+        [
+          {
+            "node": "Route Input Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Input Source": {
+      "main": [
+        [
+          {
+            "node": "Parse Telegram Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Webhook Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Telegram Interaction": {
+      "main": [
+        [
+          {
+            "node": "Fetch Profile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Webhook Interaction": {
+      "main": [
+        [
+          {
+            "node": "Fetch Profile Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Profile Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Analysis Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Analysis Prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude Interaction Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Interaction Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse Analysis Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Analysis Response": {
+      "main": [
+        [
+          {
+            "node": "Store Interaction",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format Telegram Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Interaction": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Telegram Insights": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-23T00:00:00.000Z",
+      "updatedAt": "2025-11-23T00:00:00.000Z",
+      "id": "eros-engine",
+      "name": "EROS Engine"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "eros-engine-instance"
+  },
+  "id": "eros-interaction-intelligence",
+  "createdAt": "2025-11-23T00:00:00.000Z",
+  "updatedAt": "2025-11-23T00:00:00.000Z"
+}

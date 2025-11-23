@@ -1,0 +1,337 @@
+{
+  "name": "EROS: Profile Pattern Analyzer",
+  "nodes": [
+    {
+      "id": "webhook-trigger-001",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [200, 400],
+      "parameters": {
+        "path": "eros/analyze-profile",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "typeVersion": 1.1,
+      "webhookId": "eros-profile-analyzer"
+    },
+    {
+      "id": "sticky-setup-001",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 200],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 180,
+        "content": "## 🎯 EROS Profile Pattern Analyzer\n\n**INPUT:** POST to webhook\n```json\n{\n  \"instagram_url\": \"https://instagram.com/profile\",\n  \"additional_context\": \"Optional notes\"\n}\n```\n\n**OUTPUT:** Complete archetypal analysis"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "extract-username-001",
+      "name": "Extract Username",
+      "type": "n8n-nodes-base.code",
+      "position": [400, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Extract Instagram username from URL\nconst url = $input.item.json.body.instagram_url;\nconst username = url.match(/instagram\\.com\\/([^\\/\\?]+)/)?.[1] || '';\n\nreturn {\n  instagram_url: url,\n  username: username,\n  additional_context: $input.item.json.body.additional_context || ''\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "scrape-profile-001",
+      "name": "Scrape Instagram Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [600, 400],
+      "parameters": {
+        "url": "=https://www.instagram.com/{{ $json.username }}/?__a=1&__d=dis",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "parse-instagram-data-001",
+      "name": "Parse Instagram Data",
+      "type": "n8n-nodes-base.code",
+      "position": [800, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Parse Instagram profile data\n// Note: Real implementation would handle actual Instagram API/scraping\n// This is a template structure\n\nconst mockData = {\n  bio: \"Sample bio text\",\n  posts: [\n    {\n      caption: \"Sample post caption\",\n      image_url: \"https://example.com/image.jpg\",\n      location: \"Sample Location\",\n      hashtags: [\"#sample\", \"#hashtag\"]\n    }\n  ],\n  follower_count: 1000,\n  following_count: 500,\n  post_count: 50\n};\n\n// In production, parse actual scraped data\nconst profileData = $input.item.json.error \n  ? mockData \n  : ($input.item.json.graphql?.user || mockData);\n\nreturn {\n  username: $('Extract Username').item.json.username,\n  bio: profileData.biography || profileData.bio || '',\n  posts: profileData.edge_owner_to_timeline_media?.edges?.slice(0, 30).map(edge => ({\n    caption: edge.node.edge_media_to_caption?.edges[0]?.node?.text || '',\n    likes: edge.node.edge_liked_by?.count || 0,\n    location: edge.node.location?.name || '',\n    timestamp: edge.node.taken_at_timestamp\n  })) || mockData.posts,\n  follower_count: profileData.edge_followed_by?.count || profileData.follower_count,\n  following_count: profileData.edge_follow?.count || profileData.following_count,\n  post_count: profileData.edge_owner_to_timeline_media?.count || profileData.post_count,\n  additional_context: $('Extract Username').item.json.additional_context\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "prepare-claude-prompt-001",
+      "name": "Prepare Claude Analysis Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [1000, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\n\n// Extract hashtags and locations\nconst allHashtags = data.posts\n  .flatMap(p => p.caption.match(/#\\w+/g) || [])\n  .slice(0, 30);\n\nconst locations = [...new Set(data.posts\n  .map(p => p.location)\n  .filter(Boolean)\n)];\n\nconst captions = data.posts\n  .map(p => p.caption)\n  .filter(Boolean)\n  .slice(0, 20);\n\nconst systemPrompt = `Você é um analista comportamental especializado em arquétipos femininos junguianos aplicados ao contexto moderno brasileiro.\n\n# FRAMEWORK DE ARQUÉTIPOS\n\n## 1. HETAIRA (Amante-Companheira)\nIndicadores:\n- Posts sobre: relacionamentos, viagens românticas, experiências sensoriais\n- Linguagem: sensual sem ser vulgar, apreciação estética\n- Visual: fotos bem produzidas, atenção a detalhes estéticos\n- Valores: beleza, prazer, conexão, intensidade\n\n## 2. DONZELA (Inocência-Alegria)\nIndicadores:\n- Posts sobre: natureza, amigos, momentos leves, diversão\n- Linguagem: emojis frequentes, exclamações, otimismo\n- Visual: cores vibrantes, sorrisos, cenários ao ar livre\n- Valores: leveza, autenticidade, espontaneidade\n\n## 3. MÃE (Nutridora-Protetora)\nIndicadores:\n- Posts sobre: família, cuidado com outros, causas sociais\n- Linguagem: acolhedora, empática, preocupada\n- Visual: fotos com crianças/animais/grupos, ambientes caseiros\n- Valores: proteção, nutrição, comunidade\n\n## 4. AMAZONA (Guerreira-Conquistadora)\nIndicadores:\n- Posts sobre: conquistas, desafios, trabalho, esportes\n- Linguagem: competitiva, assertiva, focada em resultados\n- Visual: academia, escritório, competições, viagens de trabalho\n- Valores: independência, conquista, autonomia\n\n## 5. SACERDOTISA (Mística-Intuitiva)\nIndicadores:\n- Posts sobre: espiritualidade, autoconhecimento, filosofia\n- Linguagem: introspectiva, poética, simbólica\n- Visual: natureza contemplativa, arte, símbolos espirituais\n- Valores: profundidade, mistério, transformação\n\n## 6. MEDUSA (Sedutora-Manipuladora)\nIndicadores:\n- Posts sobre: poder, sedução explícita, provocação\n- Linguagem: desafiadora, enigmática, controladora\n- Visual: poses provocantes, jogos de poder visual\n- Valores: controle, poder, sedução como arma\n\n## 7. ATENA (Estrategista-Intelectual)\nIndicadores:\n- Posts sobre: conhecimento, estratégia, análise, cultura\n- Linguagem: articulada, conceitual, referências culturais\n- Visual: livros, museus, debates, eventos intelectuais\n- Valores: sabedoria, estratégia, racionalidade\n\n# REGRAS CRÍTICAS\n- Seja ESPECÍFICO, não genérico\n- Base-se em EVIDÊNCIAS do feed, não suposições\n- Identifique padrões que ELA pode não ver em si mesma\n- Seja ÉTICO - insights para conexão genuína, não manipulação\n- Se dados insuficientes, indique \"INSUFFICIENT_DATA\" em campos específicos`;\n\nconst userPrompt = `Analise o seguinte perfil do Instagram e retorne análise arquetípica completa.\n\n# DADOS DO PERFIL\n\n**Username:** ${data.username}\n\n**Bio:** ${data.bio}\n\n**Estatísticas:**\n- Seguidores: ${data.follower_count}\n- Seguindo: ${data.following_count}\n- Posts: ${data.post_count}\n\n**Últimos Posts (captions):**\n${captions.map((c, i) => `${i+1}. ${c.substring(0, 200)}`).join('\\n\\n')}\n\n**Hashtags Frequentes:**\n${allHashtags.join(', ')}\n\n**Localizações:**\n${locations.join(', ')}\n\n**Contexto Adicional:**\n${data.additional_context}\n\n---\n\n# TAREFA\n\nRetorne análise completa em formato JSON seguindo esta estrutura EXATA:\n\n\\`\\`\\`json\n{\n  \"archetypal_profile\": {\n    \"primary\": {\n      \"name\": \"Nome do arquétipo\",\n      \"percentage\": 0-100,\n      \"evidence\": [\"evidência 1\", \"evidência 2\", \"evidência 3\"],\n      \"manifestation\": \"Como esse arquétipo se manifesta nela especificamente\"\n    },\n    \"secondary\": {\n      \"name\": \"Nome do arquétipo\",\n      \"percentage\": 0-100,\n      \"evidence\": [\"evidência 1\", \"evidência 2\"],\n      \"manifestation\": \"...\"\n    },\n    \"tertiary\": {\n      \"name\": \"Nome do arquétipo\",\n      \"percentage\": 0-100,\n      \"evidence\": [\"evidência 1\"],\n      \"manifestation\": \"...\"\n    },\n    \"shadow_aspects\": [\n      \"Aspectos que ela pode estar reprimindo/evitando\"\n    ]\n  },\n  \"lifestyle_markers\": {\n    \"social_class\": \"A/B/C com justificativa\",\n    \"exposure_level\": 1-10,\n    \"social_circle_type\": \"descrição do tipo de pessoas com quem convive\",\n    \"primary_interests\": [\"interesse 1\", \"interesse 2\"],\n    \"value_system\": [\"valor 1\", \"valor 2\", \"valor 3\"]\n  },\n  \"unconscious_patterns\": [\n    {\n      \"pattern\": \"Padrão que ela repete mas pode não perceber\",\n      \"evidence\": \"O que no feed mostra isso\",\n      \"opportunity\": \"Como você pode usar isso a seu favor eticamente\"\n    }\n  ],\n  \"aesthetic_signature\": {\n    \"color_palette\": [\"cor dominante\", \"cor secundária\"],\n    \"environments\": [\"ambiente 1\", \"ambiente 2\"],\n    \"visual_style\": \"descrição do estilo visual\",\n    \"production_level\": \"low/medium/high\"\n  },\n  \"relationship_indicators\": {\n    \"attachment_style_hypothesis\": \"seguro/ansioso/evitativo com justificativa\",\n    \"relationship_readiness\": 1-10,\n    \"what_she_seeks\": [\"característica 1\", \"característica 2\"],\n    \"red_flags_detected\": [\"flag 1 se houver\"]\n  },\n  \"strategic_insights\": {\n    \"attraction_triggers\": [\n      \"Gatilho 1 baseado nos arquétipos\",\n      \"Gatilho 2 baseado no lifestyle\",\n      \"Gatilho 3 baseado nos padrões inconscientes\"\n    ],\n    \"approach_strategy\": \"Estratégia específica de aproximação\",\n    \"conversation_hooks\": [\"assunto 1\", \"assunto 2\", \"assunto 3\"],\n    \"places_to_intersect\": [\"lugar/evento 1\", \"lugar/evento 2\"]\n  }\n}\n\\`\\`\\`\n\nRetorne APENAS o JSON, sem texto adicional.`;\n\nreturn {\n  system_prompt: systemPrompt,\n  user_prompt: userPrompt,\n  username: data.username\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "claude-analysis-001",
+      "name": "Claude Archetypal Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1200, 400],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApi.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250929\",\n  \"max_tokens\": 4096,\n  \"temperature\": 0.7,\n  \"system\": {{ $json.system_prompt | quote }},\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ $json.user_prompt | quote }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropic-api-cred",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "id": "parse-claude-response-001",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "position": [1400, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const response = $input.item.json;\nconst content = response.content[0].text;\n\n// Extract JSON from response (Claude might wrap it in markdown)\nlet jsonText = content;\nconst jsonMatch = content.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nif (jsonMatch) {\n  jsonText = jsonMatch[1];\n}\n\nlet analysis;\ntry {\n  analysis = JSON.parse(jsonText);\n} catch (error) {\n  // If parsing fails, return error structure\n  analysis = {\n    error: \"Failed to parse analysis\",\n    raw_response: content\n  };\n}\n\nreturn {\n  username: $('Prepare Claude Analysis Prompt').item.json.username,\n  analysis: analysis,\n  analyzed_at: new Date().toISOString(),\n  tokens_used: {\n    input: response.usage.input_tokens,\n    output: response.usage.output_tokens\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-in-database-001",
+      "name": "Store in Database",
+      "type": "n8n-nodes-base.code",
+      "position": [1600, 400],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// This would connect to Supabase in production\n// For now, just pass through the data\n\nconst result = $input.item.json;\n\n// In production:\n// - Store in Supabase prospects table\n// - Generate unique ID\n// - Track analysis history\n\nreturn {\n  success: true,\n  profile_id: 'generated-uuid',\n  username: result.username,\n  analysis: result.analysis,\n  analyzed_at: result.analyzed_at,\n  message: 'Profile analysis completed successfully'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format-telegram-summary-001",
+      "name": "Format Telegram Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [1600, 550],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const data = $input.item.json;\nconst analysis = data.analysis;\n\nif (analysis.error) {\n  return {\n    message: `❌ Erro ao analisar perfil @${data.username}\\n\\n${analysis.error}`\n  };\n}\n\nconst primary = analysis.archetypal_profile.primary;\nconst secondary = analysis.archetypal_profile.secondary;\nconst lifestyle = analysis.lifestyle_markers;\nconst insights = analysis.strategic_insights;\n\nconst message = `🎯 *EROS Profile Analysis*\\n\\n*@${data.username}*\\n\\n*━━━ PERFIL ARQUETÍPICO ━━━*\\n\\n*Primário:* ${primary.name} (${primary.percentage}%)\\n${primary.manifestation}\\n\\n*Secundário:* ${secondary.name} (${secondary.percentage}%)\\n\\n*━━━ LIFESTYLE ━━━*\\n\\n*Classe Social:* ${lifestyle.social_class}\\n*Exposição:* ${lifestyle.exposure_level}/10\\n*Círculo:* ${lifestyle.social_circle_type}\\n*Interesses:* ${lifestyle.primary_interests.join(', ')}\\n\\n*━━━ ESTRATÉGIA ━━━*\\n\\n*Abordagem:*\\n${insights.approach_strategy}\\n\\n*Gatilhos de Atração:*\\n${insights.attraction_triggers.map((t, i) => `${i+1}. ${t}`).join('\\n')}\\n\\n*Conversation Hooks:*\\n${insights.conversation_hooks.map(h => `• ${h}`).join('\\n')}\\n\\n*Lugares para Intersectar:*\\n${insights.places_to_intersect.map(p => `📍 ${p}`).join('\\n')}\\n\\n━━━━━━━━━━━━━━━\\n⏱ Analisado em: ${new Date(data.analyzed_at).toLocaleString('pt-BR')}`;\n\nreturn { message };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-telegram-notification-001",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1800, 550],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "YOUR_CHAT_ID",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-api-cred",
+          "name": "Telegram Bot API"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "webhook-response-001",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1800, 400],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-credentials-001",
+      "name": "Credentials Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [180, 600],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 120,
+        "content": "## ⚙️ Required Credentials\n\n1. **Anthropic API** - Claude API key\n2. **Telegram Bot API** - Bot token\n3. Set your Telegram Chat ID in the Telegram node"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Username",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Username": {
+      "main": [
+        [
+          {
+            "node": "Scrape Instagram Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Instagram Profile": {
+      "main": [
+        [
+          {
+            "node": "Parse Instagram Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Instagram Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Claude Analysis Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Claude Analysis Prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude Archetypal Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Archetypal Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse Claude Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [
+          {
+            "node": "Store in Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format Telegram Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in Database": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Telegram Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-23T00:00:00.000Z",
+      "updatedAt": "2025-11-23T00:00:00.000Z",
+      "id": "eros-engine",
+      "name": "EROS Engine"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "eros-engine-instance"
+  },
+  "id": "eros-profile-analyzer",
+  "createdAt": "2025-11-23T00:00:00.000Z",
+  "updatedAt": "2025-11-23T00:00:00.000Z"
+}
