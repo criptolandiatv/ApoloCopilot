@@ -2,8 +2,41 @@
 
 A professionally organized collection of **2,053 n8n workflows** with a lightning-fast documentation system that provides instant search, analysis, and browsing capabilities.
 
+## 🆕 **NEW: Maestro n8n - Intelligent Workflow Builder**
+
+**Generate resilient, future-proof n8n workflows with AI!**
+
+The **Maestro n8n System** is an intelligent agent that:
+- 🔍 **Monitors** daily changes in the n8n ecosystem (docs, GitHub, forum)
+- 📚 **Builds** a searchable knowledge base updated automatically
+- 🎼 **Generates** workflows intelligently by consulting the latest best practices
+- 🎓 **Teaches** while building, making you more independent
+
+### Quick Start - Maestro System
+
+```bash
+# See full implementation guide
+cat GUIA_IMPLEMENTACAO.md
+
+# Or jump to specific component:
+# 1. Database setup: database/schema.sql
+# 2. Daily monitoring: workflows/radar-n8n-monitoring.json
+# 3. AI builder: maestro/
+```
+
+**[📖 Read Full Implementation Guide →](GUIA_IMPLEMENTACAO.md)**
+
+**What makes Maestro special:**
+- ✅ Consults real-time knowledge before generating workflows
+- ✅ Validates node compatibility with current n8n version
+- ✅ Suggests alternatives when features are deprecated
+- ✅ Includes error handling and best practices by default
+- ✅ Explains architectural decisions and teaches patterns
+
+---
+
 > **⚠️ IMPORTANT NOTICE (Aug 14, 2025):** Repository history has been rewritten due to DMCA compliance. If you have a fork or local clone, please see [Issue #X](https://github.com/Zie619/n8n-workflows/issues) for instructions on syncing your copy.
-> 
+>
 ## Support My Work
 
 [![Buy Me a Coffee](https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black&style=flat)](https://www.buymeacoffee.com/zie619)

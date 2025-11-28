@@ -1,0 +1,889 @@
+{
+  "name": "🔍 Radar n8n - Daily Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger-daily",
+      "name": "Schedule Daily 8AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "execution_id",
+              "name": "execution_id",
+              "value": "={{ $now.format('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "today",
+              "name": "today",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "sources_to_check",
+              "name": "sources_to_check",
+              "value": "={{ [\"docs\", \"github\", \"forum\"] }}",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "id": "set-context",
+      "name": "Set Execution Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://docs.n8n.io/api/sitemap.xml",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-docs-sitemap",
+      "name": "Fetch Docs Sitemap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 180]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/n8n-io/n8n/releases",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "per_page",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      },
+      "id": "fetch-github-releases",
+      "name": "Fetch GitHub Releases",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://community.n8n.io/latest.json",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-forum-latest",
+      "name": "Fetch Forum Latest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 420]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/n8n-io/n8n/pulls",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "state",
+                "value": "closed"
+              },
+              {
+                "name": "per_page",
+                "value": "20"
+              },
+              {
+                "name": "sort",
+                "value": "updated"
+              }
+            ]
+          }
+        }
+      },
+      "id": "fetch-github-prs",
+      "name": "Fetch GitHub PRs (Merged)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 540],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "merge-all-sources",
+      "name": "Merge All Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Processa e normaliza dados de todas as fontes\nconst items = [];\n\n// Processar GitHub Releases\nif ($input.item.json.github_releases) {\n  const releases = $input.item.json.github_releases;\n  for (const release of releases) {\n    // Apenas releases dos últimos 7 dias\n    const publishedDate = new Date(release.published_at);\n    const daysDiff = (Date.now() - publishedDate) / (1000 * 60 * 60 * 24);\n    \n    if (daysDiff <= 7) {\n      items.push({\n        source_type: 'github',\n        title: release.name || release.tag_name,\n        summary: release.body ? release.body.substring(0, 500) : '',\n        content: release.body || '',\n        url: release.html_url,\n        category: 'release',\n        tags: ['release', release.tag_name],\n        raw_data: release\n      });\n    }\n  }\n}\n\n// Processar GitHub PRs\nif ($input.item.json.github_prs) {\n  const prs = $input.item.json.github_prs;\n  for (const pr of prs) {\n    // Apenas PRs merged nos últimos 7 dias\n    if (pr.merged_at) {\n      const mergedDate = new Date(pr.merged_at);\n      const daysDiff = (Date.now() - mergedDate) / (1000 * 60 * 60 * 24);\n      \n      if (daysDiff <= 7) {\n        // Extrair labels relevantes\n        const labels = pr.labels.map(l => l.name);\n        const category = labels.includes('breaking-change') ? 'breaking_change' : \n                        labels.includes('enhancement') ? 'feature' : 'bug_fix';\n        \n        items.push({\n          source_type: 'github',\n          title: `PR: ${pr.title}`,\n          summary: pr.body ? pr.body.substring(0, 500) : '',\n          content: pr.body || '',\n          url: pr.html_url,\n          category: category,\n          tags: ['pr', ...labels],\n          raw_data: pr\n        });\n      }\n    }\n  }\n}\n\n// Processar Forum Topics\nif ($input.item.json.forum_latest && $input.item.json.forum_latest.topic_list) {\n  const topics = $input.item.json.forum_latest.topic_list.topics || [];\n  \n  for (const topic of topics.slice(0, 20)) { // Top 20\n    // Filtrar apenas tópicos interessantes (com likes ou respostas)\n    if (topic.like_count > 3 || topic.posts_count > 5) {\n      const tags = topic.tags || [];\n      const isRelevant = tags.some(tag => \n        ['workflow', 'best-practice', 'tutorial', 'integration'].includes(tag)\n      );\n      \n      if (isRelevant) {\n        items.push({\n          source_type: 'forum',\n          title: topic.title,\n          summary: `${topic.posts_count} respostas, ${topic.like_count} likes`,\n          content: '', // Será preenchido depois se necessário\n          url: `https://community.n8n.io/t/${topic.slug}/${topic.id}`,\n          category: 'best_practice',\n          tags: ['forum', ...tags],\n          raw_data: topic\n        });\n      }\n    }\n  }\n}\n\nreturn items.map(item => ({ json: item }));"
+        }
+      },
+      "id": "code-process-sources",
+      "name": "Process & Normalize Sources",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "if-has-items",
+      "name": "Has New Items?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "split-batches",
+      "name": "Split in Batches (5 items)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "chat",
+        "operation": "create",
+        "model": {
+          "value": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Você é um analista especializado em n8n. Seu trabalho é analisar atualizações do ecossistema n8n e criar resumos estruturados.\n\nPara cada item recebido, você deve:\n1. Analisar o conteúdo e determinar o impacto (critical, high, medium, low)\n2. Identificar nodes afetados (se aplicável)\n3. Listar casos de uso relacionados\n4. Se for breaking change, adicionar notas de migração\n5. Retornar em formato JSON estruturado\n\nFormato de saída:\n{\n  \"analysis\": {\n    \"impact_level\": \"high\",\n    \"category\": \"feature\",\n    \"affected_nodes\": [\"OpenAI\", \"HTTP Request\"],\n    \"use_cases\": [\"LLM workflows\", \"AI automation\"],\n    \"migration_notes\": \"Se aplicável\",\n    \"key_points\": [\"ponto 1\", \"ponto 2\"]\n  }\n}"
+            },
+            {
+              "role": "user",
+              "content": "=Analise este item:\n\nTítulo: {{ $json.title }}\nCategoria: {{ $json.category }}\nFonte: {{ $json.source_type }}\nConteúdo:\n{{ $json.content }}\n\nTags existentes: {{ $json.tags }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3
+        },
+        "requestOptions": {}
+      },
+      "id": "llm-analyze-item",
+      "name": "LLM: Analyze Item",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [1780, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-api",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combina dados originais com análise do LLM\nconst originalItem = $input.item.json;\nconst llmResponse = $input.item.json.message?.content || '{}';\n\nlet analysis = {};\ntry {\n  analysis = JSON.parse(llmResponse).analysis || {};\n} catch (e) {\n  // Fallback se LLM não retornar JSON válido\n  analysis = {\n    impact_level: 'medium',\n    category: originalItem.category,\n    affected_nodes: [],\n    use_cases: [],\n    migration_notes: null,\n    key_points: []\n  };\n}\n\nconst enrichedItem = {\n  ...originalItem,\n  impact_level: analysis.impact_level || 'medium',\n  affected_nodes: analysis.affected_nodes || [],\n  use_cases: analysis.use_cases || [],\n  migration_notes: analysis.migration_notes || null,\n  analysis_metadata: {\n    analyzed_at: new Date().toISOString(),\n    key_points: analysis.key_points || []\n  }\n};\n\nreturn { json: enrichedItem };"
+        }
+      },
+      "id": "code-merge-analysis",
+      "name": "Merge with Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": {
+          "value": "n8n_updates"
+        },
+        "columns": {
+          "mappings": [
+            {
+              "columnName": "update_date",
+              "columnValue": "={{ $('Set Execution Context').item.json.today }}"
+            },
+            {
+              "columnName": "source_type",
+              "columnValue": "={{ $json.source_type }}"
+            },
+            {
+              "columnName": "title",
+              "columnValue": "={{ $json.title }}"
+            },
+            {
+              "columnName": "summary",
+              "columnValue": "={{ $json.summary }}"
+            },
+            {
+              "columnName": "content",
+              "columnValue": "={{ $json.content }}"
+            },
+            {
+              "columnName": "url",
+              "columnValue": "={{ $json.url }}"
+            },
+            {
+              "columnName": "impact_level",
+              "columnValue": "={{ $json.impact_level }}"
+            },
+            {
+              "columnName": "category",
+              "columnValue": "={{ $json.category }}"
+            },
+            {
+              "columnName": "tags",
+              "columnValue": "={{ JSON.stringify($json.tags) }}"
+            },
+            {
+              "columnName": "affected_nodes",
+              "columnValue": "={{ JSON.stringify($json.affected_nodes) }}"
+            },
+            {
+              "columnName": "use_cases",
+              "columnValue": "={{ JSON.stringify($json.use_cases) }}"
+            },
+            {
+              "columnName": "migration_notes",
+              "columnValue": "={{ $json.migration_notes }}"
+            },
+            {
+              "columnName": "processed",
+              "columnValue": "true"
+            }
+          ]
+        },
+        "options": {
+          "onConflict": "ignore"
+        }
+      },
+      "id": "db-insert-update",
+      "name": "DB: Insert n8n_updates",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2220, 200],
+      "credentials": {
+        "postgres": {
+          "id": "supabase-postgres",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "embedding",
+        "model": {
+          "value": "text-embedding-ada-002"
+        },
+        "input": "=Título: {{ $json.title }}\n\nResumo: {{ $json.summary }}\n\nConteúdo: {{ $json.content }}\n\nCategoria: {{ $json.category }}\nTags: {{ $json.tags.join(', ') }}\nNodes afetados: {{ $json.affected_nodes.join(', ') }}\nCasos de uso: {{ $json.use_cases.join(', ') }}",
+        "options": {}
+      },
+      "id": "openai-embeddings",
+      "name": "OpenAI: Generate Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [2440, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-api",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepara dados para inserção no n8n_knowledge\nconst item = $input.item.json;\nconst embedding = $input.item.json.data?.[0]?.embedding || [];\n\n// Criar conteúdo otimizado para RAG\nconst ragContent = `\n# ${item.title}\n\n## Resumo\n${item.summary}\n\n## Contexto\nFonte: ${item.source_type}\nCategoria: ${item.category}\nImpacto: ${item.impact_level}\n\n## Detalhes\n${item.content}\n\n## Aplicação\nNodes relacionados: ${item.affected_nodes.join(', ')}\nCasos de uso: ${item.use_cases.join(', ')}\n${item.migration_notes ? `\\n## Migração\\n${item.migration_notes}` : ''}\n`.trim();\n\n// Determinar tipo de conhecimento\nlet knowledgeType = 'node_spec';\nif (item.category === 'best_practice' || item.source_type === 'forum') {\n  knowledgeType = 'best_practice';\n} else if (item.category === 'feature') {\n  knowledgeType = 'workflow_pattern';\n} else if (item.tags.includes('troubleshooting') || item.tags.includes('error')) {\n  knowledgeType = 'troubleshooting';\n}\n\nconst knowledgeItem = {\n  source_update_id: item.id, // ID da n8n_updates (se disponível)\n  knowledge_type: knowledgeType,\n  title: item.title,\n  content: ragContent,\n  metadata: {\n    source: item.source_type,\n    original_url: item.url,\n    category: item.category,\n    impact: item.impact_level,\n    collected_at: new Date().toISOString()\n  },\n  tags: item.tags,\n  nodes_involved: item.affected_nodes,\n  embedding: `[${embedding.join(',')}]`, // Formato array PostgreSQL\n  relevance_score: item.impact_level === 'critical' ? 1.0 : \n                   item.impact_level === 'high' ? 0.9 : \n                   item.impact_level === 'medium' ? 0.7 : 0.5,\n  active: true,\n  verified: false\n};\n\nreturn { json: knowledgeItem };"
+        }
+      },
+      "id": "code-prepare-knowledge",
+      "name": "Prepare Knowledge Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2660, 200]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": {
+          "value": "n8n_knowledge"
+        },
+        "columns": {
+          "mappings": [
+            {
+              "columnName": "knowledge_type",
+              "columnValue": "={{ $json.knowledge_type }}"
+            },
+            {
+              "columnName": "title",
+              "columnValue": "={{ $json.title }}"
+            },
+            {
+              "columnName": "content",
+              "columnValue": "={{ $json.content }}"
+            },
+            {
+              "columnName": "metadata",
+              "columnValue": "={{ JSON.stringify($json.metadata) }}"
+            },
+            {
+              "columnName": "tags",
+              "columnValue": "={{ JSON.stringify($json.tags) }}"
+            },
+            {
+              "columnName": "nodes_involved",
+              "columnValue": "={{ JSON.stringify($json.nodes_involved) }}"
+            },
+            {
+              "columnName": "embedding",
+              "columnValue": "={{ $json.embedding }}"
+            },
+            {
+              "columnName": "relevance_score",
+              "columnValue": "={{ $json.relevance_score }}"
+            },
+            {
+              "columnName": "active",
+              "columnValue": "true"
+            },
+            {
+              "columnName": "verified",
+              "columnValue": "false"
+            }
+          ]
+        },
+        "options": {
+          "onConflict": "ignore"
+        }
+      },
+      "id": "db-insert-knowledge",
+      "name": "DB: Insert n8n_knowledge",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2880, 200],
+      "credentials": {
+        "postgres": {
+          "id": "supabase-postgres",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "loop-back",
+      "name": "Loop Back to Split",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [3100, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Agrega estatísticas de toda a execução\nconst allItems = $input.all();\n\nconst stats = {\n  total_items_processed: allItems.length,\n  by_source: {},\n  by_category: {},\n  by_impact: {},\n  high_impact_items: []\n};\n\n// Processar estatísticas\nfor (const item of allItems) {\n  const json = item.json;\n  \n  // Por fonte\n  stats.by_source[json.source_type] = (stats.by_source[json.source_type] || 0) + 1;\n  \n  // Por categoria\n  stats.by_category[json.category] = (stats.by_category[json.category] || 0) + 1;\n  \n  // Por impacto\n  stats.by_impact[json.impact_level] = (stats.by_impact[json.impact_level] || 0) + 1;\n  \n  // Items de alto impacto\n  if (json.impact_level === 'critical' || json.impact_level === 'high') {\n    stats.high_impact_items.push({\n      title: json.title,\n      impact: json.impact_level,\n      category: json.category,\n      url: json.url\n    });\n  }\n}\n\nreturn { json: stats };"
+        }
+      },
+      "id": "code-aggregate-stats",
+      "name": "Aggregate Execution Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3320, 200]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": {
+          "value": "radar_execution_log"
+        },
+        "columns": {
+          "mappings": [
+            {
+              "columnName": "sources_checked",
+              "columnValue": "={{ JSON.stringify({docs: true, github: true, forum: true}) }}"
+            },
+            {
+              "columnName": "items_found",
+              "columnValue": "={{ $json.total_items_processed }}"
+            },
+            {
+              "columnName": "items_processed",
+              "columnValue": "={{ $json.total_items_processed }}"
+            },
+            {
+              "columnName": "items_embedded",
+              "columnValue": "={{ $json.total_items_processed }}"
+            },
+            {
+              "columnName": "status",
+              "columnValue": "success"
+            },
+            {
+              "columnName": "execution_time_seconds",
+              "columnValue": "={{ Math.floor($workflow.execution.duration / 1000) }}"
+            }
+          ]
+        }
+      },
+      "id": "db-log-execution",
+      "name": "DB: Log Execution",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [3540, 200],
+      "credentials": {
+        "postgres": {
+          "id": "supabase-postgres",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "notification_text",
+              "name": "notification_text",
+              "value": "=🔍 **Radar n8n - Execução Concluída**\n\n📊 **Estatísticas:**\n- Total processado: {{ $('Aggregate Execution Stats').item.json.total_items_processed }} items\n- Por fonte: {{ JSON.stringify($('Aggregate Execution Stats').item.json.by_source) }}\n- Por categoria: {{ JSON.stringify($('Aggregate Execution Stats').item.json.by_category) }}\n- Por impacto: {{ JSON.stringify($('Aggregate Execution Stats').item.json.by_impact) }}\n\n🔥 **Items de Alto Impacto:** {{ $('Aggregate Execution Stats').item.json.high_impact_items.length }}\n\n{{ $('Aggregate Execution Stats').item.json.high_impact_items.map(i => `- [${i.impact.toUpperCase()}] ${i.title}`).join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-notification",
+      "name": "Prepare Notification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [3760, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "{{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.notification_text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-notify",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [3980, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "no_items_message",
+              "name": "message",
+              "value": "Nenhum item novo encontrado hoje.",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-no-items",
+      "name": "No Items Found",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [1560, 400]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": {
+          "value": "radar_execution_log"
+        },
+        "columns": {
+          "mappings": [
+            {
+              "columnName": "sources_checked",
+              "columnValue": "={{ JSON.stringify({docs: true, github: true, forum: true}) }}"
+            },
+            {
+              "columnName": "items_found",
+              "columnValue": "0"
+            },
+            {
+              "columnName": "items_processed",
+              "columnValue": "0"
+            },
+            {
+              "columnName": "items_embedded",
+              "columnValue": "0"
+            },
+            {
+              "columnName": "status",
+              "columnValue": "success"
+            },
+            {
+              "columnName": "execution_time_seconds",
+              "columnValue": "={{ Math.floor($workflow.execution.duration / 1000) }}"
+            }
+          ]
+        }
+      },
+      "id": "db-log-no-items",
+      "name": "DB: Log (No Items)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1780, 400],
+      "credentials": {
+        "postgres": {
+          "id": "supabase-postgres",
+          "name": "Supabase Postgres"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Daily 8AM": {
+      "main": [
+        [
+          {
+            "node": "Set Execution Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Execution Context": {
+      "main": [
+        [
+          {
+            "node": "Fetch Docs Sitemap",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch GitHub Releases",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Forum Latest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch GitHub PRs (Merged)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Docs Sitemap": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GitHub Releases": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch Forum Latest": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Fetch GitHub PRs (Merged)": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge All Sources": {
+      "main": [
+        [
+          {
+            "node": "Process & Normalize Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Normalize Sources": {
+      "main": [
+        [
+          {
+            "node": "Has New Items?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has New Items?": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches (5 items)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Items Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches (5 items)": {
+      "main": [
+        [
+          {
+            "node": "LLM: Analyze Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Analyze Item": {
+      "main": [
+        [
+          {
+            "node": "Merge with Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge with Analysis": {
+      "main": [
+        [
+          {
+            "node": "DB: Insert n8n_updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Insert n8n_updates": {
+      "main": [
+        [
+          {
+            "node": "OpenAI: Generate Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI: Generate Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Prepare Knowledge Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Knowledge Entry": {
+      "main": [
+        [
+          {
+            "node": "DB: Insert n8n_knowledge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Insert n8n_knowledge": {
+      "main": [
+        [
+          {
+            "node": "Loop Back to Split",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Back to Split": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches (5 items)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches (5 items)": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Aggregate Execution Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Execution Stats": {
+      "main": [
+        [
+          {
+            "node": "DB: Log Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB: Log Execution": {
+      "main": [
+        [
+          {
+            "node": "Prepare Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Notification": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Items Found": {
+      "main": [
+        [
+          {
+            "node": "DB: Log (No Items)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-28T00:00:00.000Z",
+      "updatedAt": "2025-11-28T00:00:00.000Z",
+      "id": "radar",
+      "name": "radar"
+    },
+    {
+      "createdAt": "2025-11-28T00:00:00.000Z",
+      "updatedAt": "2025-11-28T00:00:00.000Z",
+      "id": "monitoring",
+      "name": "monitoring"
+    },
+    {
+      "createdAt": "2025-11-28T00:00:00.000Z",
+      "updatedAt": "2025-11-28T00:00:00.000Z",
+      "id": "automation",
+      "name": "automation"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-28T00:00:00.000Z",
+  "versionId": "1"
+}

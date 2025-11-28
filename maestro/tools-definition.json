@@ -1,0 +1,345 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "search_n8n_docs",
+        "description": "Busca semântica na base de conhecimento de n8n (documentação oficial, changelog, features). Use para encontrar informações sobre nodes específicos, configurações, funcionalidades. Retorna documentos relevantes ordenados por similaridade.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Pergunta ou termo de busca. Exemplos: 'como configurar OpenAI node', 'webhook authentication', 'error handling best practices'"
+            },
+            "filter_type": {
+              "type": "string",
+              "enum": ["node_spec", "workflow_pattern", "best_practice", "troubleshooting", "integration_guide"],
+              "description": "Filtrar por tipo de conhecimento. Opcional."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Número máximo de resultados a retornar. Default: 5",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "search_n8n_forum",
+        "description": "Busca tópicos relevantes no fórum da comunidade n8n. Use para encontrar padrões de workflow, soluções de problemas, casos de uso reais, best practices compartilhadas pela comunidade.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Tópico ou problema a buscar. Exemplos: 'LLM workflow examples', 'database integration patterns', 'webhook error handling'"
+            },
+            "min_engagement": {
+              "type": "integer",
+              "description": "Mínimo de engajamento (likes + respostas) para considerar o tópico relevante. Default: 3",
+              "default": 3,
+              "minimum": 0
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Número máximo de tópicos a retornar. Default: 5",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "check_node_compatibility",
+        "description": "Verifica se um node específico existe na versão atual do n8n, quais parâmetros aceita, e se há avisos de deprecação. SEMPRE use esta função antes de incluir um node no workflow para garantir compatibilidade.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "node_name": {
+              "type": "string",
+              "description": "Nome do node a verificar. Exemplos: 'OpenAI', 'HTTP Request', 'Telegram', 'Supabase', 'Code'"
+            },
+            "n8n_version": {
+              "type": "string",
+              "description": "Versão específica do n8n para checar. Se omitido, usa a versão stable mais recente. Formato: '1.x.x'",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            }
+          },
+          "required": ["node_name"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "suggest_workflow_structure",
+        "description": "Gera uma estrutura inicial (blueprint) de workflow baseada no objetivo, entradas, saídas e restrições. Retorna nodes recomendados, conexões, alternativas e avisos. Use depois de entender o pedido do usuário e antes de gerar o JSON final.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "goal": {
+              "type": "string",
+              "description": "Objetivo claro do workflow. Exemplo: 'Receber áudio via WhatsApp, transcrever com Whisper, gerar thread com GPT-4, salvar no Supabase'"
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Lista de entradas esperadas. Exemplos: ['WhatsApp webhook audio', 'Cron schedule', 'Manual trigger']"
+            },
+            "outputs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Lista de saídas esperadas. Exemplos: ['Thread text', 'Stories', 'Database log', 'Telegram notification']"
+            },
+            "constraints": {
+              "type": "object",
+              "description": "Restrições e preferências opcionais",
+              "properties": {
+                "budget": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high"],
+                  "description": "Orçamento para chamadas de API/LLM"
+                },
+                "complexity": {
+                  "type": "string",
+                  "enum": ["simple", "medium", "complex"],
+                  "description": "Complexidade desejada do workflow"
+                },
+                "no_code_preferred": {
+                  "type": "boolean",
+                  "description": "Se deve evitar nodes de código quando possível"
+                },
+                "performance_priority": {
+                  "type": "string",
+                  "enum": ["speed", "reliability", "cost"],
+                  "description": "Prioridade principal: velocidade, confiabilidade ou custo"
+                }
+              }
+            }
+          },
+          "required": ["goal", "inputs", "outputs"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "generate_n8n_json",
+        "description": "Gera o JSON completo do workflow n8n pronto para importar, baseado no blueprint aprovado. Use somente DEPOIS de apresentar e aprovar o blueprint com o usuário. Retorna JSON válido, instruções de importação, credenciais necessárias.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "blueprint": {
+              "type": "object",
+              "description": "Blueprint estruturado do workflow (do suggest_workflow_structure ou refinado)",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome do workflow"
+                },
+                "nodes": {
+                  "type": "array",
+                  "description": "Array de nodes do blueprint",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parameters": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "connections": {
+                  "type": "object",
+                  "description": "Mapa de conexões entre nodes"
+                }
+              },
+              "required": ["name", "nodes", "connections"]
+            },
+            "target_version": {
+              "type": "string",
+              "description": "Versão alvo do n8n. Default: latest stable",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            },
+            "include_comments": {
+              "type": "boolean",
+              "description": "Se deve incluir comentários explicativos nos nodes. Default: true",
+              "default": true
+            }
+          },
+          "required": ["blueprint"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "validate_workflow_json",
+        "description": "Valida um JSON de workflow n8n antes de entregar ao usuário. Verifica estrutura, conexões, credenciais, e retorna erros, warnings e sugestões de otimização. SEMPRE use antes de entregar o JSON final.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "workflow_json": {
+              "type": "object",
+              "description": "JSON completo do workflow n8n a ser validado"
+            },
+            "check_credentials": {
+              "type": "boolean",
+              "description": "Se deve validar que todas as credenciais estão definidas. Default: true",
+              "default": true
+            },
+            "check_connections": {
+              "type": "boolean",
+              "description": "Se deve validar que todas as conexões entre nodes estão corretas. Default: true",
+              "default": true
+            },
+            "strict_mode": {
+              "type": "boolean",
+              "description": "Modo estrito: trata warnings como erros. Default: false",
+              "default": false
+            }
+          },
+          "required": ["workflow_json"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_recent_n8n_changes",
+        "description": "Obtém mudanças recentes no n8n (últimos 7, 14 ou 30 dias) para verificar breaking changes, novos nodes, features descontinuadas. Use quando for criar um workflow para garantir que não está usando features antigas.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Número de dias atrás para buscar mudanças. Default: 7",
+              "default": 7,
+              "minimum": 1,
+              "maximum": 90
+            },
+            "filter_impact": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["critical", "high", "medium", "low"]
+              },
+              "description": "Filtrar por nível de impacto. Se omitido, retorna todos."
+            },
+            "filter_category": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["breaking_change", "feature", "bug_fix", "best_practice", "node_update"]
+              },
+              "description": "Filtrar por categoria. Se omitido, retorna todas."
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "save_blueprint",
+        "description": "Salva um blueprint de workflow no banco de dados para referência futura e aprendizado. Use após criar um blueprint aprovado pelo usuário.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Nome descritivo do workflow"
+            },
+            "description": {
+              "type": "string",
+              "description": "Descrição do que o workflow faz"
+            },
+            "user_request": {
+              "type": "string",
+              "description": "Pedido original do usuário"
+            },
+            "blueprint": {
+              "type": "object",
+              "description": "Blueprint completo (estrutura de nodes e conexões)"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["content_creation", "data_pipeline", "monitoring", "integration", "automation", "notification", "analysis", "other"],
+              "description": "Categoria do workflow"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Tags para categorização"
+            }
+          },
+          "required": ["name", "blueprint", "category"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "search_existing_blueprints",
+        "description": "Busca blueprints similares já criados anteriormente. Use para evitar recriar workflows do zero e aprender com soluções passadas.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Descrição do workflow buscado. Exemplo: 'workflow de transcrição de áudio'"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["content_creation", "data_pipeline", "monitoring", "integration", "automation", "notification", "analysis", "other"],
+              "description": "Filtrar por categoria específica"
+            },
+            "min_rating": {
+              "type": "integer",
+              "description": "Mínimo de rating (1-5) do blueprint. Default: 3",
+              "default": 3,
+              "minimum": 1,
+              "maximum": 5
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Número máximo de blueprints a retornar. Default: 5",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            }
+          },
+          "required": ["query"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}
