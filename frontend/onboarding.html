@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApoloCopilot - Plataforma Médica Completa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF4500;
+            --primary-light: #FF6B35;
+            --secondary: #0079D3;
+            --accent: #46D160;
+            --bg-dark: #0B0F19;
+            --bg-card: #1A1F2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8C5D0;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0B0F19 0%, #1A1F2E 50%, #0B0F19 100%);
+            z-index: -2;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 250px;
+            height: 250px;
+            background: var(--accent);
+            bottom: 20%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 10px) scale(1.05); }
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(20px);
+            background: rgba(11, 15, 25, 0.8);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(70, 209, 96, 0.1);
+            border: 1px solid rgba(70, 209, 96, 0.3);
+            border-radius: 50px;
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #B8C5D0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.8;
+            animation: slideUp 0.8s ease 0.2s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideUp 0.8s ease 0.4s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Features Grid */
+        .features {
+            max-width: 1400px;
+            margin: 6rem auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 4rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(70, 209, 96, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(255, 69, 0, 0.2);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            background: rgba(70, 209, 96, 0.1);
+            border: 1px solid rgba(70, 209, 96, 0.3);
+            border-radius: 50px;
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Modal (Linktree-style) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            padding: 2.5rem;
+            position: relative;
+            animation: slideUpModal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-steps {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .modal-steps li {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        /* Code Block (Monospace style) */
+        .code-block {
+            background: #0D1117;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .code-line {
+            display: block;
+            color: var(--text-secondary);
+        }
+
+        .code-comment {
+            color: #6E7681;
+        }
+
+        .code-keyword {
+            color: #FF7B72;
+        }
+
+        .code-string {
+            color: #A5D6FF;
+        }
+
+        .code-function {
+            color: #D2A8FF;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin: 4rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+
+            .hero {
+                margin: 2rem auto;
+            }
+
+            .features {
+                margin: 3rem auto;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                gap: 2rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🚀</div>
+                <span>ApoloCopilot</span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="features">Features</button>
+                <button class="nav-tab" data-tab="docs">Docs</button>
+                <button class="nav-tab" data-tab="api">API</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-badge">✨ Plataforma Médica Completa</div>
+            <h1>Transforme sua prática médica com IA e automação</h1>
+            <p class="hero-subtitle">
+                <span class="code-comment">// Verificação WhatsApp, GPS, Calendário, Fórum e muito mais</span><br>
+                <span class="code-keyword">const</span> <span class="code-function">apolocopilot</span> = {
+                features: <span class="code-string">"10+"</span>,
+                integrations: <span class="code-string">"complete"</span> }
+            </p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="showOnboardingModal()">
+                    Começar agora
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='/docs'">
+                    Ver documentação
+                </button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">features principais</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">REST API</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">possibilidades</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2 class="section-title">Recursos Completos</h2>
+            <p class="section-subtitle">// Tudo que você precisa em uma única plataforma</p>
+
+            <div class="features-grid">
+                <div class="feature-card" onclick="showFeatureModal('whatsapp')">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">WhatsApp Verify</h3>
+                    <p class="feature-description">
+                        Sistema de verificação via WhatsApp com código de 6 dígitos. Integração completa com Twilio para autenticação segura.
+                    </p>
+                    <span class="feature-tag">Twilio API</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('documents')">
+                    <div class="feature-icon">📄</div>
+                    <h3 class="feature-title">Document Barrier</h3>
+                    <p class="feature-description">
+                        Upload e verificação de documentos. Funcionalidades bloqueadas até aprovação. Sistema impeditivo robusto.
+                    </p>
+                    <span class="feature-tag">Secure Upload</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('gps')">
+                    <div class="feature-icon">📍</div>
+                    <h3 class="feature-title">GPS & Maps</h3>
+                    <p class="feature-description">
+                        Localização em tempo real, busca por proximidade e navegação estilo Uber. Geocoding e reverse geocoding integrados.
+                    </p>
+                    <span class="feature-tag">Geolocation</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('calendar')">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Google Calendar</h3>
+                    <p class="feature-description">
+                        Sincronização automática com Google Calendar. OAuth 2.0, listagem de eventos e gerenciamento completo.
+                    </p>
+                    <span class="feature-tag">OAuth 2.0</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('forum')">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="feature-title">Forum System</h3>
+                    <p class="feature-description">
+                        Fórum completo com threads, posts, categorias e moderação. Sistema de views, pin e lock integrados.
+                    </p>
+                    <span class="feature-tag">Community</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('ai')">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI Chatbot</h3>
+                    <p class="feature-description">
+                        Integração com OpenEvidence para respostas baseadas em evidências científicas. WebSocket em tempo real.
+                    </p>
+                    <span class="feature-tag">OpenEvidence</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('badges')">
+                    <div class="feature-icon">🏅</div>
+                    <h3 class="feature-title">Badges & Trust</h3>
+                    <p class="feature-description">
+                        Sistema de conquistas e reputação inspirado no Reddit. Karma points, trust levels e avatares customizáveis.
+                    </p>
+                    <span class="feature-tag">Gamification</span>
+                </div>
+
+                <div class="feature-card" onclick="showFeatureModal('shifts')">
+                    <div class="feature-icon">🏥</div>
+                    <h3 class="feature-title">Medical Shifts</h3>
+                    <p class="feature-description">
+                        Sistema completo de plantões médicos. Busca, filtros, candidatura e integração futura com Google Jobs.
+                    </p>
+                    <span class="feature-tag">Job Search</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Onboarding Modal (Linktree-style) -->
+    <div class="modal-overlay" id="onboardingModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('onboardingModal')">✕</button>
+            <div class="modal-image">🚀</div>
+            <h2>Bem-vindo ao ApoloCopilot</h2>
+            <p>Siga estes passos para começar sua jornada na plataforma médica mais completa</p>
+
+            <ul class="modal-steps">
+                <li>
+                    <span class="step-number">1</span>
+                    <span>Crie sua conta e faça login</span>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <span>Verifique seu WhatsApp com código</span>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <span>Envie seus documentos para verificação</span>
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <span>Explore todas as funcionalidades</span>
+                </li>
+            </ul>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='/api/auth/register'">
+                Criar conta
+            </button>
+        </div>
+    </div>
+
+    <!-- Feature Modal -->
+    <div class="modal-overlay" id="featureModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('featureModal')">✕</button>
+            <div class="modal-image" id="featureModalIcon">🚀</div>
+            <h2 id="featureModalTitle">Feature</h2>
+            <p id="featureModalDescription">Description</p>
+
+            <div class="code-block" id="featureModalCode">
+                <span class="code-line"><span class="code-comment">// API endpoint</span></span>
+                <span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/example</span></span>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='/docs'">
+                Ver documentação completa
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const tabName = this.dataset.tab;
+                if (tabName === 'docs') window.location.href = '/docs';
+                if (tabName === 'api') window.location.href = '/redoc';
+            });
+        });
+
+        // Modal functions
+        function showOnboardingModal() {
+            document.getElementById('onboardingModal').classList.add('active');
+        }
+
+        function showFeatureModal(feature) {
+            const modal = document.getElementById('featureModal');
+            const features = {
+                whatsapp: {
+                    icon: '📱',
+                    title: 'WhatsApp Verification',
+                    description: 'Sistema completo de verificação via WhatsApp usando Twilio API. Envio de código, validação e proteção contra spam.',
+                    code: `<span class="code-line"><span class="code-comment">// Enviar código de verificação</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/whatsapp/send-code</span></span>
+<span class="code-line">{ "phone_number": "+5511999999999" }</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Verificar código</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/whatsapp/verify-code</span></span>
+<span class="code-line">{ "phone_number": "+55...", "code": "123456" }</span>`
+                },
+                documents: {
+                    icon: '📄',
+                    title: 'Document Verification',
+                    description: 'Upload seguro de documentos com validação e barreira impeditiva até aprovação.',
+                    code: `<span class="code-line"><span class="code-comment">// Upload de documento</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/documents/upload</span></span>
+<span class="code-line">Content-Type: multipart/form-data</span>
+<span class="code-line">document_type: "id_card"</span>
+<span class="code-line">file: [binary]</span>`
+                },
+                gps: {
+                    icon: '📍',
+                    title: 'GPS & Location',
+                    description: 'Sistema de geolocalização com busca por proximidade e navegação.',
+                    code: `<span class="code-line"><span class="code-comment">// Salvar localização</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/location/save</span></span>
+<span class="code-line">{ "latitude": -23.55, "longitude": -46.63 }</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Buscar próximos</span></span>
+<span class="code-line"><span class="code-keyword">GET</span> <span class="code-string">/api/location/nearby?radius_km=5</span></span>`
+                },
+                calendar: {
+                    icon: '📅',
+                    title: 'Google Calendar',
+                    description: 'Integração completa com Google Calendar via OAuth 2.0.',
+                    code: `<span class="code-line"><span class="code-comment">// Obter URL de autenticação</span></span>
+<span class="code-line"><span class="code-keyword">GET</span> <span class="code-string">/api/calendar/auth-url</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Listar eventos</span></span>
+<span class="code-line"><span class="code-keyword">GET</span> <span class="code-string">/api/calendar/events</span></span>`
+                },
+                forum: {
+                    icon: '💬',
+                    title: 'Forum System',
+                    description: 'Fórum completo com threads, posts e sistema de moderação.',
+                    code: `<span class="code-line"><span class="code-comment">// Criar thread</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/forum/threads</span></span>
+<span class="code-line">{ "title": "...", "content": "...", "category_id": 1 }</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Criar post</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/forum/threads/{id}/posts</span></span>`
+                },
+                ai: {
+                    icon: '🤖',
+                    title: 'AI Chatbot',
+                    description: 'Chatbot inteligente integrado com OpenEvidence para respostas baseadas em evidências.',
+                    code: `<span class="code-line"><span class="code-comment">// Enviar mensagem</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/chat/send</span></span>
+<span class="code-line">{ "message": "Como tratar hipertensão?" }</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// WebSocket real-time</span></span>
+<span class="code-line"><span class="code-keyword">WS</span> <span class="code-string">/api/chat/ws</span></span>`
+                },
+                badges: {
+                    icon: '🏅',
+                    title: 'Badges & Trust',
+                    description: 'Sistema de gamificação com badges, karma e trust score tipo Reddit.',
+                    code: `<span class="code-line"><span class="code-comment">// Obter badges</span></span>
+<span class="code-line"><span class="code-keyword">GET</span> <span class="code-string">/api/gamification/my-badges</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Votar em conteúdo</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/gamification/vote</span></span>
+<span class="code-line">{ "target_type": "post", "target_id": 123, "vote_type": 1 }</span>`
+                },
+                shifts: {
+                    icon: '🏥',
+                    title: 'Medical Shifts',
+                    description: 'Sistema de plantões médicos com busca, filtros e candidatura.',
+                    code: `<span class="code-line"><span class="code-comment">// Buscar plantões</span></span>
+<span class="code-line"><span class="code-keyword">GET</span> <span class="code-string">/api/shifts/search?city=São Paulo</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-comment">// Candidatar-se</span></span>
+<span class="code-line"><span class="code-keyword">POST</span> <span class="code-string">/api/shifts/{id}/apply</span></span>`
+                }
+            };
+
+            const data = features[feature];
+            document.getElementById('featureModalIcon').innerHTML = data.icon;
+            document.getElementById('featureModalTitle').textContent = data.title;
+            document.getElementById('featureModalDescription').textContent = data.description;
+            document.getElementById('featureModalCode').innerHTML = data.code;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
