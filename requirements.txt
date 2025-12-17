@@ -3,3 +3,46 @@
 fastapi>=0.104.0,<1.0.0
 uvicorn[standard]>=0.24.0,<1.0.0
 pydantic>=2.4.0,<3.0.0
+
+# Authentication & Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# WhatsApp Integration
+twilio>=8.10.0
+
+# Google Calendar Integration
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+google-api-python-client>=2.100.0
+
+# Database ORM
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+
+# Image Processing (for document verification)
+Pillow>=10.0.0
+python-magic>=0.4.27
+
+# HTTP Client & WebSockets
+httpx>=0.25.0
+websockets>=12.0
+
+# Geolocation & Maps
+geopy>=2.4.0
+
+# Email notifications
+aiosmtplib>=3.0.0
+email-validator>=2.1.0
+
+# Background tasks
+celery>=5.3.0
+redis>=5.0.0
+
+# File uploads
+aiofiles>=23.2.0
+
+# Environment variables
+python-dotenv>=1.0.0
