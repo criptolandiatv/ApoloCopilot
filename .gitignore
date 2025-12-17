@@ -91,3 +91,7 @@ package-lock.json
 
 # Claude Code local settings (created during development)
 .claude/settings.local.json
+
+# Medical scraper generated files
+medicos_*.xlsx
+*.xlsx

@@ -1,0 +1,15 @@
+# Requirements for Medical Contacts Scraper
+# Install with: pip install -r requirements_medical_scraper.txt
+
+# Data manipulation and Excel export
+pandas>=2.0.0
+openpyxl>=3.0.0
+
+# Web scraping
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+lxml>=4.9.0
+
+# Optional: for enhanced scraping capabilities
+# selenium>=4.15.0  # Uncomment if you need JavaScript rendering
+# playwright>=1.40.0  # Alternative to selenium
