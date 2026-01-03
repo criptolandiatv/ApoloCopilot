@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - ApoloCopilot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0B0F19;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #FF4500, #46D160);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #B8C5D0;
+            font-size: 1.1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: #1A1F2E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #B8C5D0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #FF4500, #FF6B35);
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1A1F2E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.2);
+            border-color: #FF4500;
+        }
+
+        .stat-label {
+            color: #B8C5D0;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF4500, #46D160);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: #46D160;
+        }
+
+        .stat-change.negative {
+            color: #EF4444;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: #1A1F2E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-card {
+            background: #1A1F2E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: #B8C5D0;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: rgba(70, 209, 96, 0.2);
+            color: #46D160;
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+
+        .badge.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>📊 Analytics Dashboard</h1>
+            <p class="subtitle">Visão completa da sua plataforma médica</p>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" data-period="today">Hoje</button>
+            <button class="filter-btn" data-period="week">Esta Semana</button>
+            <button class="filter-btn" data-period="month">Este Mês</button>
+            <button class="filter-btn" data-period="year">Este Ano</button>
+            <button class="filter-btn" data-period="custom">Personalizado</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total de Usuários</div>
+                <div class="stat-value">1,234</div>
+                <div class="stat-change positive">
+                    ↑ 12.5% vs. período anterior
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Verificações Completas</div>
+                <div class="stat-value">856</div>
+                <div class="stat-change positive">
+                    ↑ 8.3% vs. período anterior
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Plantões Ativos</div>
+                <div class="stat-value">42</div>
+                <div class="stat-change negative">
+                    ↓ 3.2% vs. período anterior
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Taxa de Engajamento</div>
+                <div class="stat-value">78%</div>
+                <div class="stat-change positive">
+                    ↑ 5.7% vs. período anterior
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2 class="chart-title">Usuários ao Longo do Tempo</h2>
+                <div class="chart-container">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Distribuição por Status</h2>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Plantões por Tipo</h2>
+                <div class="chart-container">
+                    <canvas id="shiftsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Atividade do Chat AI</h2>
+                <div class="chart-container">
+                    <canvas id="chatChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="table-card">
+            <h2 class="chart-title">Atividade Recente</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>Ação</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dr. João Silva</td>
+                        <td>Verificação de WhatsApp</td>
+                        <td><span class="badge success">Completo</span></td>
+                        <td>Há 5 minutos</td>
+                    </tr>
+                    <tr>
+                        <td>Dra. Maria Santos</td>
+                        <td>Upload de Documentos</td>
+                        <td><span class="badge warning">Pendente</span></td>
+                        <td>Há 12 minutos</td>
+                    </tr>
+                    <tr>
+                        <td>Dr. Pedro Costa</td>
+                        <td>Candidatura a Plantão</td>
+                        <td><span class="badge success">Enviado</span></td>
+                        <td>Há 1 hora</td>
+                    </tr>
+                    <tr>
+                        <td>Dra. Ana Oliveira</td>
+                        <td>Sincronização Google Calendar</td>
+                        <td><span class="badge success">Sincronizado</span></td>
+                        <td>Há 2 horas</td>
+                    </tr>
+                    <tr>
+                        <td>Dr. Carlos Mendes</td>
+                        <td>Post no Fórum</td>
+                        <td><span class="badge success">Publicado</span></td>
+                        <td>Há 3 horas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configuration
+        const chartColors = {
+            primary: '#FF4500',
+            secondary: '#46D160',
+            tertiary: '#0079D3',
+            quaternary: '#FFD700',
+            background: 'rgba(255, 69, 0, 0.1)',
+        };
+
+        // Users Chart
+        const usersCtx = document.getElementById('usersChart').getContext('2d');
+        new Chart(usersCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Usuários Ativos',
+                    data: [450, 520, 680, 780, 920, 1050, 1234],
+                    borderColor: chartColors.primary,
+                    backgroundColor: chartColors.background,
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#B8C5D0' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#B8C5D0' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#B8C5D0' }
+                    }
+                }
+            }
+        });
+
+        // Status Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Verificados', 'Pendente Docs', 'Pendente Phone', 'Suspensos'],
+                datasets: [{
+                    data: [856, 234, 98, 46],
+                    backgroundColor: [
+                        chartColors.secondary,
+                        chartColors.quaternary,
+                        chartColors.tertiary,
+                        chartColors.primary,
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#B8C5D0' }
+                    }
+                }
+            }
+        });
+
+        // Shifts Chart
+        const shiftsCtx = document.getElementById('shiftsChart').getContext('2d');
+        new Chart(shiftsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Emergência', 'UTI', 'Cirurgia', 'Pediatria', 'Geral'],
+                datasets: [{
+                    label: 'Plantões',
+                    data: [12, 8, 6, 10, 6],
+                    backgroundColor: [
+                        chartColors.primary,
+                        chartColors.secondary,
+                        chartColors.tertiary,
+                        chartColors.quaternary,
+                        chartColors.primary,
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#B8C5D0' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#B8C5D0' }
+                    }
+                }
+            }
+        });
+
+        // Chat Chart
+        const chatCtx = document.getElementById('chatChart').getContext('2d');
+        new Chart(chatCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+                datasets: [{
+                    label: 'Mensagens',
+                    data: [45, 30, 78, 120, 156, 98, 67],
+                    borderColor: chartColors.secondary,
+                    backgroundColor: 'rgba(70, 209, 96, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#B8C5D0' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#B8C5D0' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#B8C5D0' }
+                    }
+                }
+            }
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Aqui você faria a chamada para atualizar os dados
+                console.log('Filter changed to:', this.dataset.period);
+            });
+        });
+    </script>
+
+    <!-- AI Chatbox Widget -->
+    <script src="/static/js/ai-chatbox.js"></script>
+</body>
+</html>
