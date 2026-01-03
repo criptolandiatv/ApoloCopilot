@@ -14,7 +14,7 @@
 - Unfunded (bootstrapped) - limited growth capital
 - Zero public reviews on G2/Capterra/Trustpilot
 - Unclear ABDM/NDHM integration status (critical for India)
-- Parent company is generalist tech, not healthcare-focused
+- The parent company is a generalist tech firm, not healthcare-focused
 - No verifiable case studies or named customers
 
 ---
