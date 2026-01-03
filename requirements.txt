@@ -10,3 +10,6 @@ pandas>=2.0.0,<3.0.0
 scipy>=1.11.0,<2.0.0
 matplotlib>=3.7.0,<4.0.0
 scikit-learn>=1.3.0,<2.0.0
+
+# AI/ML Integration
+anthropic[vertex]>=0.39.0
