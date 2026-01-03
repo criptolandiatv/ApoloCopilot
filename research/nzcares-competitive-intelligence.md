@@ -12,7 +12,7 @@
 
 **Key Vulnerabilities Identified:**
 - Unfunded (bootstrapped) - limited growth capital
-- Zero public reviews on G2/Capterra/TrustPilot
+- Zero public reviews on G2/Capterra/Trustpilot
 - Unclear ABDM/NDHM integration status (critical for India)
 - Parent company is generalist tech, not healthcare-focused
 - No verifiable case studies or named customers
