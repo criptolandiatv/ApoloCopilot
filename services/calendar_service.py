@@ -1,4 +1,5 @@
 """Google Calendar integration service"""
+
 import os
 from datetime import datetime
 from typing import List, Optional
@@ -17,7 +18,7 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 
 class CalendarService:
@@ -35,14 +36,11 @@ class CalendarService:
     def get_authorization_url(self) -> str:
         """Get Google OAuth authorization URL"""
         flow = Flow.from_client_config(
-            self.client_config,
-            scopes=SCOPES,
-            redirect_uri=GOOGLE_REDIRECT_URI
+            self.client_config, scopes=SCOPES, redirect_uri=GOOGLE_REDIRECT_URI
         )
 
         authorization_url, state = flow.authorization_url(
-            access_type='offline',
-            include_granted_scopes='true'
+            access_type="offline", include_granted_scopes="true"
         )
 
         return authorization_url
@@ -50,68 +48,68 @@ class CalendarService:
     def exchange_code_for_token(self, code: str) -> Credentials:
         """Exchange authorization code for access token"""
         flow = Flow.from_client_config(
-            self.client_config,
-            scopes=SCOPES,
-            redirect_uri=GOOGLE_REDIRECT_URI
+            self.client_config, scopes=SCOPES, redirect_uri=GOOGLE_REDIRECT_URI
         )
 
         flow.fetch_token(code=code)
         return flow.credentials
 
     async def sync_calendar_events(
-        self,
-        user_id: int,
-        credentials: Credentials,
-        db: Session,
-        max_results: int = 50
+        self, user_id: int, credentials: Credentials, db: Session, max_results: int = 50
     ) -> List[CalendarEvent]:
         """Sync events from Google Calendar"""
-        service = build('calendar', 'v3', credentials=credentials)
+        service = build("calendar", "v3", credentials=credentials)
 
         # Get upcoming events
-        now = datetime.utcnow().isoformat() + 'Z'
-        events_result = service.events().list(
-            calendarId='primary',
-            timeMin=now,
-            maxResults=max_results,
-            singleEvents=True,
-            orderBy='startTime'
-        ).execute()
+        now = datetime.utcnow().isoformat() + "Z"
+        events_result = (
+            service.events()
+            .list(
+                calendarId="primary",
+                timeMin=now,
+                maxResults=max_results,
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
 
-        events = events_result.get('items', [])
+        events = events_result.get("items", [])
         synced_events = []
 
         for event in events:
-            google_event_id = event['id']
+            google_event_id = event["id"]
 
             # Check if event already exists
-            existing_event = db.query(CalendarEvent).filter(
-                CalendarEvent.google_event_id == google_event_id
-            ).first()
+            existing_event = (
+                db.query(CalendarEvent)
+                .filter(CalendarEvent.google_event_id == google_event_id)
+                .first()
+            )
 
             # Parse dates
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['end'].get('date'))
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            end = event["end"].get("dateTime", event["end"].get("date"))
 
-            is_all_day = 'date' in event['start']
+            is_all_day = "date" in event["start"]
 
-            if 'T' in start:
-                start_time = datetime.fromisoformat(start.replace('Z', '+00:00'))
-                end_time = datetime.fromisoformat(end.replace('Z', '+00:00'))
+            if "T" in start:
+                start_time = datetime.fromisoformat(start.replace("Z", "+00:00"))
+                end_time = datetime.fromisoformat(end.replace("Z", "+00:00"))
             else:
                 start_time = datetime.fromisoformat(start)
                 end_time = datetime.fromisoformat(end)
 
             event_data = {
-                'user_id': user_id,
-                'google_event_id': google_event_id,
-                'title': event.get('summary', 'Sem título'),
-                'description': event.get('description', ''),
-                'location': event.get('location', ''),
-                'start_time': start_time,
-                'end_time': end_time,
-                'is_all_day': is_all_day,
-                'synced_at': datetime.utcnow()
+                "user_id": user_id,
+                "google_event_id": google_event_id,
+                "title": event.get("summary", "Sem título"),
+                "description": event.get("description", ""),
+                "location": event.get("location", ""),
+                "start_time": start_time,
+                "end_time": end_time,
+                "is_all_day": is_all_day,
+                "synced_at": datetime.utcnow(),
             }
 
             if existing_event:
@@ -132,13 +130,13 @@ class CalendarService:
         return synced_events
 
     async def get_user_events(
-        self,
-        user_id: int,
-        db: Session,
-        limit: int = 20
+        self, user_id: int, db: Session, limit: int = 20
     ) -> List[CalendarEvent]:
         """Get user's calendar events from database"""
-        return db.query(CalendarEvent).filter(
-            CalendarEvent.user_id == user_id,
-            CalendarEvent.start_time >= datetime.utcnow()
-        ).order_by(CalendarEvent.start_time).limit(limit).all()
+        return (
+            db.query(CalendarEvent)
+            .filter(CalendarEvent.user_id == user_id, CalendarEvent.start_time >= datetime.utcnow())
+            .order_by(CalendarEvent.start_time)
+            .limit(limit)
+            .all()
+        )

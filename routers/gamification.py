@@ -1,4 +1,5 @@
 """Gamification routes - Badges, Trust, Avatars"""
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -65,13 +66,12 @@ async def get_all_badges(db: Session = Depends(get_db)):
 
 @router.get("/my-badges", response_model=List[BadgeResponse])
 async def get_my_badges(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     """Get current user's earned badges"""
-    user_badges = db.query(UserBadge, Badge).join(Badge).filter(
-        UserBadge.user_id == current_user.id
-    ).all()
+    user_badges = (
+        db.query(UserBadge, Badge).join(Badge).filter(UserBadge.user_id == current_user.id).all()
+    )
 
     badges_list = []
     for ub, badge in user_badges:
@@ -81,7 +81,7 @@ async def get_my_badges(
             "description": badge.description,
             "icon": badge.icon,
             "color": badge.color,
-            "earned_at": ub.earned_at.isoformat()
+            "earned_at": ub.earned_at.isoformat(),
         }
         badges_list.append(badge_dict)
 
@@ -93,7 +93,7 @@ async def award_badge(
     user_id: int,
     badge_id: int,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Award a badge to a user (admin/system)"""
     # Check if badge exists
@@ -102,10 +102,11 @@ async def award_badge(
         raise HTTPException(status_code=404, detail="Badge não encontrado")
 
     # Check if user already has this badge
-    existing = db.query(UserBadge).filter(
-        UserBadge.user_id == user_id,
-        UserBadge.badge_id == badge_id
-    ).first()
+    existing = (
+        db.query(UserBadge)
+        .filter(UserBadge.user_id == user_id, UserBadge.badge_id == badge_id)
+        .first()
+    )
 
     if existing:
         raise HTTPException(status_code=400, detail="Usuário já possui este badge")
@@ -121,13 +122,10 @@ async def award_badge(
 # TRUST/KARMA
 @router.get("/trust/me", response_model=TrustScoreResponse)
 async def get_my_trust(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     """Get current user's trust score"""
-    trust = db.query(TrustScore).filter(
-        TrustScore.user_id == current_user.id
-    ).first()
+    trust = db.query(TrustScore).filter(TrustScore.user_id == current_user.id).first()
 
     if not trust:
         # Create initial trust score
@@ -140,14 +138,9 @@ async def get_my_trust(
 
 
 @router.get("/trust/{user_id}", response_model=TrustScoreResponse)
-async def get_user_trust(
-    user_id: int,
-    db: Session = Depends(get_db)
-):
+async def get_user_trust(user_id: int, db: Session = Depends(get_db)):
     """Get a user's trust score"""
-    trust = db.query(TrustScore).filter(
-        TrustScore.user_id == user_id
-    ).first()
+    trust = db.query(TrustScore).filter(TrustScore.user_id == user_id).first()
 
     if not trust:
         raise HTTPException(status_code=404, detail="Trust score não encontrado")
@@ -159,18 +152,22 @@ async def get_user_trust(
 async def vote_content(
     vote_data: VoteRequest,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Upvote or downvote content (Reddit-style)"""
     if vote_data.vote_type not in [1, -1]:
         raise HTTPException(status_code=400, detail="vote_type deve ser 1 ou -1")
 
     # Check if user already voted
-    existing_vote = db.query(Vote).filter(
-        Vote.user_id == current_user.id,
-        Vote.target_type == vote_data.target_type,
-        Vote.target_id == vote_data.target_id
-    ).first()
+    existing_vote = (
+        db.query(Vote)
+        .filter(
+            Vote.user_id == current_user.id,
+            Vote.target_type == vote_data.target_type,
+            Vote.target_id == vote_data.target_id,
+        )
+        .first()
+    )
 
     if existing_vote:
         # Update existing vote
@@ -190,7 +187,7 @@ async def vote_content(
             user_id=current_user.id,
             target_type=vote_data.target_type,
             target_id=vote_data.target_id,
-            vote_type=vote_data.vote_type
+            vote_type=vote_data.vote_type,
         )
         db.add(vote)
         db.commit()
@@ -201,13 +198,10 @@ async def vote_content(
 # AVATARS
 @router.get("/avatar/me", response_model=AvatarResponse)
 async def get_my_avatar(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     """Get current user's avatar"""
-    avatar = db.query(Avatar).filter(
-        Avatar.user_id == current_user.id
-    ).first()
+    avatar = db.query(Avatar).filter(Avatar.user_id == current_user.id).first()
 
     if not avatar:
         # Create default avatar
@@ -225,12 +219,10 @@ async def customize_avatar(
     icon: Optional[str] = None,
     show_badges: Optional[bool] = None,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Customize user's avatar"""
-    avatar = db.query(Avatar).filter(
-        Avatar.user_id == current_user.id
-    ).first()
+    avatar = db.query(Avatar).filter(Avatar.user_id == current_user.id).first()
 
     if not avatar:
         avatar = Avatar(user_id=current_user.id)
@@ -253,7 +245,7 @@ async def customize_avatar(
 async def upload_avatar(
     file: UploadFile = File(...),
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Upload custom avatar image"""
     # Save avatar file
@@ -272,9 +264,7 @@ async def upload_avatar(
         buffer.write(content)
 
     # Update avatar
-    avatar = db.query(Avatar).filter(
-        Avatar.user_id == current_user.id
-    ).first()
+    avatar = db.query(Avatar).filter(Avatar.user_id == current_user.id).first()
 
     if not avatar:
         avatar = Avatar(user_id=current_user.id)

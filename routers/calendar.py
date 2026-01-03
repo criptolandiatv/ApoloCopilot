@@ -1,4 +1,5 @@
 """Google Calendar integration routes"""
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -28,15 +29,13 @@ class CalendarEventResponse(BaseModel):
 
 
 @router.get("/auth-url")
-async def get_calendar_auth_url(
-    current_user: User = Depends(get_verified_user)
-):
+async def get_calendar_auth_url(current_user: User = Depends(get_verified_user)):
     """Get Google Calendar authorization URL"""
     auth_url = calendar_service.get_authorization_url()
 
     return {
         "authorization_url": auth_url,
-        "message": "Clique no link para autorizar acesso ao Google Calendar"
+        "message": "Clique no link para autorizar acesso ao Google Calendar",
     }
 
 
@@ -44,7 +43,7 @@ async def get_calendar_auth_url(
 async def calendar_callback(
     code: str = Query(..., description="Authorization code"),
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Handle Google Calendar OAuth callback"""
     try:
@@ -52,50 +51,37 @@ async def calendar_callback(
 
         # Sync calendar events
         events = await calendar_service.sync_calendar_events(
-            user_id=current_user.id,
-            credentials=credentials,
-            db=db
+            user_id=current_user.id, credentials=credentials, db=db
         )
 
         return {
             "success": True,
             "message": "Google Calendar conectado com sucesso!",
-            "events_synced": len(events)
+            "events_synced": len(events),
         }
 
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Erro ao conectar Google Calendar: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Erro ao conectar Google Calendar: {str(e)}")
 
 
 @router.get("/events", response_model=List[CalendarEventResponse])
 async def get_calendar_events(
     limit: int = Query(20, le=100),
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get user's calendar events"""
-    events = await calendar_service.get_user_events(
-        user_id=current_user.id,
-        db=db,
-        limit=limit
-    )
+    events = await calendar_service.get_user_events(user_id=current_user.id, db=db, limit=limit)
 
     return events
 
 
 @router.post("/sync")
 async def sync_calendar(
-    current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_verified_user), db: Session = Depends(get_db)
 ):
     """Manually sync calendar events"""
     # Note: In production, you would store credentials securely
     # and reuse them here. This is simplified for demonstration.
 
-    return {
-        "success": True,
-        "message": "Use /auth-url para reconectar e sincronizar eventos"
-    }
+    return {"success": True, "message": "Use /auth-url para reconectar e sincronizar eventos"}

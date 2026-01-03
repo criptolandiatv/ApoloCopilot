@@ -1,4 +1,5 @@
 """Gamification models - Badges, Karma/Trust, Avatars"""
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -48,6 +49,7 @@ class UserBadge(Base):
 
 class TrustScore(Base):
     """Reddit-style karma/trust system"""
+
     __tablename__ = "trust_scores"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -75,6 +77,7 @@ class TrustScore(Base):
 
 class Avatar(Base):
     """Reddit-style avatar system"""
+
     __tablename__ = "avatars"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -98,6 +101,7 @@ class Avatar(Base):
 
 class Vote(Base):
     """Upvote/downvote system for posts and threads"""
+
     __tablename__ = "votes"
 
     id = Column(Integer, primary_key=True, index=True)

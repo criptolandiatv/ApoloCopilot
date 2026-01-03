@@ -1,4 +1,5 @@
 """Medical shifts/plantões routes"""
+
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -61,13 +62,10 @@ async def search_shifts(
     max_distance_km: Optional[float] = None,
     limit: int = Query(50, le=200),
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Search for available medical shifts"""
-    query = db.query(Shift).filter(
-        Shift.is_active == True,
-        Shift.is_filled == False
-    )
+    query = db.query(Shift).filter(Shift.is_active == True, Shift.is_filled == False)
 
     if city:
         query = query.filter(Shift.city.ilike(f"%{city}%"))
@@ -89,7 +87,7 @@ async def search_shifts(
 async def create_shift(
     shift_data: ShiftCreate,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Create a new shift opportunity"""
     shift = Shift(**shift_data.dict())
@@ -102,10 +100,7 @@ async def create_shift(
 
 
 @router.get("/{shift_id}", response_model=ShiftResponse)
-async def get_shift(
-    shift_id: int,
-    db: Session = Depends(get_db)
-):
+async def get_shift(shift_id: int, db: Session = Depends(get_db)):
     """Get shift details"""
     shift = db.query(Shift).filter(Shift.id == shift_id).first()
 
@@ -120,7 +115,7 @@ async def apply_to_shift(
     shift_id: int,
     application_data: ApplicationCreate,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Apply to a shift"""
     # Check if shift exists
@@ -132,19 +127,18 @@ async def apply_to_shift(
         raise HTTPException(status_code=400, detail="Plantão já preenchido")
 
     # Check if already applied
-    existing = db.query(ShiftApplication).filter(
-        ShiftApplication.shift_id == shift_id,
-        ShiftApplication.user_id == current_user.id
-    ).first()
+    existing = (
+        db.query(ShiftApplication)
+        .filter(ShiftApplication.shift_id == shift_id, ShiftApplication.user_id == current_user.id)
+        .first()
+    )
 
     if existing:
         raise HTTPException(status_code=400, detail="Você já se candidatou a este plantão")
 
     # Create application
     application = ShiftApplication(
-        shift_id=shift_id,
-        user_id=current_user.id,
-        cover_letter=application_data.cover_letter
+        shift_id=shift_id, user_id=current_user.id, cover_letter=application_data.cover_letter
     )
 
     db.add(application)
@@ -159,37 +153,40 @@ async def apply_to_shift(
 
 @router.get("/my/applications")
 async def get_my_applications(
-    current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_verified_user), db: Session = Depends(get_db)
 ):
     """Get user's shift applications"""
-    applications = db.query(ShiftApplication, Shift).join(Shift).filter(
-        ShiftApplication.user_id == current_user.id
-    ).order_by(ShiftApplication.applied_at.desc()).all()
+    applications = (
+        db.query(ShiftApplication, Shift)
+        .join(Shift)
+        .filter(ShiftApplication.user_id == current_user.id)
+        .order_by(ShiftApplication.applied_at.desc())
+        .all()
+    )
 
     results = []
     for app, shift in applications:
-        results.append({
-            "application_id": app.id,
-            "status": app.status,
-            "applied_at": app.applied_at.isoformat(),
-            "shift": {
-                "id": shift.id,
-                "title": shift.title,
-                "hospital_name": shift.hospital_name,
-                "shift_date": shift.shift_date.isoformat() if shift.shift_date else None,
-                "total_pay": shift.total_pay
+        results.append(
+            {
+                "application_id": app.id,
+                "status": app.status,
+                "applied_at": app.applied_at.isoformat(),
+                "shift": {
+                    "id": shift.id,
+                    "title": shift.title,
+                    "hospital_name": shift.hospital_name,
+                    "shift_date": shift.shift_date.isoformat() if shift.shift_date else None,
+                    "total_pay": shift.total_pay,
+                },
             }
-        })
+        )
 
     return results
 
 
 @router.post("/scrape/google-jobs", include_in_schema=False)
 async def scrape_google_jobs(
-    background_tasks: BackgroundTasks,
-    query: str = "plantão médico",
-    location: str = "Brasil"
+    background_tasks: BackgroundTasks, query: str = "plantão médico", location: str = "Brasil"
 ):
     """Scrape medical shifts from Google Jobs (background task)"""
     # This would be a background task that scrapes Google Jobs
@@ -199,19 +196,16 @@ async def scrape_google_jobs(
         "success": True,
         "message": "Busca de plantões iniciada em background",
         "query": query,
-        "location": location
+        "location": location,
     }
 
 
 @router.get("/filters/my")
 async def get_my_filters(
-    current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_verified_user), db: Session = Depends(get_db)
 ):
     """Get user's saved shift filters"""
-    filters = db.query(ShiftFilter).filter(
-        ShiftFilter.user_id == current_user.id
-    ).first()
+    filters = db.query(ShiftFilter).filter(ShiftFilter.user_id == current_user.id).first()
 
     if not filters:
         return {"message": "Nenhum filtro configurado"}
@@ -226,14 +220,12 @@ async def save_filters(
     min_pay: Optional[float] = None,
     max_distance_km: Optional[float] = None,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Save shift search filters"""
     import json
 
-    filters = db.query(ShiftFilter).filter(
-        ShiftFilter.user_id == current_user.id
-    ).first()
+    filters = db.query(ShiftFilter).filter(ShiftFilter.user_id == current_user.id).first()
 
     if not filters:
         filters = ShiftFilter(user_id=current_user.id)
@@ -264,6 +256,6 @@ async def get_shift_types():
             {"value": "general", "label": "Geral"},
             {"value": "pediatrics", "label": "Pediatria"},
             {"value": "obstetrics", "label": "Obstetrícia"},
-            {"value": "other", "label": "Outro"}
+            {"value": "other", "label": "Outro"},
         ]
     }

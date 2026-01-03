@@ -1,4 +1,5 @@
 """Document verification routes"""
+
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -29,7 +30,7 @@ async def upload_document(
     file: UploadFile = File(...),
     document_type: str = Form(...),
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Upload a document for verification"""
     try:
@@ -39,46 +40,36 @@ async def upload_document(
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Tipo de documento inválido. Use: {', '.join([t.value for t in DocumentType])}"
+                detail=f"Tipo de documento inválido. Use: {', '.join([t.value for t in DocumentType])}",
             )
 
         # Upload document
         document = await document_service.upload_document(
-            user_id=current_user.id,
-            document_type=doc_type,
-            file=file,
-            db=db
+            user_id=current_user.id, document_type=doc_type, file=file, db=db
         )
 
         return {
             "success": True,
             "message": "Documento enviado com sucesso. Aguarde análise.",
             "document_id": document.id,
-            "status": document.status.value
+            "status": document.status.value,
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erro ao fazer upload: {str(e)}"
+            detail=f"Erro ao fazer upload: {str(e)}",
         )
 
 
 @router.get("/my-documents", response_model=List[DocumentResponse])
 async def get_my_documents(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     """Get current user's documents"""
-    documents = await document_service.get_user_documents(
-        user_id=current_user.id,
-        db=db
-    )
+    documents = await document_service.get_user_documents(user_id=current_user.id, db=db)
 
     return documents
 
@@ -91,21 +82,17 @@ async def get_required_documents():
             {
                 "type": "id_card",
                 "name": "Documento de Identidade (RG/CNH)",
-                "description": "Foto clara do seu documento de identidade"
+                "description": "Foto clara do seu documento de identidade",
             },
             {
                 "type": "proof_of_address",
                 "name": "Comprovante de Residência",
-                "description": "Conta de luz, água ou telefone (últimos 3 meses)"
-            }
+                "description": "Conta de luz, água ou telefone (últimos 3 meses)",
+            },
         ],
         "optional": [
-            {
-                "type": "passport",
-                "name": "Passaporte",
-                "description": "Se tiver passaporte válido"
-            }
+            {"type": "passport", "name": "Passaporte", "description": "Se tiver passaporte válido"}
         ],
         "accepted_formats": ["PDF", "JPG", "JPEG", "PNG"],
-        "max_size_mb": 10
+        "max_size_mb": 10,
     }

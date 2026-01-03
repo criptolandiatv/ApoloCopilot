@@ -1,4 +1,5 @@
 """Database models for ApoloCopilot"""
+
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -12,9 +13,21 @@ from .shifts import Shift, ShiftApplication, ShiftFilter
 
 __all__ = [
     "Base",
-    "User", "PhoneVerification", "DocumentVerification", "UserLocation",
-    "ForumCategory", "ForumThread", "ForumPost",
-    "ChatMessage", "CalendarEvent",
-    "Badge", "UserBadge", "TrustScore", "Avatar", "Vote",
-    "Shift", "ShiftApplication", "ShiftFilter"
+    "User",
+    "PhoneVerification",
+    "DocumentVerification",
+    "UserLocation",
+    "ForumCategory",
+    "ForumThread",
+    "ForumPost",
+    "ChatMessage",
+    "CalendarEvent",
+    "Badge",
+    "UserBadge",
+    "TrustScore",
+    "Avatar",
+    "Vote",
+    "Shift",
+    "ShiftApplication",
+    "ShiftFilter",
 ]

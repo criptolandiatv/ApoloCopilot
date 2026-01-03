@@ -1,4 +1,5 @@
 """User and authentication models"""
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Text, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

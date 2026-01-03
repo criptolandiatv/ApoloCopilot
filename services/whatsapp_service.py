@@ -1,4 +1,5 @@
 """WhatsApp verification service using Twilio"""
+
 import os
 import random
 from datetime import datetime, timedelta
@@ -26,10 +27,7 @@ class WhatsAppService:
         return str(random.randint(100000, 999999))
 
     async def send_verification_code(
-        self,
-        phone_number: str,
-        user_id: int,
-        db: Session
+        self, phone_number: str, user_id: int, db: Session
     ) -> PhoneVerification:
         """Send verification code via WhatsApp"""
         # Generate code
@@ -40,7 +38,7 @@ class WhatsAppService:
             user_id=user_id,
             phone_number=phone_number,
             verification_code=code,
-            expires_at=datetime.utcnow() + timedelta(minutes=15)
+            expires_at=datetime.utcnow() + timedelta(minutes=15),
         )
 
         db.add(verification)
@@ -53,7 +51,7 @@ class WhatsAppService:
                 message = self.client.messages.create(
                     body=f"🔐 Seu código de verificação ApoloCopilot é: {code}\n\nVálido por 15 minutos.",
                     from_=TWILIO_WHATSAPP_NUMBER,
-                    to=f"whatsapp:{phone_number}"
+                    to=f"whatsapp:{phone_number}",
                 )
                 print(f"✅ WhatsApp sent: {message.sid}")
             except Exception as e:
@@ -65,18 +63,18 @@ class WhatsAppService:
 
         return verification
 
-    async def verify_code(
-        self,
-        phone_number: str,
-        code: str,
-        db: Session
-    ) -> bool:
+    async def verify_code(self, phone_number: str, code: str, db: Session) -> bool:
         """Verify the code sent to phone number"""
-        verification = db.query(PhoneVerification).filter(
-            PhoneVerification.phone_number == phone_number,
-            PhoneVerification.is_verified == False,
-            PhoneVerification.expires_at > datetime.utcnow()
-        ).order_by(PhoneVerification.created_at.desc()).first()
+        verification = (
+            db.query(PhoneVerification)
+            .filter(
+                PhoneVerification.phone_number == phone_number,
+                PhoneVerification.is_verified == False,
+                PhoneVerification.expires_at > datetime.utcnow(),
+            )
+            .order_by(PhoneVerification.created_at.desc())
+            .first()
+        )
 
         if not verification:
             return False
@@ -108,17 +106,11 @@ class WhatsAppService:
 
             return False
 
-    async def resend_code(
-        self,
-        phone_number: str,
-        user_id: int,
-        db: Session
-    ) -> PhoneVerification:
+    async def resend_code(self, phone_number: str, user_id: int, db: Session) -> PhoneVerification:
         """Resend verification code"""
         # Expire old verifications
         db.query(PhoneVerification).filter(
-            PhoneVerification.phone_number == phone_number,
-            PhoneVerification.is_verified == False
+            PhoneVerification.phone_number == phone_number, PhoneVerification.is_verified == False
         ).update({"expires_at": datetime.utcnow()})
         db.commit()
 

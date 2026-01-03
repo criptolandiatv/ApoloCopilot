@@ -1,4 +1,5 @@
 """Medical shifts/plantões models"""
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -27,6 +28,7 @@ class ShiftSource(str, enum.Enum):
 
 class Shift(Base):
     """Medical shifts/plantões opportunities"""
+
     __tablename__ = "shifts"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -70,6 +72,7 @@ class Shift(Base):
 
 class ShiftApplication(Base):
     """User applications to shifts"""
+
     __tablename__ = "shift_applications"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -89,6 +92,7 @@ class ShiftApplication(Base):
 
 class ShiftFilter(Base):
     """User's saved shift filters/preferences"""
+
     __tablename__ = "shift_filters"
 
     id = Column(Integer, primary_key=True, index=True)

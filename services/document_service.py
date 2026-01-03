@@ -1,4 +1,5 @@
 """Document verification service"""
+
 import os
 import uuid
 from datetime import datetime
@@ -16,9 +17,7 @@ class DocumentService:
         self.upload_dir = Path("uploads/documents")
         self.upload_dir.mkdir(parents=True, exist_ok=True)
 
-        self.allowed_extensions = {
-            "pdf", "jpg", "jpeg", "png", "doc", "docx"
-        }
+        self.allowed_extensions = {"pdf", "jpg", "jpeg", "png", "doc", "docx"}
         self.max_size = 10 * 1024 * 1024  # 10MB
 
     def _validate_file(self, file: UploadFile) -> tuple[bool, str]:
@@ -26,7 +25,10 @@ class DocumentService:
         # Check extension
         file_ext = file.filename.split(".")[-1].lower()
         if file_ext not in self.allowed_extensions:
-            return False, f"Tipo de arquivo não permitido. Use: {', '.join(self.allowed_extensions)}"
+            return (
+                False,
+                f"Tipo de arquivo não permitido. Use: {', '.join(self.allowed_extensions)}",
+            )
 
         return True, ""
 
@@ -58,11 +60,7 @@ class DocumentService:
         return str(file_path)
 
     async def upload_document(
-        self,
-        user_id: int,
-        document_type: DocumentType,
-        file: UploadFile,
-        db: Session
+        self, user_id: int, document_type: DocumentType, file: UploadFile, db: Session
     ) -> DocumentVerification:
         """Upload and save document for verification"""
         # Validate file
@@ -78,7 +76,7 @@ class DocumentService:
             user_id=user_id,
             document_type=document_type,
             file_path=file_path,
-            status=DocumentStatus.PENDING
+            status=DocumentStatus.PENDING,
         )
 
         db.add(document)
@@ -87,15 +85,11 @@ class DocumentService:
 
         return document
 
-    async def approve_document(
-        self,
-        document_id: int,
-        db: Session
-    ) -> DocumentVerification:
+    async def approve_document(self, document_id: int, db: Session) -> DocumentVerification:
         """Approve a document"""
-        document = db.query(DocumentVerification).filter(
-            DocumentVerification.id == document_id
-        ).first()
+        document = (
+            db.query(DocumentVerification).filter(DocumentVerification.id == document_id).first()
+        )
 
         if not document:
             raise ValueError("Document not found")
@@ -107,10 +101,14 @@ class DocumentService:
         user = db.query(User).filter(User.id == document.user_id).first()
         if user:
             required_docs = {DocumentType.ID_CARD, DocumentType.PROOF_OF_ADDRESS}
-            approved_docs = db.query(DocumentVerification).filter(
-                DocumentVerification.user_id == user.id,
-                DocumentVerification.status == DocumentStatus.APPROVED
-            ).all()
+            approved_docs = (
+                db.query(DocumentVerification)
+                .filter(
+                    DocumentVerification.user_id == user.id,
+                    DocumentVerification.status == DocumentStatus.APPROVED,
+                )
+                .all()
+            )
 
             approved_types = {doc.document_type for doc in approved_docs}
 
@@ -125,15 +123,12 @@ class DocumentService:
         return document
 
     async def reject_document(
-        self,
-        document_id: int,
-        reason: str,
-        db: Session
+        self, document_id: int, reason: str, db: Session
     ) -> DocumentVerification:
         """Reject a document"""
-        document = db.query(DocumentVerification).filter(
-            DocumentVerification.id == document_id
-        ).first()
+        document = (
+            db.query(DocumentVerification).filter(DocumentVerification.id == document_id).first()
+        )
 
         if not document:
             raise ValueError("Document not found")
@@ -147,12 +142,11 @@ class DocumentService:
 
         return document
 
-    async def get_user_documents(
-        self,
-        user_id: int,
-        db: Session
-    ) -> list[DocumentVerification]:
+    async def get_user_documents(self, user_id: int, db: Session) -> list[DocumentVerification]:
         """Get all documents for a user"""
-        return db.query(DocumentVerification).filter(
-            DocumentVerification.user_id == user_id
-        ).order_by(DocumentVerification.uploaded_at.desc()).all()
+        return (
+            db.query(DocumentVerification)
+            .filter(DocumentVerification.user_id == user_id)
+            .order_by(DocumentVerification.uploaded_at.desc())
+            .all()
+        )

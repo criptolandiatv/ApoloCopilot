@@ -1,4 +1,5 @@
 """AI Chatbot service integrated with OpenEvidence"""
+
 import os
 import httpx
 from typing import Optional
@@ -18,19 +19,10 @@ class ChatbotService:
         self.api_key = OPENEVIDENCE_API_KEY
         self.base_url = OPENEVIDENCE_BASE_URL
 
-    async def get_ai_response(
-        self,
-        user_id: int,
-        message: str,
-        db: Session
-    ) -> ChatMessage:
+    async def get_ai_response(self, user_id: int, message: str, db: Session) -> ChatMessage:
         """Get AI response from OpenEvidence API"""
         # Save user message
-        chat_message = ChatMessage(
-            user_id=user_id,
-            message=message,
-            is_ai_response=False
-        )
+        chat_message = ChatMessage(user_id=user_id, message=message, is_ai_response=False)
         db.add(chat_message)
         db.commit()
 
@@ -56,12 +48,9 @@ class ChatbotService:
                     f"{self.base_url}/query",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    json={
-                        "query": query,
-                        "max_results": 3
-                    }
+                    json={"query": query, "max_results": 3},
                 )
 
                 if response.status_code == 200:
@@ -126,12 +115,13 @@ class ChatbotService:
             )
 
     async def get_chat_history(
-        self,
-        user_id: int,
-        db: Session,
-        limit: int = 20
+        self, user_id: int, db: Session, limit: int = 20
     ) -> list[ChatMessage]:
         """Get user's chat history"""
-        return db.query(ChatMessage).filter(
-            ChatMessage.user_id == user_id
-        ).order_by(ChatMessage.created_at.desc()).limit(limit).all()
+        return (
+            db.query(ChatMessage)
+            .filter(ChatMessage.user_id == user_id)
+            .order_by(ChatMessage.created_at.desc())
+            .limit(limit)
+            .all()
+        )

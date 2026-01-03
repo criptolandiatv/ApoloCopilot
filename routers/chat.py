@@ -1,4 +1,5 @@
 """AI Chatbot routes"""
+
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -32,14 +33,12 @@ class ChatMessageResponse(BaseModel):
 async def send_message(
     data: ChatMessageRequest,
     current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Send a message to the AI chatbot"""
     try:
         chat_message = await chatbot_service.get_ai_response(
-            user_id=current_user.id,
-            message=data.message,
-            db=db
+            user_id=current_user.id, message=data.message, db=db
         )
 
         return {
@@ -47,28 +46,19 @@ async def send_message(
             "message": chat_message.message,
             "response": chat_message.response,
             "source": chat_message.source,
-            "created_at": chat_message.created_at.isoformat()
+            "created_at": chat_message.created_at.isoformat(),
         }
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erro ao processar mensagem: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Erro ao processar mensagem: {str(e)}")
 
 
 @router.get("/history", response_model=List[ChatMessageResponse])
 async def get_chat_history(
-    limit: int = 20,
-    current_user: User = Depends(get_verified_user),
-    db: Session = Depends(get_db)
+    limit: int = 20, current_user: User = Depends(get_verified_user), db: Session = Depends(get_db)
 ):
     """Get chat history"""
-    messages = await chatbot_service.get_chat_history(
-        user_id=current_user.id,
-        db=db,
-        limit=limit
-    )
+    messages = await chatbot_service.get_chat_history(user_id=current_user.id, db=db, limit=limit)
 
     return messages
 
@@ -83,18 +73,15 @@ async def get_chatbot_info():
             "Respostas baseadas em evidências científicas",
             "Informações sobre o sistema",
             "Ajuda com funcionalidades",
-            "Conversação natural"
+            "Conversação natural",
         ],
         "data_source": "OpenEvidence.com",
-        "language": "Português"
+        "language": "Português",
     }
 
 
 @router.websocket("/ws")
-async def websocket_chat(
-    websocket: WebSocket,
-    db: Session = Depends(get_db)
-):
+async def websocket_chat(websocket: WebSocket, db: Session = Depends(get_db)):
     """WebSocket endpoint for real-time chat"""
     await websocket.accept()
 
@@ -106,25 +93,23 @@ async def websocket_chat(
             user_id = data.get("user_id")  # In production, verify from token
 
             if not user_id:
-                await websocket.send_json({
-                    "error": "user_id required"
-                })
+                await websocket.send_json({"error": "user_id required"})
                 continue
 
             # Get AI response
             chat_message = await chatbot_service.get_ai_response(
-                user_id=user_id,
-                message=message,
-                db=db
+                user_id=user_id, message=message, db=db
             )
 
             # Send response
-            await websocket.send_json({
-                "id": chat_message.id,
-                "message": chat_message.message,
-                "response": chat_message.response,
-                "created_at": chat_message.created_at.isoformat()
-            })
+            await websocket.send_json(
+                {
+                    "id": chat_message.id,
+                    "message": chat_message.message,
+                    "response": chat_message.response,
+                    "created_at": chat_message.created_at.isoformat(),
+                }
+            )
 
     except WebSocketDisconnect:
         print("Client disconnected")
