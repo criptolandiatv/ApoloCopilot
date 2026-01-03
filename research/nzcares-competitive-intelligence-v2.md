@@ -244,7 +244,7 @@
 | LinkedIn | 1,870 followers (parent company) |
 | G2 | Listed, **0 reviews** |
 | Capterra | Listed, **0 reviews** |
-| TrustPilot | Not found |
+| Trustpilot | Not found |
 | App Stores | Not found |
 
 ---
