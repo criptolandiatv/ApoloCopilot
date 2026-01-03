@@ -27,7 +27,7 @@
 | Vulnerability | Confidence | Evidence |
 |--------------|------------|----------|
 | Unfunded (bootstrapped) | ✅ Verified | Crunchbase, Tracxn confirm no funding |
-| Zero public reviews | ✅ Verified | G2, Capterra, TrustPilot checked - no reviews |
+| Zero public reviews | ✅ Verified | G2, Capterra, Trustpilot checked - no reviews |
 | **NOT ABDM CERTIFIED** | ✅ Verified | Not found in ABDM certified integrator list |
 | No named customers | ✅ Verified | "100+ hospitals" claimed but zero named |
 | Parent is generalist tech | ✅ Verified | NextZen also serves Fintech, Edtech, Retail |
