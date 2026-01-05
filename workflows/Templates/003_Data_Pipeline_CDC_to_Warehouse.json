@@ -1,0 +1,23 @@
+{
+  "id": "TEMPLATE_CDC_WAREHOUSE",
+  "name": "Reliable CDC to Warehouse with Upserts",
+  "tags": ["etl", "cdc", "warehouse", "upsert", "batch"],
+  "nodes": [
+    {"id": "cron", "name": "Cron - Poll CDC", "type": "n8n-nodes-base.cron", "parameters": {"triggerTimes": {"item": [{"hour": 0, "minute": 0, "second": 30}]}}, "typeVersion": 1, "position": [200, 0]},
+    {"id": "read_cdc", "name": "Read CDC (MySQL)", "type": "n8n-nodes-base.mysql", "parameters": {"operation": "executeQuery", "query": "SELECT * FROM source_table WHERE updated_at > :since ORDER BY updated_at ASC LIMIT 1000"}, "credentials": {"mySql": {"id": "", "name": "source-mysql"}}, "typeVersion": 2, "position": [460, 0]},
+    {"id": "set_since", "name": "State: Update Cursor", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "const since = $json._state?.since || new Date(Date.now()-3600_000).toISOString(); return [{ since }];"}, "typeVersion": 2, "position": [460, -180]},
+    {"id": "transform", "name": "Transform (Function)", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "return items.map(i => ({ json: { id: i.json.id, name: i.json.name?.trim(), amount: Number(i.json.amount)||0, updated_at: i.json.updated_at } }));"}, "typeVersion": 2, "position": [700, 0]},
+    {"id": "upsert", "name": "Upsert into Warehouse (Postgres)", "type": "n8n-nodes-base.postgres", "parameters": {"operation": "executeQuery", "query": "INSERT INTO dw_table(id, name, amount, updated_at) VALUES(:id, :name, :amount, :updated_at) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, amount = EXCLUDED.amount, updated_at = EXCLUDED.updated_at"}, "credentials": {"postgres": {"id": "", "name": "warehouse-pg"}}, "typeVersion": 1, "position": [940, 0]},
+    {"id": "metrics", "name": "Emit Metrics (HTTP)", "type": "n8n-nodes-base.httpRequest", "parameters": {"url": "={{$env.METRICS_ENDPOINT || 'http://metrics/ingest'}}", "method": "POST", "sendBody": true, "specifyBody": "json", "jsonBody": "={\"pipeline\":\"cdc_dw\",\"count\":{{$items().length}}}"}, "typeVersion": 4.2, "position": [1180, 0]},
+    {"id": "persist_state", "name": "Persist State (File)", "type": "n8n-nodes-base.writeBinaryFile", "parameters": {"fileName": "/data/cdc_since.json", "dataPropertyName": "={{$json}}"}, "typeVersion": 1, "position": [1420, 0]}
+  ],
+  "connections": {
+    "Cron - Poll CDC": {"main": [[{"node": "State: Update Cursor", "type": "main", "index": 0}], [{"node": "Read CDC (MySQL)", "type": "main", "index": 0}]]},
+    "Read CDC (MySQL)": {"main": [[{"node": "Transform (Function)", "type": "main", "index": 0}]]},
+    "Transform (Function)": {"main": [[{"node": "Upsert into Warehouse (Postgres)", "type": "main", "index": 0}]]},
+    "Upsert into Warehouse (Postgres)": {"main": [[{"node": "Emit Metrics (HTTP)", "type": "main", "index": 0}]]},
+    "Emit Metrics (HTTP)": {"main": [[{"node": "Persist State (File)", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"}
+}

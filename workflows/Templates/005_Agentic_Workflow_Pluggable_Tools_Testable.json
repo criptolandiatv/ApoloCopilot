@@ -1,0 +1,29 @@
+{
+  "id": "TEMPLATE_AGENT_TOOLS",
+  "name": "Agentic Orchestration with Pluggable Tools + Test Harness",
+  "tags": ["agent", "tools", "test", "openai", "workflow"],
+  "nodes": [
+    {"id": "webhook", "name": "Webhook Chat", "type": "n8n-nodes-base.webhook", "parameters": {"path": "agent/chat", "httpMethod": "POST", "responseMode": "responseNode"}, "typeVersion": 2, "position": [200, 0]},
+    {"id": "set_input", "name": "Normalize Input", "type": "n8n-nodes-base.set", "parameters": {"assignments": {"assignments": [{"id": "a", "name": "query", "type": "string", "value": "={{$json.body?.query || $json.query}}"}, {"id": "b", "name": "sessionId", "type": "string", "value": "={{$json.body?.sessionId || $json.sessionId || $now.toUnix()}}"}]}}, "typeVersion": 3.4, "position": [440, 0]},
+    {"id": "lm", "name": "OpenAI Chat Model", "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi", "parameters": {"model": "gpt-4o-mini", "options": {}}, "credentials": {"openAiApi": {"id": "", "name": "openai"}}, "typeVersion": 1, "position": [920, 0]},
+    {"id": "tool_http", "name": "Tool: HTTP", "type": "@n8n/n8n-nodes-langchain.toolWorkflow", "parameters": {"name": "http", "description": "Fetch JSON from an HTTP endpoint; accepts {\"url\": string}", "workflowId": {"__rl": true, "mode": "id", "value": "HTTP_TOOL_WORKFLOW_ID"}}, "typeVersion": 1.2, "position": [1180, 160]},
+    {"id": "tool_sql", "name": "Tool: SQL", "type": "@n8n/n8n-nodes-langchain.toolWorkflow", "parameters": {"name": "sql", "description": "Run readonly query on Postgres; accepts {\"query\": string}", "workflowId": {"__rl": true, "mode": "id", "value": "SQL_TOOL_WORKFLOW_ID"}}, "typeVersion": 1.2, "position": [1180, 320]},
+    {"id": "parser", "name": "Structured Output Parser", "type": "@n8n/n8n-nodes-langchain.outputParserStructured", "parameters": {"schemaType": "manual", "inputSchema": "{\n  \"answer\": {\n    \"type\": \"string\"\n  },\n  \"sources\": {\n    \"type\": \"array\"\n  }\n}"}, "typeVersion": 1.2, "position": [1180, -160]},
+    {"id": "agent", "name": "AI Agent", "type": "@n8n/n8n-nodes-langchain.agent", "parameters": {"text": "={{$json.query}}", "promptType": "define", "hasOutputParser": true, "options": {"systemMessage": "You are a helpful agent. Use tools when needed."}}, "typeVersion": 1.6, "position": [1180, 0]},
+    {"id": "respond", "name": "Respond", "type": "n8n-nodes-base.respondToWebhook", "parameters": {"responseBody": "={\"answer\": $json.output.answer, \"sources\": $json.output.sources}"}, "typeVersion": 1.1, "position": [1460, 0]},
+
+    {"id": "test_note", "name": "Sticky Note (Testing)", "type": "n8n-nodes-base.stickyNote", "parameters": {"content": "Run tests by invoking the webhook with known prompts; replace tool workflow IDs with your tool workflows. Add assertions in the Code node below."}, "typeVersion": 1, "position": [200, 260]},
+    {"id": "test_code", "name": "Test Harness", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "// Simple smoke test example (manual trigger)\nif (!$json.__test) return [];\nconst passed = typeof $json.query === 'string' && !!$json.sessionId;\nreturn [{ test: 'shape', passed }];"}, "typeVersion": 2, "position": [440, 260]}
+  ],
+  "connections": {
+    "Webhook Chat": {"main": [[{"node": "Normalize Input", "type": "main", "index": 0}]]},
+    "Normalize Input": {"main": [[{"node": "OpenAI Chat Model", "type": "main", "index": 0}]]},
+    "OpenAI Chat Model": {"ai_languageModel": [[{"node": "AI Agent", "type": "ai_languageModel", "index": 0}]]},
+    "Structured Output Parser": {"ai_outputParser": [[{"node": "AI Agent", "type": "ai_outputParser", "index": 0}]]},
+    "Tool: HTTP": {"ai_tool": [[{"node": "AI Agent", "type": "ai_tool", "index": 0}]]},
+    "Tool: SQL": {"ai_tool": [[{"node": "AI Agent", "type": "ai_tool", "index": 0}]]},
+    "AI Agent": {"main": [[{"node": "Respond", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"}
+}

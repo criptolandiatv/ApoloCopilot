@@ -1,0 +1,28 @@
+{
+  "id": "TEMPLATE_EVENTBUS_FANOUT",
+  "name": "Event Bus Fanout with Retry and DLQ",
+  "tags": ["scalable", "eventbus", "fanout", "retry", "dlq"],
+  "nodes": [
+    {"id": "trigger_cron", "name": "Cron - Produce Event", "type": "n8n-nodes-base.cron", "parameters": {"triggerTimes": {"item": [{"hour": 0, "minute": 0, "second": 0}]}}, "typeVersion": 1, "position": [200, 0]},
+    {"id": "set_event", "name": "Set Event Payload", "type": "n8n-nodes-base.set", "parameters": {"assignments": {"assignments": [{"id": "p", "name": "event", "type": "json", "value": "={\"type\":\"user.signup\",\"id\":$now.toUnix() }"}]}}, "typeVersion": 3.4, "position": [440, 0]},
+    {"id": "publish", "name": "Publish to NATS", "type": "n8n-nodes-base.httpRequest", "parameters": {"url": "={{$env.NATS_HTTP_PUBLISH || 'http://nats:8222/pub'}}", "method": "POST", "sendBody": true, "specifyBody": "json", "jsonBody": "={{$json.event}}"}, "typeVersion": 4.2, "position": [680, 0]},
+
+    {"id": "sub_trigger", "name": "Subscriber Trigger", "type": "n8n-nodes-base.webhook", "parameters": {"path": "sub/event", "httpMethod": "POST", "responseMode": "lastNode"}, "typeVersion": 2, "position": [200, 260]},
+    {"id": "process_a", "name": "Process A", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "if ($json.event?.type !== 'user.signup') return []; return [{...$json, processedA: true}]"}, "typeVersion": 2, "position": [440, 260]},
+    {"id": "process_b", "name": "Process B (May Fail)", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "if (Math.random() < 0.3) { throw new Error('Transient failure') } return [{...$json, processedB: true}]"}, "typeVersion": 2, "position": [440, 460]},
+    {"id": "retry_b", "name": "Retry B with Backoff", "type": "n8n-nodes-base.code", "parameters": {"language": "javascript", "jsCode": "const attempt = ($json.__attempt || 0) + 1; if (attempt <= 3) { const delay = Math.pow(2, attempt) * 1000; return [{...$json, __attempt: attempt, __retry_after_ms: delay }]; } return []"}, "typeVersion": 2, "position": [680, 460]},
+    {"id": "wait_b", "name": "Wait Backoff", "type": "n8n-nodes-base.wait", "parameters": {"options": {"delay": "={{$json.__retry_after_ms || 1000}}"}}, "typeVersion": 1, "position": [920, 460]},
+    {"id": "dlq", "name": "Push to DLQ (Redis List)", "type": "n8n-nodes-base.redis", "parameters": {"resource": "queue", "operation": "push", "queue": "dlq_events", "queueData": "={{$json}}"}, "typeVersion": 2, "position": [1160, 460]},
+    {"id": "ack_ok", "name": "Ack OK", "type": "n8n-nodes-base.respondToWebhook", "parameters": {"responseBody": "=OK"}, "typeVersion": 1.1, "position": [680, 260]}
+  ],
+  "connections": {
+    "Cron - Produce Event": {"main": [[{"node": "Set Event Payload", "type": "main", "index": 0}]]},
+    "Set Event Payload": {"main": [[{"node": "Publish to NATS", "type": "main", "index": 0}]]},
+    "Subscriber Trigger": {"main": [[{"node": "Process A", "type": "main", "index": 0}], [{"node": "Process B (May Fail)", "type": "main", "index": 0}]]},
+    "Process B (May Fail)": {"main": [[{"node": "Ack OK", "type": "main", "index": 0}], [{"node": "Retry B with Backoff", "type": "main", "index": 0}]]},
+    "Retry B with Backoff": {"main": [[{"node": "Wait Backoff", "type": "main", "index": 0}]]},
+    "Wait Backoff": {"main": [[{"node": "Process B (May Fail)", "type": "main", "index": 0}], [{"node": "Push to DLQ (Redis List)", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"}
+}

@@ -1,0 +1,144 @@
+{
+  "id": "TEMPLATE_API_QUEUE_WORKER",
+  "name": "API-first Scalable Webhook -> Queue -> Worker",
+  "tags": ["scalable", "api", "queue", "worker", "retry"],
+  "nodes": [
+    {
+      "id": "node_webhook_in",
+      "name": "Webhook In",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "api/ingest",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "authentication": "none",
+        "options": {}
+      },
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "id": "node_validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "language": "javascript",
+        "jsCode": "const body = $json.body || $json;\nif (!body || !body.id || !body.payload) {\n  return [{ error: true, status: 400, message: 'Missing id or payload' }];\n}\nreturn [{ error: false, input: body }];"
+      },
+      "typeVersion": 2,
+      "position": [520, 0]
+    },
+    {
+      "id": "node_if_bad",
+      "name": "IF Invalid",
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [],
+          "string": [
+            { "operation": "isEmpty", "value1": "={{$json.error ? 'err' : ''}}" }
+          ]
+        }
+      },
+      "typeVersion": 2,
+      "position": [760, 0]
+    },
+    {
+      "id": "node_respond_400",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "parameters": {
+        "responseBody": "={\"status\":400,\"error\":$json.message || 'Invalid input'}",
+        "responseCode": 400
+      },
+      "typeVersion": 1.1,
+      "position": [1000, -160]
+    },
+    {
+      "id": "node_enqueue",
+      "name": "Enqueue to Redis",
+      "type": "n8n-nodes-base.redis",
+      "parameters": {
+        "resource": "queue",
+        "operation": "push",
+        "queue": "ingest_jobs",
+        "queueData": "={{$json.input}}"
+      },
+      "credentials": { "redis": { "id": "", "name": "redis" }},
+      "typeVersion": 2,
+      "position": [1000, 80]
+    },
+    {
+      "id": "node_ack",
+      "name": "Ack Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "parameters": {
+        "responseBody": "={\"status\":202,\"id\":$json.input.id}",
+        "responseCode": 202
+      },
+      "typeVersion": 1.1,
+      "position": [1240, 80]
+    },
+    { 
+      "id": "node_worker_trigger",
+      "name": "Worker Cron",
+      "type": "n8n-nodes-base.cron",
+      "parameters": { "triggerTimes": { "item": [ { "hour": 0, "minute": 0, "second": 15 } ] } },
+      "typeVersion": 1,
+      "position": [260, 380]
+    },
+    {
+      "id": "node_dequeue",
+      "name": "Dequeue Batch",
+      "type": "n8n-nodes-base.redis",
+      "parameters": {
+        "resource": "queue",
+        "operation": "pop",
+        "queue": "ingest_jobs",
+        "maxItems": 25
+      },
+      "credentials": { "redis": { "id": "", "name": "redis" }},
+      "typeVersion": 2,
+      "position": [520, 380]
+    },
+    {
+      "id": "node_process",
+      "name": "Process Job",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "language": "javascript",
+        "jsCode": "// Example CPU-light processing; invoke downstream APIs or queues here.\nif (!$json) return [];\nconst item = $json;\n// Simulate enrichment result\nreturn [{ id: item.id, status: 'processed', output: item.payload }];"
+      },
+      "typeVersion": 2,
+      "position": [760, 380]
+    },
+    {
+      "id": "node_store",
+      "name": "Store Result (Postgres)",
+      "type": "n8n-nodes-base.postgres",
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO processed_jobs(id, status, output) VALUES(:id, :status, :output) ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, output = EXCLUDED.output",
+        "additionalFields": {}
+      },
+      "credentials": { "postgres": { "id": "", "name": "postgres" }},
+      "typeVersion": 1,
+      "position": [1000, 380]
+    }
+  ],
+  "connections": {
+    "Webhook In": { "main": [[ { "node": "Validate Input", "type": "main", "index": 0 } ]]},
+    "Validate Input": { "main": [[ { "node": "IF Invalid", "type": "main", "index": 0 } ]]},
+    "IF Invalid": { "main": [
+      [ { "node": "Respond 400", "type": "main", "index": 0 } ],
+      [ { "node": "Enqueue to Redis", "type": "main", "index": 0 } ]
+    ]},
+    "Enqueue to Redis": { "main": [[ { "node": "Ack Accepted", "type": "main", "index": 0 } ]]},
+    "Worker Cron": { "main": [[ { "node": "Dequeue Batch", "type": "main", "index": 0 } ]]},
+    "Dequeue Batch": { "main": [[ { "node": "Process Job", "type": "main", "index": 0 } ]]},
+    "Process Job": { "main": [[ { "node": "Store Result (Postgres)", "type": "main", "index": 0 } ]]}
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}
