@@ -1,0 +1,401 @@
+{
+  "name": "Viral Growth Engine - Network Effects Amplifier",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "user-action",
+        "responseMode": "responseNode"
+      },
+      "id": "user-action-webhook",
+      "name": "User Action Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Viral Coefficient Calculator & User Action Processor\nconst action = $input.item(0).json.body;\n\n// Calculate viral metrics\nconst viralScore = {\n  action_type: action.type,\n  user_id: action.user_id,\n  timestamp: new Date().toISOString(),\n  \n  // Viral mechanics\n  referral_potential: action.type === 'share' ? 10 : action.type === 'invite' ? 15 : 5,\n  network_size: action.connections || 1,\n  engagement_score: action.engagement || 0,\n  \n  // K-factor estimation (viral coefficient)\n  k_factor: ((action.connections || 1) * 0.3 * (action.engagement || 0.1)).toFixed(2),\n  \n  // Reward tier\n  reward_tier: null,\n  incentive_multiplier: 1\n};\n\n// Determine reward tier based on virality\nif (parseFloat(viralScore.k_factor) > 1.5) {\n  viralScore.reward_tier = 'platinum';\n  viralScore.incentive_multiplier = 3;\n} else if (parseFloat(viralScore.k_factor) > 1.0) {\n  viralScore.reward_tier = 'gold';\n  viralScore.incentive_multiplier = 2;\n} else if (parseFloat(viralScore.k_factor) > 0.5) {\n  viralScore.reward_tier = 'silver';\n  viralScore.incentive_multiplier = 1.5;\n} else {\n  viralScore.reward_tier = 'bronze';\n  viralScore.incentive_multiplier = 1;\n}\n\nreturn [{ json: viralScore }];"
+      },
+      "id": "calculate-viral-score",
+      "name": "Calculate Viral Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO user_viral_actions (user_id, action_type, k_factor, reward_tier, incentive_multiplier, created_at) VALUES ('{{ $json.user_id }}', '{{ $json.action_type }}', {{ $json.k_factor }}, '{{ $json.reward_tier }}', {{ $json.incentive_multiplier }}, NOW())"
+      },
+      "id": "log-viral-action",
+      "name": "Log Viral Action",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [680, 300],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-creds",
+          "name": "PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ parseFloat($json.k_factor) }}",
+              "operation": "larger",
+              "value2": 1.0
+            }
+          ]
+        }
+      },
+      "id": "check-viral-threshold",
+      "name": "Viral Threshold Reached?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate personalized referral links with tracking\nconst user = $input.item(0).json;\nconst referralCode = Buffer.from(`${user.user_id}_${Date.now()}`).toString('base64').substring(0, 10);\n\nconst referralData = {\n  user_id: user.user_id,\n  referral_code: referralCode,\n  links: {\n    web: `https://app.example.com/join/${referralCode}`,\n    mobile: `app://join/${referralCode}`,\n    short: `https://sho.rt/${referralCode}`\n  },\n  \n  // Incentives based on tier\n  incentives: {\n    referrer_bonus: user.reward_tier === 'platinum' ? 50 : user.reward_tier === 'gold' ? 30 : 20,\n    referee_bonus: 10,\n    currency: 'credits'\n  },\n  \n  // Social sharing templates\n  sharing: {\n    twitter: `🚀 Join me on [App]! Use my link for ${user.reward_tier === 'platinum' ? 50 : 30} free credits: https://sho.rt/${referralCode}`,\n    whatsapp: `Hey! I'm using this amazing app. Join with my referral link and get ${user.reward_tier === 'platinum' ? 50 : 30} credits: https://sho.rt/${referralCode}`,\n    email_subject: `You're invited! Get ${user.reward_tier === 'platinum' ? 50 : 30} free credits`,\n    email_body: `Hi!\\n\\nI've been using [App] and thought you'd love it too. Sign up with my referral link and we both get rewards!\\n\\nJoin here: https://app.example.com/join/${referralCode}\\n\\nYou'll get ${user.reward_tier === 'platinum' ? 50 : 30} credits to start!`\n  },\n  \n  created_at: new Date().toISOString(),\n  expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days\n};\n\nreturn [{ json: referralData }];"
+      },
+      "id": "generate-referral-links",
+      "name": "Generate Referral Links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "operation": "post",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth1",
+        "jsonParameters": true,
+        "bodyParametersJson": "={{ { \"text\": $json.sharing.twitter } }}"
+      },
+      "id": "auto-share-twitter",
+      "name": "Auto-Share Twitter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200],
+      "credentials": {
+        "twitterOAuth1Api": {
+          "id": "twitter-creds",
+          "name": "Twitter OAuth1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "text": "={{ $json.sharing.twitter }}",
+        "additionalFields": {
+          "visibility": "public"
+        }
+      },
+      "id": "auto-share-linkedin",
+      "name": "Auto-Share LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [1120, 320],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "linkedin-creds",
+          "name": "LinkedIn OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.user_id }}",
+        "text": "=🎉 *Viral Achievement Unlocked!*\\n\\nYour K-Factor: {{ $json.k_factor }}\\nReward Tier: {{ $json.reward_tier.toUpperCase() }}\\n\\n🎁 Share your referral link and earn {{ $json.incentives.referrer_bonus }} credits per friend!\\n\\n{{ $json.links.web }}\\n\\n📱 Tap to share on social media!"
+      },
+      "id": "notify-user-telegram",
+      "name": "Notify User (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1120, 480],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "growth@example.com",
+        "toEmail": "={{ $json.user_email }}",
+        "subject": "={{ $json.sharing.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.sharing.email_body }}"
+      },
+      "id": "send-referral-email",
+      "name": "Send Referral Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1120, 600],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-creds",
+          "name": "SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "referral_campaigns",
+        "options": {}
+      },
+      "id": "create-campaign",
+      "name": "Create Campaign Record",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1340, 400],
+      "credentials": {
+        "mongoDb": {
+          "id": "mongodb-creds",
+          "name": "MongoDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-analytics",
+      "name": "Daily Analytics Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 720]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \\n  DATE(created_at) as date,\\n  COUNT(*) as total_actions,\\n  AVG(k_factor) as avg_k_factor,\\n  SUM(CASE WHEN k_factor > 1.0 THEN 1 ELSE 0 END) as viral_users,\\n  COUNT(DISTINCT user_id) as unique_users\\nFROM user_viral_actions\\nWHERE created_at >= NOW() - INTERVAL '7 days'\\nGROUP BY DATE(created_at)\\nORDER BY date DESC"
+      },
+      "id": "calculate-viral-metrics",
+      "name": "Calculate Network Metrics",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [460, 720],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-creds",
+          "name": "PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze viral growth trends\nconst metrics = $input.all().map(item => item.json);\n\nconst analysis = {\n  period: '7_days',\n  total_viral_actions: metrics.reduce((sum, m) => sum + m.total_actions, 0),\n  avg_k_factor: (metrics.reduce((sum, m) => sum + parseFloat(m.avg_k_factor), 0) / metrics.length).toFixed(2),\n  viral_users: metrics.reduce((sum, m) => sum + m.viral_users, 0),\n  \n  // Growth rate calculation\n  growth_rate: metrics.length > 1 ? \n    (((metrics[0].unique_users - metrics[metrics.length-1].unique_users) / metrics[metrics.length-1].unique_users) * 100).toFixed(2)\n    : 0,\n  \n  // Virality status\n  is_growing_virally: null,\n  recommendation: null,\n  \n  timestamp: new Date().toISOString()\n};\n\nanalysis.is_growing_virally = parseFloat(analysis.avg_k_factor) > 1.0;\nanalysis.recommendation = analysis.is_growing_virally ? \n  'Viral growth detected! Scale marketing efforts and optimize referral rewards.' :\n  'Below viral threshold. Consider increasing incentives and improving sharing mechanics.';\n\nreturn [{ json: analysis }];"
+      },
+      "id": "analyze-growth",
+      "name": "Analyze Growth Trends",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 720]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.GROWTH_TEAM_CHAT }}",
+        "text": "=📊 *Weekly Viral Growth Report*\\n\\n🎯 Total Viral Actions: {{ $json.total_viral_actions }}\\n📈 Avg K-Factor: {{ $json.avg_k_factor }}\\n👥 Viral Users: {{ $json.viral_users }}\\n📊 Growth Rate: {{ $json.growth_rate }}%\\n\\n{{ $json.is_growing_virally ? '🚀 VIRAL GROWTH ACHIEVED!' : '⚠️ Below Viral Threshold' }}\\n\\n💡 {{ $json.recommendation }}"
+      },
+      "id": "report-to-team",
+      "name": "Report to Growth Team",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [900, 720],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "User Action Webhook": {
+      "main": [
+        [
+          {
+            "node": "Calculate Viral Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Viral Metrics": {
+      "main": [
+        [
+          {
+            "node": "Log Viral Action",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Viral Threshold Reached?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Viral Threshold Reached?": {
+      "main": [
+        [
+          {
+            "node": "Generate Referral Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Referral Links": {
+      "main": [
+        [
+          {
+            "node": "Auto-Share Twitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auto-Share LinkedIn",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify User (Telegram)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Referral Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Share Twitter": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Share LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify User (Telegram)": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Referral Email": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Analytics Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calculate Network Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Network Metrics": {
+      "main": [
+        [
+          {
+            "node": "Analyze Growth Trends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Growth Trends": {
+      "main": [
+        [
+          {
+            "node": "Report to Growth Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": {
+    "viral_coefficient_target": 1.5,
+    "min_network_effect": 1.0
+  },
+  "tags": [
+    {
+      "name": "Growth",
+      "id": "growth-tag"
+    },
+    {
+      "name": "Viral",
+      "id": "viral-tag"
+    },
+    {
+      "name": "Network Effects",
+      "id": "network-effects-tag"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "viral-growth-engine-v1"
+  },
+  "id": "viral-growth-engine",
+  "versionId": "production-v1"
+}
