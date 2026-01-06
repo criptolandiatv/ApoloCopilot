@@ -1,0 +1,61 @@
+# AI Radiology Report System - Dependencies
+
+# Core
+python>=3.9
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0
+
+# AI/ML
+torch>=2.0.0
+torchvision>=0.15.0
+monai>=1.2.0
+transformers>=4.30.0
+# torchxrayvision>=1.0.0  # Optional: pre-trained chest X-ray models
+
+# Image Processing
+pillow>=10.0.0
+opencv-python>=4.8.0
+pydicom>=2.4.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Database
+sqlalchemy>=2.0.0
+# sqlcipher3>=0.5.0  # Optional: encrypted database
+asyncpg>=0.28.0
+
+# Agent Framework
+langchain>=0.1.0
+# anthropic>=0.18.0  # Optional: Claude API
+# openai>=1.10.0  # Optional: GPT-4V API
+
+# Security
+cryptography>=41.0.0
+python-jose>=3.3.0
+passlib>=1.7.4
+
+# Monitoring
+prometheus-client>=0.17.0
+structlog>=23.1.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
+
+# Utilities
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+aiofiles>=23.2.0
+httpx>=0.24.0
+
+# Optional: Medical Imaging
+# nibabel>=5.0.0  # Neuroimaging
+# SimpleITK>=2.3.0  # Advanced image processing
+
+# Optional: Annotation Tools
+# roboflow>=1.0.0  # Roboflow integration
+# cvat-sdk>=2.4.0  # CVAT integration
