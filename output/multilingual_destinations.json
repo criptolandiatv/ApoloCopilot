@@ -1,0 +1,1328 @@
+{
+  "metadata": {
+    "generated_at": "2026-01-07T01:17:51.316915",
+    "total_destinations": 29,
+    "languages": [
+      "pt",
+      "en",
+      "es",
+      "fr",
+      "hi",
+      "zh",
+      "ar",
+      "ru"
+    ],
+    "purpose": "Multilingual destination keyword vectors for global travel discovery"
+  },
+  "destinations": [
+    {
+      "id": "tofo-moz",
+      "name": "Tofo Beach",
+      "country": "Mozambique",
+      "region": "Inhambane",
+      "latitude": -23.8544,
+      "longitude": 35.5436,
+      "destination_type": "beach",
+      "rarity_score": 9,
+      "fauna": [
+        "whale_shark",
+        "manta_ray",
+        "whale",
+        "dolphin",
+        "sea_turtle"
+      ],
+      "experiences": [
+        "scuba_diving",
+        "snorkeling",
+        "marine_safari",
+        "wildlife",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "glamping"
+      ],
+      "context_tags": [
+        "off_beaten_path",
+        "value_for_money",
+        "bucket_list",
+        "authentic"
+      ],
+      "best_months": [
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar"
+      ],
+      "keywords_pt": "Tubarão-baleia, Arraia-manta, Baleia, Golfinho, Tartaruga marinha, Mergulho, Snorkel, Safári marinho, Vida selvagem, Bioma único, Eco lodge, Glamping, Fora do radar, Custo-benefício, Imperdível, Autêntico",
+      "keywords_en": "Whale Shark, Manta Ray, Whale, Dolphin, Sea Turtle, Scuba Diving, Snorkeling, Marine Safari, Wildlife, Unique biome, Eco Lodge, Glamping, Off the beaten path, Value for money, Bucket List, Authentic",
+      "keywords_es": "Tiburón ballena, Manta, Ballena, Delfín, Tortuga marina, Buceo, Snorkel, Safari marino, Vida salvaje, Bioma único, Eco lodge, Glamping, Poco turístico, Buena relación precio, Lista de deseos, Auténtico",
+      "keywords_fr": "Requin-baleine, Raie manta, Baleine, Dauphin, Tortue de mer, Plongée, Snorkeling, Safari marin, Faune sauvage, Biome unique, Éco-lodge, Glamping, Hors des sentiers battus, Bon rapport qualité-prix, À faire absolument, Authentique",
+      "keywords_hi": "व्हेल शार्क, मंटा रे, व्हेल, डॉल्फ़िन, समुद्री कछुआ, स्कूबा डाइविंग, स्नॉर्कलिंग, समुद्री सफारी, वन्यजीव, अनोखा जैव क्षेत्र, इको लॉज, ग्लैम्पिंग, कम भीड़, मूल्य-लाभ, अवश्य देखें, प्रामाणिक",
+      "keywords_zh": "鲸鲨, 蝠鲼, 鲸鱼, 海豚, 海龟, 潜水, 浮潜, 海洋野生动物, 野生动物, 独特生物群系, 生态旅馆, 豪华露营, 小众目的地, 性价比, 必去, 原生态",
+      "keywords_ar": "قرش الحوت, مانتا راي, حوت, دلفين, سلحفاة بحرية, غوص, غطس سطحي, سفاري بحري, الحياة البرية, نظام بيئي فريد, نزل بيئي, تخييم فاخر, خارج المسار, قيمة مقابل السعر, قائمة الأمنيات, أصيل",
+      "keywords_ru": "Китовая акула, Манта, Кит, Дельфин, Морская черепаха, Дайвинг, Снорклинг, Морское сафари, Дикая природа, Уникальный биом, Эко-лодж, Глэмпинг, Вне туристических троп, Цена-качество, Обязательно посетить, Аутентичный"
+    },
+    {
+      "id": "raja-ampat-idn",
+      "name": "Raja Ampat",
+      "country": "Indonesia",
+      "region": "West Papua",
+      "latitude": -0.5,
+      "longitude": 130.5,
+      "destination_type": "island",
+      "rarity_score": 10,
+      "fauna": [
+        "manta_ray",
+        "whale_shark",
+        "sea_turtle",
+        "dolphin"
+      ],
+      "experiences": [
+        "scuba_diving",
+        "snorkeling",
+        "coral_reef",
+        "unique_biome",
+        "wildlife"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "overwater_bungalow"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "exclusive",
+        "hidden_gem",
+        "sustainable"
+      ],
+      "best_months": [
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ],
+      "keywords_pt": "Arraia-manta, Tubarão-baleia, Tartaruga marinha, Golfinho, Mergulho, Snorkel, Recife de coral, Bioma único, Vida selvagem, Eco lodge, Bangalô sobre água, Imperdível, Exclusivo, Joia escondida, Sustentável",
+      "keywords_en": "Manta Ray, Whale Shark, Sea Turtle, Dolphin, Scuba Diving, Snorkeling, Coral Reef, Unique biome, Wildlife, Eco Lodge, Overwater Bungalow, Bucket List, Exclusive, Hidden Gem, Sustainable",
+      "keywords_es": "Manta, Tiburón ballena, Tortuga marina, Delfín, Buceo, Snorkel, Arrecife de coral, Bioma único, Vida salvaje, Eco lodge, Bungalow sobre el agua, Lista de deseos, Exclusivo, Joya oculta, Sostenible",
+      "keywords_fr": "Raie manta, Requin-baleine, Tortue de mer, Dauphin, Plongée, Snorkeling, Récif corallien, Biome unique, Faune sauvage, Éco-lodge, Bungalow sur pilotis, À faire absolument, Exclusif, Perle cachée, Durable",
+      "keywords_hi": "मंटा रे, व्हेल शार्क, समुद्री कछुआ, डॉल्फ़िन, स्कूबा डाइविंग, स्नॉर्कलिंग, मूंगे की चट्टान, अनोखा जैव क्षेत्र, वन्यजीव, इको लॉज, पानी पर बंगला, अवश्य देखें, विशिष्ट, छिपा हुआ रत्न, टिकाऊ",
+      "keywords_zh": "蝠鲼, 鲸鲨, 海龟, 海豚, 潜水, 浮潜, 珊瑚礁, 独特生物群系, 野生动物, 生态旅馆, 水上屋, 必去, 独特, 隐藏的宝石, 可持续",
+      "keywords_ar": "مانتا راي, قرش الحوت, سلحفاة بحرية, دلفين, غوص, غطس سطحي, شعاب مرجانية, نظام بيئي فريد, الحياة البرية, نزل بيئي, بنغل فوق الماء, قائمة الأمنيات, حصري, جوهرة مخفية, مستدام",
+      "keywords_ru": "Манта, Китовая акула, Морская черепаха, Дельфин, Дайвинг, Снорклинг, Коралловый риф, Уникальный биом, Дикая природа, Эко-лодж, Бунгало над водой, Обязательно посетить, Эксклюзивный, Скрытая жемчужина, Экологичный"
+    },
+    {
+      "id": "komodo-idn",
+      "name": "Komodo National Park",
+      "country": "Indonesia",
+      "region": "East Nusa Tenggara",
+      "latitude": -8.55,
+      "longitude": 119.4833,
+      "destination_type": "island",
+      "rarity_score": 9,
+      "fauna": [
+        "komodo_dragon",
+        "manta_ray",
+        "dolphin",
+        "sea_turtle"
+      ],
+      "experiences": [
+        "wildlife",
+        "scuba_diving",
+        "snorkeling",
+        "trekking",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic"
+      ],
+      "best_months": [
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep"
+      ],
+      "keywords_pt": "Dragão de Komodo, Arraia-manta, Golfinho, Tartaruga marinha, Vida selvagem, Mergulho, Snorkel, Trekking, Bioma único, Eco lodge, Imperdível, Aventura, Autêntico",
+      "keywords_en": "Komodo Dragon, Manta Ray, Dolphin, Sea Turtle, Wildlife, Scuba Diving, Snorkeling, Trekking, Unique biome, Eco Lodge, Bucket List, Adventure, Authentic",
+      "keywords_es": "Dragón de Komodo, Manta, Delfín, Tortuga marina, Vida salvaje, Buceo, Snorkel, Senderismo, Bioma único, Eco lodge, Lista de deseos, Aventura, Auténtico",
+      "keywords_fr": "Dragon de Komodo, Raie manta, Dauphin, Tortue de mer, Faune sauvage, Plongée, Snorkeling, Randonnée, Biome unique, Éco-lodge, À faire absolument, Aventure, Authentique",
+      "keywords_hi": "कोमोडो ड्रैगन, मंटा रे, डॉल्फ़िन, समुद्री कछुआ, वन्यजीव, स्कूबा डाइविंग, स्नॉर्कलिंग, ट्रेकिंग, अनोखा जैव क्षेत्र, इको लॉज, अवश्य देखें, साहसिक, प्रामाणिक",
+      "keywords_zh": "科莫多龙, 蝠鲼, 海豚, 海龟, 野生动物, 潜水, 浮潜, 徒步旅行, 独特生物群系, 生态旅馆, 必去, 冒险, 原生态",
+      "keywords_ar": "تنين كومودو, مانتا راي, دلفين, سلحفاة بحرية, الحياة البرية, غوص, غطس سطحي, المشي لمسافات طويلة, نظام بيئي فريد, نزل بيئي, قائمة الأمنيات, مغامرة, أصيل",
+      "keywords_ru": "Комодский варан, Манта, Дельфин, Морская черепаха, Дикая природа, Дайвинг, Снорклинг, Треккинг, Уникальный биом, Эко-лодж, Обязательно посетить, Приключение, Аутентичный"
+    },
+    {
+      "id": "socorro-mex",
+      "name": "Revillagigedo (Socorro)",
+      "country": "Mexico",
+      "region": "Pacific Ocean",
+      "latitude": 18.75,
+      "longitude": -110.95,
+      "destination_type": "island",
+      "rarity_score": 10,
+      "fauna": [
+        "whale_shark",
+        "manta_ray",
+        "whale",
+        "dolphin"
+      ],
+      "experiences": [
+        "scuba_diving",
+        "marine_safari",
+        "wildlife",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "exclusive",
+        "bucket_list",
+        "remote",
+        "adventure"
+      ],
+      "best_months": [
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May"
+      ],
+      "keywords_pt": "Tubarão-baleia, Arraia-manta, Baleia, Golfinho, Mergulho, Safári marinho, Vida selvagem, Bioma único, Eco lodge, Exclusivo, Imperdível, Remoto, Aventura",
+      "keywords_en": "Whale Shark, Manta Ray, Whale, Dolphin, Scuba Diving, Marine Safari, Wildlife, Unique biome, Eco Lodge, Exclusive, Bucket List, Remote, Adventure",
+      "keywords_es": "Tiburón ballena, Manta, Ballena, Delfín, Buceo, Safari marino, Vida salvaje, Bioma único, Eco lodge, Exclusivo, Lista de deseos, Remoto, Aventura",
+      "keywords_fr": "Requin-baleine, Raie manta, Baleine, Dauphin, Plongée, Safari marin, Faune sauvage, Biome unique, Éco-lodge, Exclusif, À faire absolument, Isolé, Aventure",
+      "keywords_hi": "व्हेल शार्क, मंटा रे, व्हेल, डॉल्फ़िन, स्कूबा डाइविंग, समुद्री सफारी, वन्यजीव, अनोखा जैव क्षेत्र, इको लॉज, विशिष्ट, अवश्य देखें, दूरस्थ, साहसिक",
+      "keywords_zh": "鲸鲨, 蝠鲼, 鲸鱼, 海豚, 潜水, 海洋野生动物, 野生动物, 独特生物群系, 生态旅馆, 独特, 必去, 偏远, 冒险",
+      "keywords_ar": "قرش الحوت, مانتا راي, حوت, دلفين, غوص, سفاري بحري, الحياة البرية, نظام بيئي فريد, نزل بيئي, حصري, قائمة الأمنيات, نائي, مغامرة",
+      "keywords_ru": "Китовая акула, Манта, Кит, Дельфин, Дайвинг, Морское сафари, Дикая природа, Уникальный биом, Эко-лодж, Эксклюзивный, Обязательно посетить, Отдалённый, Приключение"
+    },
+    {
+      "id": "galapagos-ecu",
+      "name": "Galapagos Islands",
+      "country": "Ecuador",
+      "region": "Pacific Ocean",
+      "latitude": -0.9538,
+      "longitude": -90.9656,
+      "destination_type": "island",
+      "rarity_score": 10,
+      "fauna": [
+        "whale_shark",
+        "sea_turtle",
+        "penguin",
+        "dolphin"
+      ],
+      "experiences": [
+        "wildlife",
+        "scuba_diving",
+        "snorkeling",
+        "unique_biome",
+        "volcano"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "sustainable",
+        "exclusive",
+        "authentic"
+      ],
+      "best_months": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "keywords_pt": "Tubarão-baleia, Tartaruga marinha, Pinguim, Golfinho, Vida selvagem, Mergulho, Snorkel, Bioma único, Vulcão, Eco lodge, Imperdível, Sustentável, Exclusivo, Autêntico",
+      "keywords_en": "Whale Shark, Sea Turtle, Penguin, Dolphin, Wildlife, Scuba Diving, Snorkeling, Unique biome, Volcano, Eco Lodge, Bucket List, Sustainable, Exclusive, Authentic",
+      "keywords_es": "Tiburón ballena, Tortuga marina, Pingüino, Delfín, Vida salvaje, Buceo, Snorkel, Bioma único, Volcán, Eco lodge, Lista de deseos, Sostenible, Exclusivo, Auténtico",
+      "keywords_fr": "Requin-baleine, Tortue de mer, Pingouin, Dauphin, Faune sauvage, Plongée, Snorkeling, Biome unique, Volcan, Éco-lodge, À faire absolument, Durable, Exclusif, Authentique",
+      "keywords_hi": "व्हेल शार्क, समुद्री कछुआ, पेंगुइन, डॉल्फ़िन, वन्यजीव, स्कूबा डाइविंग, स्नॉर्कलिंग, अनोखा जैव क्षेत्र, ज्वालामुखी, इको लॉज, अवश्य देखें, टिकाऊ, विशिष्ट, प्रामाणिक",
+      "keywords_zh": "鲸鲨, 海龟, 企鹅, 海豚, 野生动物, 潜水, 浮潜, 独特生物群系, 火山, 生态旅馆, 必去, 可持续, 独特, 原生态",
+      "keywords_ar": "قرش الحوت, سلحفاة بحرية, بطريق, دلفين, الحياة البرية, غوص, غطس سطحي, نظام بيئي فريد, بركان, نزل بيئي, قائمة الأمنيات, مستدام, حصري, أصيل",
+      "keywords_ru": "Китовая акула, Морская черепаха, Пингвин, Дельфин, Дикая природа, Дайвинг, Снорклинг, Уникальный биом, Вулкан, Эко-лодж, Обязательно посетить, Экологичный, Эксклюзивный, Аутентичный"
+    },
+    {
+      "id": "masai-mara-ken",
+      "name": "Masai Mara",
+      "country": "Kenya",
+      "region": "Narok County",
+      "latitude": -1.5021,
+      "longitude": 35.1446,
+      "destination_type": "safari",
+      "rarity_score": 9,
+      "fauna": [
+        "lion",
+        "elephant",
+        "giraffe"
+      ],
+      "experiences": [
+        "safari",
+        "wildlife",
+        "unique_landscape",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "glamping",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "authentic",
+        "adventure"
+      ],
+      "best_months": [
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Leão, Elefante, Girafa, Safári, Vida selvagem, Paisagem única, Bioma único, Glamping, Eco lodge, Imperdível, Autêntico, Aventura",
+      "keywords_en": "Lion, Elephant, Giraffe, Safari, Wildlife, Unique landscape, Unique biome, Glamping, Eco Lodge, Bucket List, Authentic, Adventure",
+      "keywords_es": "León, Elefante, Jirafa, Safari, Vida salvaje, Paisaje único, Bioma único, Glamping, Eco lodge, Lista de deseos, Auténtico, Aventura",
+      "keywords_fr": "Lion, Éléphant, Girafe, Safari, Faune sauvage, Paysage unique, Biome unique, Glamping, Éco-lodge, À faire absolument, Authentique, Aventure",
+      "keywords_hi": "सिंह, हाथी, जिराफ़, सफारी, वन्यजीव, अनोखा परिदृश्य, अनोखा जैव क्षेत्र, ग्लैम्पिंग, इको लॉज, अवश्य देखें, प्रामाणिक, साहसिक",
+      "keywords_zh": "狮子, 大象, 长颈鹿, 野生动物园, 野生动物, 独特景观, 独特生物群系, 豪华露营, 生态旅馆, 必去, 原生态, 冒险",
+      "keywords_ar": "أسد, فيل, زرافة, سفاري, الحياة البرية, منظر فريد, نظام بيئي فريد, تخييم فاخر, نزل بيئي, قائمة الأمنيات, أصيل, مغامرة",
+      "keywords_ru": "Лев, Слон, Жираф, Сафари, Дикая природа, Уникальный пейзаж, Уникальный биом, Глэмпинг, Эко-лодж, Обязательно посетить, Аутентичный, Приключение"
+    },
+    {
+      "id": "serengeti-tza",
+      "name": "Serengeti",
+      "country": "Tanzania",
+      "region": "Mara Region",
+      "latitude": -2.3333,
+      "longitude": 34.8333,
+      "destination_type": "safari",
+      "rarity_score": 9,
+      "fauna": [
+        "lion",
+        "elephant",
+        "giraffe"
+      ],
+      "experiences": [
+        "safari",
+        "wildlife",
+        "unique_landscape",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "glamping",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "authentic",
+        "exclusive"
+      ],
+      "best_months": [
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Leão, Elefante, Girafa, Safári, Vida selvagem, Paisagem única, Bioma único, Glamping, Eco lodge, Imperdível, Autêntico, Exclusivo",
+      "keywords_en": "Lion, Elephant, Giraffe, Safari, Wildlife, Unique landscape, Unique biome, Glamping, Eco Lodge, Bucket List, Authentic, Exclusive",
+      "keywords_es": "León, Elefante, Jirafa, Safari, Vida salvaje, Paisaje único, Bioma único, Glamping, Eco lodge, Lista de deseos, Auténtico, Exclusivo",
+      "keywords_fr": "Lion, Éléphant, Girafe, Safari, Faune sauvage, Paysage unique, Biome unique, Glamping, Éco-lodge, À faire absolument, Authentique, Exclusif",
+      "keywords_hi": "सिंह, हाथी, जिराफ़, सफारी, वन्यजीव, अनोखा परिदृश्य, अनोखा जैव क्षेत्र, ग्लैम्पिंग, इको लॉज, अवश्य देखें, प्रामाणिक, विशिष्ट",
+      "keywords_zh": "狮子, 大象, 长颈鹿, 野生动物园, 野生动物, 独特景观, 独特生物群系, 豪华露营, 生态旅馆, 必去, 原生态, 独特",
+      "keywords_ar": "أسد, فيل, زرافة, سفاري, الحياة البرية, منظر فريد, نظام بيئي فريد, تخييم فاخر, نزل بيئي, قائمة الأمنيات, أصيل, حصري",
+      "keywords_ru": "Лев, Слон, Жираф, Сафари, Дикая природа, Уникальный пейзаж, Уникальный биом, Глэмпинг, Эко-лодж, Обязательно посетить, Аутентичный, Эксклюзивный"
+    },
+    {
+      "id": "okavango-bwa",
+      "name": "Okavango Delta",
+      "country": "Botswana",
+      "region": "North-West District",
+      "latitude": -19.0,
+      "longitude": 22.5,
+      "destination_type": "safari",
+      "rarity_score": 10,
+      "fauna": [
+        "elephant",
+        "lion",
+        "giraffe"
+      ],
+      "experiences": [
+        "safari",
+        "wildlife",
+        "unique_biome",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "glamping"
+      ],
+      "context_tags": [
+        "exclusive",
+        "bucket_list",
+        "sustainable",
+        "luxury"
+      ],
+      "best_months": [
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Elefante, Leão, Girafa, Safári, Vida selvagem, Bioma único, Paisagem única, Eco lodge, Glamping, Exclusivo, Imperdível, Sustentável, Luxo",
+      "keywords_en": "Elephant, Lion, Giraffe, Safari, Wildlife, Unique biome, Unique landscape, Eco Lodge, Glamping, Exclusive, Bucket List, Sustainable, Luxury",
+      "keywords_es": "Elefante, León, Jirafa, Safari, Vida salvaje, Bioma único, Paisaje único, Eco lodge, Glamping, Exclusivo, Lista de deseos, Sostenible, Lujo",
+      "keywords_fr": "Éléphant, Lion, Girafe, Safari, Faune sauvage, Biome unique, Paysage unique, Éco-lodge, Glamping, Exclusif, À faire absolument, Durable, Luxe",
+      "keywords_hi": "हाथी, सिंह, जिराफ़, सफारी, वन्यजीव, अनोखा जैव क्षेत्र, अनोखा परिदृश्य, इको लॉज, ग्लैम्पिंग, विशिष्ट, अवश्य देखें, टिकाऊ, विलासिता",
+      "keywords_zh": "大象, 狮子, 长颈鹿, 野生动物园, 野生动物, 独特生物群系, 独特景观, 生态旅馆, 豪华露营, 独特, 必去, 可持续, 奢华",
+      "keywords_ar": "فيل, أسد, زرافة, سفاري, الحياة البرية, نظام بيئي فريد, منظر فريد, نزل بيئي, تخييم فاخر, حصري, قائمة الأمنيات, مستدام, فاخر",
+      "keywords_ru": "Слон, Лев, Жираф, Сафари, Дикая природа, Уникальный биом, Уникальный пейзаж, Эко-лодж, Глэмпинг, Эксклюзивный, Обязательно посетить, Экологичный, Люкс"
+    },
+    {
+      "id": "bwindi-uga",
+      "name": "Bwindi Impenetrable Forest",
+      "country": "Uganda",
+      "region": "Kanungu District",
+      "latitude": -1.05,
+      "longitude": 29.6833,
+      "destination_type": "forest",
+      "rarity_score": 10,
+      "fauna": [
+        "gorilla"
+      ],
+      "experiences": [
+        "wildlife",
+        "trekking",
+        "rainforest",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "exclusive",
+        "authentic",
+        "sustainable"
+      ],
+      "best_months": [
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Dec",
+        "Jan",
+        "Feb"
+      ],
+      "keywords_pt": "Gorila, Vida selvagem, Trekking, Floresta tropical, Bioma único, Eco lodge, Imperdível, Exclusivo, Autêntico, Sustentável",
+      "keywords_en": "Gorilla, Wildlife, Trekking, Rainforest, Unique biome, Eco Lodge, Bucket List, Exclusive, Authentic, Sustainable",
+      "keywords_es": "Gorila, Vida salvaje, Senderismo, Selva tropical, Bioma único, Eco lodge, Lista de deseos, Exclusivo, Auténtico, Sostenible",
+      "keywords_fr": "Gorille, Faune sauvage, Randonnée, Forêt tropicale, Biome unique, Éco-lodge, À faire absolument, Exclusif, Authentique, Durable",
+      "keywords_hi": "गोरिल्ला, वन्यजीव, ट्रेकिंग, वर्षावन, अनोखा जैव क्षेत्र, इको लॉज, अवश्य देखें, विशिष्ट, प्रामाणिक, टिकाऊ",
+      "keywords_zh": "大猩猩, 野生动物, 徒步旅行, 热带雨林, 独特生物群系, 生态旅馆, 必去, 独特, 原生态, 可持续",
+      "keywords_ar": "غوريلا, الحياة البرية, المشي لمسافات طويلة, غابة مطيرة, نظام بيئي فريد, نزل بيئي, قائمة الأمنيات, حصري, أصيل, مستدام",
+      "keywords_ru": "Горилла, Дикая природа, Треккинг, Тропический лес, Уникальный биом, Эко-лодж, Обязательно посетить, Эксклюзивный, Аутентичный, Экологичный"
+    },
+    {
+      "id": "borneo-mys",
+      "name": "Borneo Rainforest",
+      "country": "Malaysia",
+      "region": "Sabah / Sarawak",
+      "latitude": 4.5,
+      "longitude": 117.0,
+      "destination_type": "forest",
+      "rarity_score": 9,
+      "fauna": [
+        "orangutan",
+        "elephant"
+      ],
+      "experiences": [
+        "wildlife",
+        "rainforest",
+        "trekking",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "treehouse"
+      ],
+      "context_tags": [
+        "off_beaten_path",
+        "authentic",
+        "sustainable",
+        "adventure"
+      ],
+      "best_months": [
+        "Mar",
+        "Apr",
+        "May",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Orangotango, Elefante, Vida selvagem, Floresta tropical, Trekking, Bioma único, Eco lodge, Casa na árvore, Fora do radar, Autêntico, Sustentável, Aventura",
+      "keywords_en": "Orangutan, Elephant, Wildlife, Rainforest, Trekking, Unique biome, Eco Lodge, Treehouse, Off the beaten path, Authentic, Sustainable, Adventure",
+      "keywords_es": "Orangután, Elefante, Vida salvaje, Selva tropical, Senderismo, Bioma único, Eco lodge, Casa del árbol, Poco turístico, Auténtico, Sostenible, Aventura",
+      "keywords_fr": "Orang-outan, Éléphant, Faune sauvage, Forêt tropicale, Randonnée, Biome unique, Éco-lodge, Cabane dans les arbres, Hors des sentiers battus, Authentique, Durable, Aventure",
+      "keywords_hi": "ओरांगुटान, हाथी, वन्यजीव, वर्षावन, ट्रेकिंग, अनोखा जैव क्षेत्र, इको लॉज, पेड़ पर घर, कम भीड़, प्रामाणिक, टिकाऊ, साहसिक",
+      "keywords_zh": "红毛猩猩, 大象, 野生动物, 热带雨林, 徒步旅行, 独特生物群系, 生态旅馆, 树屋, 小众目的地, 原生态, 可持续, 冒险",
+      "keywords_ar": "إنسان الغاب, فيل, الحياة البرية, غابة مطيرة, المشي لمسافات طويلة, نظام بيئي فريد, نزل بيئي, بيت شجرة, خارج المسار, أصيل, مستدام, مغامرة",
+      "keywords_ru": "Орангутан, Слон, Дикая природа, Тропический лес, Треккинг, Уникальный биом, Эко-лодж, Дом на дереве, Вне туристических троп, Аутентичный, Экологичный, Приключение"
+    },
+    {
+      "id": "atacama-chl",
+      "name": "Atacama Desert",
+      "country": "Chile",
+      "region": "Antofagasta",
+      "latitude": -23.8634,
+      "longitude": -67.5232,
+      "destination_type": "desert",
+      "rarity_score": 10,
+      "fauna": [],
+      "experiences": [
+        "stargazing",
+        "desert",
+        "unique_landscape",
+        "volcano",
+        "hot_springs",
+        "eclipse"
+      ],
+      "accommodation": [
+        "glamping",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "exclusive",
+        "remote",
+        "adventure"
+      ],
+      "best_months": [
+        "Mar",
+        "Apr",
+        "May",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Observação de estrelas, Deserto, Paisagem única, Vulcão, Águas termais, Eclipse, Glamping, Eco lodge, Imperdível, Exclusivo, Remoto, Aventura",
+      "keywords_en": "Stargazing, Desert, Unique landscape, Volcano, Hot Springs, Eclipse, Glamping, Eco Lodge, Bucket List, Exclusive, Remote, Adventure",
+      "keywords_es": "Observación de estrellas, Desierto, Paisaje único, Volcán, Aguas termales, Eclipse, Glamping, Eco lodge, Lista de deseos, Exclusivo, Remoto, Aventura",
+      "keywords_fr": "Observation des étoiles, Désert, Paysage unique, Volcan, Sources chaudes, Éclipse, Glamping, Éco-lodge, À faire absolument, Exclusif, Isolé, Aventure",
+      "keywords_hi": "तारे देखना, रेगिस्तान, अनोखा परिदृश्य, ज्वालामुखी, गर्म पानी के झरने, ग्रहण, ग्लैम्पिंग, इको लॉज, अवश्य देखें, विशिष्ट, दूरस्थ, साहसिक",
+      "keywords_zh": "观星, 沙漠, 独特景观, 火山, 温泉, 日食月食, 豪华露营, 生态旅馆, 必去, 独特, 偏远, 冒险",
+      "keywords_ar": "مراقبة النجوم, صحراء, منظر فريد, بركان, ينابيع حارة, كسوف, تخييم فاخر, نزل بيئي, قائمة الأمنيات, حصري, نائي, مغامرة",
+      "keywords_ru": "Наблюдение за звёздами, Пустыня, Уникальный пейзаж, Вулкан, Горячие источники, Затмение, Глэмпинг, Эко-лодж, Обязательно посетить, Эксклюзивный, Отдалённый, Приключение"
+    },
+    {
+      "id": "salar-uyuni-bol",
+      "name": "Salar de Uyuni",
+      "country": "Bolivia",
+      "region": "Potosi",
+      "latitude": -20.1338,
+      "longitude": -67.4891,
+      "destination_type": "desert",
+      "rarity_score": 10,
+      "fauna": [],
+      "experiences": [
+        "unique_landscape",
+        "desert",
+        "stargazing"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "value_for_money",
+        "adventure",
+        "hidden_gem"
+      ],
+      "best_months": [
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Paisagem única, Deserto, Observação de estrelas, Eco lodge, Imperdível, Custo-benefício, Aventura, Joia escondida",
+      "keywords_en": "Unique landscape, Desert, Stargazing, Eco Lodge, Bucket List, Value for money, Adventure, Hidden Gem",
+      "keywords_es": "Paisaje único, Desierto, Observación de estrellas, Eco lodge, Lista de deseos, Buena relación precio, Aventura, Joya oculta",
+      "keywords_fr": "Paysage unique, Désert, Observation des étoiles, Éco-lodge, À faire absolument, Bon rapport qualité-prix, Aventure, Perle cachée",
+      "keywords_hi": "अनोखा परिदृश्य, रेगिस्तान, तारे देखना, इको लॉज, अवश्य देखें, मूल्य-लाभ, साहसिक, छिपा हुआ रत्न",
+      "keywords_zh": "独特景观, 沙漠, 观星, 生态旅馆, 必去, 性价比, 冒险, 隐藏的宝石",
+      "keywords_ar": "منظر فريد, صحراء, مراقبة النجوم, نزل بيئي, قائمة الأمنيات, قيمة مقابل السعر, مغامرة, جوهرة مخفية",
+      "keywords_ru": "Уникальный пейзаж, Пустыня, Наблюдение за звёздами, Эко-лодж, Обязательно посетить, Цена-качество, Приключение, Скрытая жемчужина"
+    },
+    {
+      "id": "svalbard-nor",
+      "name": "Svalbard",
+      "country": "Norway",
+      "region": "Arctic",
+      "latitude": 78.2253,
+      "longitude": 15.6267,
+      "destination_type": "arctic",
+      "rarity_score": 10,
+      "fauna": [
+        "polar_bear",
+        "whale"
+      ],
+      "experiences": [
+        "wildlife",
+        "aurora_borealis",
+        "glacier",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "ice_hotel",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "exclusive",
+        "remote",
+        "adventure"
+      ],
+      "best_months": [
+        "Feb",
+        "Mar",
+        "Apr",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Urso polar, Baleia, Vida selvagem, Geleira, Paisagem única, Hotel de gelo, Eco lodge, Imperdível, Exclusivo, Remoto, Aventura",
+      "keywords_en": "Polar Bear, Whale, Wildlife, Glacier, Unique landscape, Ice Hotel, Eco Lodge, Bucket List, Exclusive, Remote, Adventure",
+      "keywords_es": "Oso polar, Ballena, Vida salvaje, Glaciar, Paisaje único, Hotel de hielo, Eco lodge, Lista de deseos, Exclusivo, Remoto, Aventura",
+      "keywords_fr": "Ours polaire, Baleine, Faune sauvage, Glacier, Paysage unique, Hôtel de glace, Éco-lodge, À faire absolument, Exclusif, Isolé, Aventure",
+      "keywords_hi": "ध्रुवीय भालू, व्हेल, वन्यजीव, ग्लेशियर, अनोखा परिदृश्य, बर्फ़ का होटल, इको लॉज, अवश्य देखें, विशिष्ट, दूरस्थ, साहसिक",
+      "keywords_zh": "北极熊, 鲸鱼, 野生动物, 冰川, 独特景观, 冰酒店, 生态旅馆, 必去, 独特, 偏远, 冒险",
+      "keywords_ar": "دب قطبي, حوت, الحياة البرية, نهر جليدي, منظر فريد, فندق جليدي, نزل بيئي, قائمة الأمنيات, حصري, نائي, مغامرة",
+      "keywords_ru": "Белый медведь, Кит, Дикая природа, Ледник, Уникальный пейзаж, Ледяной отель, Эко-лодж, Обязательно посетить, Эксклюзивный, Отдалённый, Приключение"
+    },
+    {
+      "id": "tromso-nor",
+      "name": "Tromso",
+      "country": "Norway",
+      "region": "Troms og Finnmark",
+      "latitude": 69.6496,
+      "longitude": 18.956,
+      "destination_type": "arctic",
+      "rarity_score": 8,
+      "fauna": [
+        "whale"
+      ],
+      "experiences": [
+        "aurora_borealis",
+        "wildlife",
+        "fjord",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "ice_hotel",
+        "glamping"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "exclusive",
+        "adventure"
+      ],
+      "best_months": [
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar"
+      ],
+      "keywords_pt": "Baleia, Vida selvagem, Fiorde, Paisagem única, Hotel de gelo, Glamping, Imperdível, Exclusivo, Aventura",
+      "keywords_en": "Whale, Wildlife, Fjord, Unique landscape, Ice Hotel, Glamping, Bucket List, Exclusive, Adventure",
+      "keywords_es": "Ballena, Vida salvaje, Fiordo, Paisaje único, Hotel de hielo, Glamping, Lista de deseos, Exclusivo, Aventura",
+      "keywords_fr": "Baleine, Faune sauvage, Fjord, Paysage unique, Hôtel de glace, Glamping, À faire absolument, Exclusif, Aventure",
+      "keywords_hi": "व्हेल, वन्यजीव, फ़्योर्ड, अनोखा परिदृश्य, बर्फ़ का होटल, ग्लैम्पिंग, अवश्य देखें, विशिष्ट, साहसिक",
+      "keywords_zh": "鲸鱼, 野生动物, 峡湾, 独特景观, 冰酒店, 豪华露营, 必去, 独特, 冒险",
+      "keywords_ar": "حوت, الحياة البرية, مضيق بحري, منظر فريد, فندق جليدي, تخييم فاخر, قائمة الأمنيات, حصري, مغامرة",
+      "keywords_ru": "Кит, Дикая природа, Фьорд, Уникальный пейзаж, Ледяной отель, Глэмпинг, Обязательно посетить, Эксклюзивный, Приключение"
+    },
+    {
+      "id": "iceland-ring",
+      "name": "Iceland Ring Road",
+      "country": "Iceland",
+      "region": "Nationwide",
+      "latitude": 64.9631,
+      "longitude": -19.0208,
+      "destination_type": "mixed",
+      "rarity_score": 9,
+      "fauna": [
+        "whale",
+        "penguin"
+      ],
+      "experiences": [
+        "aurora_borealis",
+        "glacier",
+        "volcano",
+        "hot_springs",
+        "waterfall",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "glamping",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic"
+      ],
+      "best_months": [
+        "Sep",
+        "Oct",
+        "Nov",
+        "Feb",
+        "Mar",
+        "Jun",
+        "Jul",
+        "Aug"
+      ],
+      "keywords_pt": "Baleia, Pinguim, Geleira, Vulcão, Águas termais, Cachoeira, Paisagem única, Glamping, Eco lodge, Imperdível, Aventura, Autêntico",
+      "keywords_en": "Whale, Penguin, Glacier, Volcano, Hot Springs, Waterfall, Unique landscape, Glamping, Eco Lodge, Bucket List, Adventure, Authentic",
+      "keywords_es": "Ballena, Pingüino, Glaciar, Volcán, Aguas termales, Cascada, Paisaje único, Glamping, Eco lodge, Lista de deseos, Aventura, Auténtico",
+      "keywords_fr": "Baleine, Pingouin, Glacier, Volcan, Sources chaudes, Cascade, Paysage unique, Glamping, Éco-lodge, À faire absolument, Aventure, Authentique",
+      "keywords_hi": "व्हेल, पेंगुइन, ग्लेशियर, ज्वालामुखी, गर्म पानी के झरने, झरना, अनोखा परिदृश्य, ग्लैम्पिंग, इको लॉज, अवश्य देखें, साहसिक, प्रामाणिक",
+      "keywords_zh": "鲸鱼, 企鹅, 冰川, 火山, 温泉, 瀑布, 独特景观, 豪华露营, 生态旅馆, 必去, 冒险, 原生态",
+      "keywords_ar": "حوت, بطريق, نهر جليدي, بركان, ينابيع حارة, شلال, منظر فريد, تخييم فاخر, نزل بيئي, قائمة الأمنيات, مغامرة, أصيل",
+      "keywords_ru": "Кит, Пингвин, Ледник, Вулкан, Горячие источники, Водопад, Уникальный пейзаж, Глэмпинг, Эко-лодж, Обязательно посетить, Приключение, Аутентичный"
+    },
+    {
+      "id": "patagonia-arg",
+      "name": "Patagonia (El Chalten)",
+      "country": "Argentina",
+      "region": "Santa Cruz",
+      "latitude": -49.3314,
+      "longitude": -72.8867,
+      "destination_type": "mountain",
+      "rarity_score": 9,
+      "fauna": [],
+      "experiences": [
+        "glacier",
+        "trekking",
+        "mountain_climbing",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "mountain_lodge",
+        "glamping"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic",
+        "value_for_money"
+      ],
+      "best_months": [
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar"
+      ],
+      "keywords_pt": "Geleira, Trekking, Alpinismo, Paisagem única, Chalé de montanha, Glamping, Imperdível, Aventura, Autêntico, Custo-benefício",
+      "keywords_en": "Glacier, Trekking, Mountain Climbing, Unique landscape, Mountain Lodge, Glamping, Bucket List, Adventure, Authentic, Value for money",
+      "keywords_es": "Glaciar, Senderismo, Alpinismo, Paisaje único, Cabaña de montaña, Glamping, Lista de deseos, Aventura, Auténtico, Buena relación precio",
+      "keywords_fr": "Glacier, Randonnée, Alpinisme, Paysage unique, Chalet de montagne, Glamping, À faire absolument, Aventure, Authentique, Bon rapport qualité-prix",
+      "keywords_hi": "ग्लेशियर, ट्रेकिंग, पर्वतारोहण, अनोखा परिदृश्य, पर्वत लॉज, ग्लैम्पिंग, अवश्य देखें, साहसिक, प्रामाणिक, मूल्य-लाभ",
+      "keywords_zh": "冰川, 徒步旅行, 登山, 独特景观, 山间小屋, 豪华露营, 必去, 冒险, 原生态, 性价比",
+      "keywords_ar": "نهر جليدي, المشي لمسافات طويلة, تسلق الجبال, منظر فريد, نزل جبلي, تخييم فاخر, قائمة الأمنيات, مغامرة, أصيل, قيمة مقابل السعر",
+      "keywords_ru": "Ледник, Треккинг, Альпинизм, Уникальный пейзаж, Горный домик, Глэмпинг, Обязательно посетить, Приключение, Аутентичный, Цена-качество"
+    },
+    {
+      "id": "torres-paine-chl",
+      "name": "Torres del Paine",
+      "country": "Chile",
+      "region": "Magallanes",
+      "latitude": -51.0,
+      "longitude": -73.0,
+      "destination_type": "mountain",
+      "rarity_score": 9,
+      "fauna": [],
+      "experiences": [
+        "glacier",
+        "trekking",
+        "unique_landscape",
+        "wildlife"
+      ],
+      "accommodation": [
+        "mountain_lodge",
+        "glamping",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "sustainable"
+      ],
+      "best_months": [
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ],
+      "keywords_pt": "Geleira, Trekking, Paisagem única, Vida selvagem, Chalé de montanha, Glamping, Eco lodge, Imperdível, Aventura, Sustentável",
+      "keywords_en": "Glacier, Trekking, Unique landscape, Wildlife, Mountain Lodge, Glamping, Eco Lodge, Bucket List, Adventure, Sustainable",
+      "keywords_es": "Glaciar, Senderismo, Paisaje único, Vida salvaje, Cabaña de montaña, Glamping, Eco lodge, Lista de deseos, Aventura, Sostenible",
+      "keywords_fr": "Glacier, Randonnée, Paysage unique, Faune sauvage, Chalet de montagne, Glamping, Éco-lodge, À faire absolument, Aventure, Durable",
+      "keywords_hi": "ग्लेशियर, ट्रेकिंग, अनोखा परिदृश्य, वन्यजीव, पर्वत लॉज, ग्लैम्पिंग, इको लॉज, अवश्य देखें, साहसिक, टिकाऊ",
+      "keywords_zh": "冰川, 徒步旅行, 独特景观, 野生动物, 山间小屋, 豪华露营, 生态旅馆, 必去, 冒险, 可持续",
+      "keywords_ar": "نهر جليدي, المشي لمسافات طويلة, منظر فريد, الحياة البرية, نزل جبلي, تخييم فاخر, نزل بيئي, قائمة الأمنيات, مغامرة, مستدام",
+      "keywords_ru": "Ледник, Треккинг, Уникальный пейзаж, Дикая природа, Горный домик, Глэмпинг, Эко-лодж, Обязательно посетить, Приключение, Экологичный"
+    },
+    {
+      "id": "cappadocia-tur",
+      "name": "Cappadocia",
+      "country": "Turkey",
+      "region": "Nevsehir",
+      "latitude": 38.6431,
+      "longitude": 34.8287,
+      "destination_type": "desert",
+      "rarity_score": 8,
+      "fauna": [],
+      "experiences": [
+        "unique_landscape",
+        "hot_springs"
+      ],
+      "accommodation": [
+        "cave_hotel"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "authentic",
+        "value_for_money",
+        "hidden_gem"
+      ],
+      "best_months": [
+        "Apr",
+        "May",
+        "Jun",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Paisagem única, Águas termais, Hotel caverna, Imperdível, Autêntico, Custo-benefício, Joia escondida",
+      "keywords_en": "Unique landscape, Hot Springs, Cave Hotel, Bucket List, Authentic, Value for money, Hidden Gem",
+      "keywords_es": "Paisaje único, Aguas termales, Hotel cueva, Lista de deseos, Auténtico, Buena relación precio, Joya oculta",
+      "keywords_fr": "Paysage unique, Sources chaudes, Hôtel troglodyte, À faire absolument, Authentique, Bon rapport qualité-prix, Perle cachée",
+      "keywords_hi": "अनोखा परिदृश्य, गर्म पानी के झरने, गुफा होटल, अवश्य देखें, प्रामाणिक, मूल्य-लाभ, छिपा हुआ रत्न",
+      "keywords_zh": "独特景观, 温泉, 洞穴酒店, 必去, 原生态, 性价比, 隐藏的宝石",
+      "keywords_ar": "منظر فريد, ينابيع حارة, فندق كهف, قائمة الأمنيات, أصيل, قيمة مقابل السعر, جوهرة مخفية",
+      "keywords_ru": "Уникальный пейзаж, Горячие источники, Пещерный отель, Обязательно посетить, Аутентичный, Цена-качество, Скрытая жемчужина"
+    },
+    {
+      "id": "scottish-highlands-gbr",
+      "name": "Scottish Highlands",
+      "country": "United Kingdom",
+      "region": "Scotland",
+      "latitude": 57.0,
+      "longitude": -5.0,
+      "destination_type": "mountain",
+      "rarity_score": 7,
+      "fauna": [],
+      "experiences": [
+        "unique_landscape",
+        "trekking"
+      ],
+      "accommodation": [
+        "castle",
+        "mountain_lodge"
+      ],
+      "context_tags": [
+        "authentic",
+        "off_beaten_path",
+        "adventure"
+      ],
+      "best_months": [
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep"
+      ],
+      "keywords_pt": "Paisagem única, Trekking, Castelo, Chalé de montanha, Autêntico, Fora do radar, Aventura",
+      "keywords_en": "Unique landscape, Trekking, Castle, Mountain Lodge, Authentic, Off the beaten path, Adventure",
+      "keywords_es": "Paisaje único, Senderismo, Castillo, Cabaña de montaña, Auténtico, Poco turístico, Aventura",
+      "keywords_fr": "Paysage unique, Randonnée, Château, Chalet de montagne, Authentique, Hors des sentiers battus, Aventure",
+      "keywords_hi": "अनोखा परिदृश्य, ट्रेकिंग, महल, पर्वत लॉज, प्रामाणिक, कम भीड़, साहसिक",
+      "keywords_zh": "独特景观, 徒步旅行, 城堡, 山间小屋, 原生态, 小众目的地, 冒险",
+      "keywords_ar": "منظر فريد, المشي لمسافات طويلة, قلعة, نزل جبلي, أصيل, خارج المسار, مغامرة",
+      "keywords_ru": "Уникальный пейзаж, Треккинг, Замок, Горный домик, Аутентичный, Вне туристических троп, Приключение"
+    },
+    {
+      "id": "maldives-mdv",
+      "name": "Maldives",
+      "country": "Maldives",
+      "region": "Indian Ocean",
+      "latitude": 3.2028,
+      "longitude": 73.2207,
+      "destination_type": "island",
+      "rarity_score": 8,
+      "fauna": [
+        "whale_shark",
+        "manta_ray",
+        "sea_turtle",
+        "dolphin"
+      ],
+      "experiences": [
+        "scuba_diving",
+        "snorkeling",
+        "coral_reef",
+        "bioluminescence"
+      ],
+      "accommodation": [
+        "overwater_bungalow",
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "luxury",
+        "exclusive",
+        "bucket_list"
+      ],
+      "best_months": [
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ],
+      "keywords_pt": "Tubarão-baleia, Arraia-manta, Tartaruga marinha, Golfinho, Mergulho, Snorkel, Recife de coral, Bioluminescência, Bangalô sobre água, Eco lodge, Luxo, Exclusivo, Imperdível",
+      "keywords_en": "Whale Shark, Manta Ray, Sea Turtle, Dolphin, Scuba Diving, Snorkeling, Coral Reef, Bioluminescence, Overwater Bungalow, Eco Lodge, Luxury, Exclusive, Bucket List",
+      "keywords_es": "Tiburón ballena, Manta, Tortuga marina, Delfín, Buceo, Snorkel, Arrecife de coral, Bioluminiscencia, Bungalow sobre el agua, Eco lodge, Lujo, Exclusivo, Lista de deseos",
+      "keywords_fr": "Requin-baleine, Raie manta, Tortue de mer, Dauphin, Plongée, Snorkeling, Récif corallien, Bioluminescence, Bungalow sur pilotis, Éco-lodge, Luxe, Exclusif, À faire absolument",
+      "keywords_hi": "व्हेल शार्क, मंटा रे, समुद्री कछुआ, डॉल्फ़िन, स्कूबा डाइविंग, स्नॉर्कलिंग, मूंगे की चट्टान, जैव प्रकाश, पानी पर बंगला, इको लॉज, विलासिता, विशिष्ट, अवश्य देखें",
+      "keywords_zh": "鲸鲨, 蝠鲼, 海龟, 海豚, 潜水, 浮潜, 珊瑚礁, 生物发光, 水上屋, 生态旅馆, 奢华, 独特, 必去",
+      "keywords_ar": "قرش الحوت, مانتا راي, سلحفاة بحرية, دلفين, غوص, غطس سطحي, شعاب مرجانية, تلألؤ بيولوجي, بنغل فوق الماء, نزل بيئي, فاخر, حصري, قائمة الأمنيات",
+      "keywords_ru": "Китовая акула, Манта, Морская черепаха, Дельфин, Дайвинг, Снорклинг, Коралловый риф, Биолюминесценция, Бунгало над водой, Эко-лодж, Люкс, Эксклюзивный, Обязательно посетить"
+    },
+    {
+      "id": "vieques-pri",
+      "name": "Vieques Bioluminescent Bay",
+      "country": "Puerto Rico",
+      "region": "Vieques Island",
+      "latitude": 18.0953,
+      "longitude": -65.4475,
+      "destination_type": "island",
+      "rarity_score": 9,
+      "fauna": [
+        "sea_turtle"
+      ],
+      "experiences": [
+        "bioluminescence",
+        "snorkeling",
+        "wildlife"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "hidden_gem",
+        "bucket_list",
+        "authentic"
+      ],
+      "best_months": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      "keywords_pt": "Tartaruga marinha, Bioluminescência, Snorkel, Vida selvagem, Eco lodge, Joia escondida, Imperdível, Autêntico",
+      "keywords_en": "Sea Turtle, Bioluminescence, Snorkeling, Wildlife, Eco Lodge, Hidden Gem, Bucket List, Authentic",
+      "keywords_es": "Tortuga marina, Bioluminiscencia, Snorkel, Vida salvaje, Eco lodge, Joya oculta, Lista de deseos, Auténtico",
+      "keywords_fr": "Tortue de mer, Bioluminescence, Snorkeling, Faune sauvage, Éco-lodge, Perle cachée, À faire absolument, Authentique",
+      "keywords_hi": "समुद्री कछुआ, जैव प्रकाश, स्नॉर्कलिंग, वन्यजीव, इको लॉज, छिपा हुआ रत्न, अवश्य देखें, प्रामाणिक",
+      "keywords_zh": "海龟, 生物发光, 浮潜, 野生动物, 生态旅馆, 隐藏的宝石, 必去, 原生态",
+      "keywords_ar": "سلحفاة بحرية, تلألؤ بيولوجي, غطس سطحي, الحياة البرية, نزل بيئي, جوهرة مخفية, قائمة الأمنيات, أصيل",
+      "keywords_ru": "Морская черепаха, Биолюминесценция, Снорклинг, Дикая природа, Эко-лодж, Скрытая жемчужина, Обязательно посетить, Аутентичный"
+    },
+    {
+      "id": "halong-bay-vnm",
+      "name": "Ha Long Bay",
+      "country": "Vietnam",
+      "region": "Quang Ninh",
+      "latitude": 20.9101,
+      "longitude": 107.1839,
+      "destination_type": "island",
+      "rarity_score": 8,
+      "fauna": [
+        "dolphin"
+      ],
+      "experiences": [
+        "unique_landscape",
+        "snorkeling",
+        "bioluminescence"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "value_for_money",
+        "authentic"
+      ],
+      "best_months": [
+        "Mar",
+        "Apr",
+        "May",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Golfinho, Paisagem única, Snorkel, Bioluminescência, Eco lodge, Imperdível, Custo-benefício, Autêntico",
+      "keywords_en": "Dolphin, Unique landscape, Snorkeling, Bioluminescence, Eco Lodge, Bucket List, Value for money, Authentic",
+      "keywords_es": "Delfín, Paisaje único, Snorkel, Bioluminiscencia, Eco lodge, Lista de deseos, Buena relación precio, Auténtico",
+      "keywords_fr": "Dauphin, Paysage unique, Snorkeling, Bioluminescence, Éco-lodge, À faire absolument, Bon rapport qualité-prix, Authentique",
+      "keywords_hi": "डॉल्फ़िन, अनोखा परिदृश्य, स्नॉर्कलिंग, जैव प्रकाश, इको लॉज, अवश्य देखें, मूल्य-लाभ, प्रामाणिक",
+      "keywords_zh": "海豚, 独特景观, 浮潜, 生物发光, 生态旅馆, 必去, 性价比, 原生态",
+      "keywords_ar": "دلفين, منظر فريد, غطس سطحي, تلألؤ بيولوجي, نزل بيئي, قائمة الأمنيات, قيمة مقابل السعر, أصيل",
+      "keywords_ru": "Дельфин, Уникальный пейзаж, Снорклинг, Биолюминесценция, Эко-лодж, Обязательно посетить, Цена-качество, Аутентичный"
+    },
+    {
+      "id": "milford-sound-nzl",
+      "name": "Milford Sound",
+      "country": "New Zealand",
+      "region": "Fiordland",
+      "latitude": -44.6414,
+      "longitude": 167.8971,
+      "destination_type": "fjord",
+      "rarity_score": 9,
+      "fauna": [
+        "dolphin",
+        "penguin",
+        "sea_turtle"
+      ],
+      "experiences": [
+        "fjord",
+        "waterfall",
+        "wildlife",
+        "unique_landscape",
+        "rainforest"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic"
+      ],
+      "best_months": [
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ],
+      "keywords_pt": "Golfinho, Pinguim, Tartaruga marinha, Fiorde, Cachoeira, Vida selvagem, Paisagem única, Floresta tropical, Eco lodge, Imperdível, Aventura, Autêntico",
+      "keywords_en": "Dolphin, Penguin, Sea Turtle, Fjord, Waterfall, Wildlife, Unique landscape, Rainforest, Eco Lodge, Bucket List, Adventure, Authentic",
+      "keywords_es": "Delfín, Pingüino, Tortuga marina, Fiordo, Cascada, Vida salvaje, Paisaje único, Selva tropical, Eco lodge, Lista de deseos, Aventura, Auténtico",
+      "keywords_fr": "Dauphin, Pingouin, Tortue de mer, Fjord, Cascade, Faune sauvage, Paysage unique, Forêt tropicale, Éco-lodge, À faire absolument, Aventure, Authentique",
+      "keywords_hi": "डॉल्फ़िन, पेंगुइन, समुद्री कछुआ, फ़्योर्ड, झरना, वन्यजीव, अनोखा परिदृश्य, वर्षावन, इको लॉज, अवश्य देखें, साहसिक, प्रामाणिक",
+      "keywords_zh": "海豚, 企鹅, 海龟, 峡湾, 瀑布, 野生动物, 独特景观, 热带雨林, 生态旅馆, 必去, 冒险, 原生态",
+      "keywords_ar": "دلفين, بطريق, سلحفاة بحرية, مضيق بحري, شلال, الحياة البرية, منظر فريد, غابة مطيرة, نزل بيئي, قائمة الأمنيات, مغامرة, أصيل",
+      "keywords_ru": "Дельфин, Пингвин, Морская черепаха, Фьорд, Водопад, Дикая природа, Уникальный пейзаж, Тропический лес, Эко-лодж, Обязательно посетить, Приключение, Аутентичный"
+    },
+    {
+      "id": "iguazu-arg",
+      "name": "Iguazu Falls",
+      "country": "Argentina/Brazil",
+      "region": "Misiones / Parana",
+      "latitude": -25.6953,
+      "longitude": -54.4367,
+      "destination_type": "forest",
+      "rarity_score": 9,
+      "fauna": [],
+      "experiences": [
+        "waterfall",
+        "rainforest",
+        "wildlife",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "value_for_money",
+        "adventure"
+      ],
+      "best_months": [
+        "Mar",
+        "Apr",
+        "May",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Cachoeira, Floresta tropical, Vida selvagem, Paisagem única, Eco lodge, Imperdível, Custo-benefício, Aventura",
+      "keywords_en": "Waterfall, Rainforest, Wildlife, Unique landscape, Eco Lodge, Bucket List, Value for money, Adventure",
+      "keywords_es": "Cascada, Selva tropical, Vida salvaje, Paisaje único, Eco lodge, Lista de deseos, Buena relación precio, Aventura",
+      "keywords_fr": "Cascade, Forêt tropicale, Faune sauvage, Paysage unique, Éco-lodge, À faire absolument, Bon rapport qualité-prix, Aventure",
+      "keywords_hi": "झरना, वर्षावन, वन्यजीव, अनोखा परिदृश्य, इको लॉज, अवश्य देखें, मूल्य-लाभ, साहसिक",
+      "keywords_zh": "瀑布, 热带雨林, 野生动物, 独特景观, 生态旅馆, 必去, 性价比, 冒险",
+      "keywords_ar": "شلال, غابة مطيرة, الحياة البرية, منظر فريد, نزل بيئي, قائمة الأمنيات, قيمة مقابل السعر, مغامرة",
+      "keywords_ru": "Водопад, Тропический лес, Дикая природа, Уникальный пейзаж, Эко-лодж, Обязательно посетить, Цена-качество, Приключение"
+    },
+    {
+      "id": "victoria-falls-zmb",
+      "name": "Victoria Falls",
+      "country": "Zambia/Zimbabwe",
+      "region": "Livingstone / Vic Falls",
+      "latitude": -17.9243,
+      "longitude": 25.8572,
+      "destination_type": "forest",
+      "rarity_score": 9,
+      "fauna": [
+        "elephant"
+      ],
+      "experiences": [
+        "waterfall",
+        "safari",
+        "wildlife",
+        "unique_landscape"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "glamping"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic"
+      ],
+      "best_months": [
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul"
+      ],
+      "keywords_pt": "Elefante, Cachoeira, Safári, Vida selvagem, Paisagem única, Eco lodge, Glamping, Imperdível, Aventura, Autêntico",
+      "keywords_en": "Elephant, Waterfall, Safari, Wildlife, Unique landscape, Eco Lodge, Glamping, Bucket List, Adventure, Authentic",
+      "keywords_es": "Elefante, Cascada, Safari, Vida salvaje, Paisaje único, Eco lodge, Glamping, Lista de deseos, Aventura, Auténtico",
+      "keywords_fr": "Éléphant, Cascade, Safari, Faune sauvage, Paysage unique, Éco-lodge, Glamping, À faire absolument, Aventure, Authentique",
+      "keywords_hi": "हाथी, झरना, सफारी, वन्यजीव, अनोखा परिदृश्य, इको लॉज, ग्लैम्पिंग, अवश्य देखें, साहसिक, प्रामाणिक",
+      "keywords_zh": "大象, 瀑布, 野生动物园, 野生动物, 独特景观, 生态旅馆, 豪华露营, 必去, 冒险, 原生态",
+      "keywords_ar": "فيل, شلال, سفاري, الحياة البرية, منظر فريد, نزل بيئي, تخييم فاخر, قائمة الأمنيات, مغامرة, أصيل",
+      "keywords_ru": "Слон, Водопад, Сафари, Дикая природа, Уникальный пейзаж, Эко-лодж, Глэмпинг, Обязательно посетить, Приключение, Аутентичный"
+    },
+    {
+      "id": "kamchatka-rus",
+      "name": "Kamchatka Peninsula",
+      "country": "Russia",
+      "region": "Far East",
+      "latitude": 53.0,
+      "longitude": 158.0,
+      "destination_type": "volcanic",
+      "rarity_score": 10,
+      "fauna": [
+        "polar_bear",
+        "whale"
+      ],
+      "experiences": [
+        "volcano",
+        "hot_springs",
+        "wildlife",
+        "unique_landscape",
+        "glacier"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "glamping"
+      ],
+      "context_tags": [
+        "exclusive",
+        "remote",
+        "adventure",
+        "hidden_gem",
+        "bucket_list"
+      ],
+      "best_months": [
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep"
+      ],
+      "keywords_pt": "Urso polar, Baleia, Vulcão, Águas termais, Vida selvagem, Paisagem única, Geleira, Eco lodge, Glamping, Exclusivo, Remoto, Aventura, Joia escondida, Imperdível",
+      "keywords_en": "Polar Bear, Whale, Volcano, Hot Springs, Wildlife, Unique landscape, Glacier, Eco Lodge, Glamping, Exclusive, Remote, Adventure, Hidden Gem, Bucket List",
+      "keywords_es": "Oso polar, Ballena, Volcán, Aguas termales, Vida salvaje, Paisaje único, Glaciar, Eco lodge, Glamping, Exclusivo, Remoto, Aventura, Joya oculta, Lista de deseos",
+      "keywords_fr": "Ours polaire, Baleine, Volcan, Sources chaudes, Faune sauvage, Paysage unique, Glacier, Éco-lodge, Glamping, Exclusif, Isolé, Aventure, Perle cachée, À faire absolument",
+      "keywords_hi": "ध्रुवीय भालू, व्हेल, ज्वालामुखी, गर्म पानी के झरने, वन्यजीव, अनोखा परिदृश्य, ग्लेशियर, इको लॉज, ग्लैम्पिंग, विशिष्ट, दूरस्थ, साहसिक, छिपा हुआ रत्न, अवश्य देखें",
+      "keywords_zh": "北极熊, 鲸鱼, 火山, 温泉, 野生动物, 独特景观, 冰川, 生态旅馆, 豪华露营, 独特, 偏远, 冒险, 隐藏的宝石, 必去",
+      "keywords_ar": "دب قطبي, حوت, بركان, ينابيع حارة, الحياة البرية, منظر فريد, نهر جليدي, نزل بيئي, تخييم فاخر, حصري, نائي, مغامرة, جوهرة مخفية, قائمة الأمنيات",
+      "keywords_ru": "Белый медведь, Кит, Вулкан, Горячие источники, Дикая природа, Уникальный пейзаж, Ледник, Эко-лодж, Глэмпинг, Эксклюзивный, Отдалённый, Приключение, Скрытая жемчужина, Обязательно посетить"
+    },
+    {
+      "id": "azores-prt",
+      "name": "Azores Islands",
+      "country": "Portugal",
+      "region": "Atlantic Ocean",
+      "latitude": 37.7833,
+      "longitude": -25.5,
+      "destination_type": "island",
+      "rarity_score": 8,
+      "fauna": [
+        "whale",
+        "dolphin"
+      ],
+      "experiences": [
+        "volcano",
+        "hot_springs",
+        "wildlife",
+        "unique_landscape",
+        "scuba_diving"
+      ],
+      "accommodation": [
+        "eco_lodge"
+      ],
+      "context_tags": [
+        "hidden_gem",
+        "value_for_money",
+        "authentic",
+        "sustainable"
+      ],
+      "best_months": [
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct"
+      ],
+      "keywords_pt": "Baleia, Golfinho, Vulcão, Águas termais, Vida selvagem, Paisagem única, Mergulho, Eco lodge, Joia escondida, Custo-benefício, Autêntico, Sustentável",
+      "keywords_en": "Whale, Dolphin, Volcano, Hot Springs, Wildlife, Unique landscape, Scuba Diving, Eco Lodge, Hidden Gem, Value for money, Authentic, Sustainable",
+      "keywords_es": "Ballena, Delfín, Volcán, Aguas termales, Vida salvaje, Paisaje único, Buceo, Eco lodge, Joya oculta, Buena relación precio, Auténtico, Sostenible",
+      "keywords_fr": "Baleine, Dauphin, Volcan, Sources chaudes, Faune sauvage, Paysage unique, Plongée, Éco-lodge, Perle cachée, Bon rapport qualité-prix, Authentique, Durable",
+      "keywords_hi": "व्हेल, डॉल्फ़िन, ज्वालामुखी, गर्म पानी के झरने, वन्यजीव, अनोखा परिदृश्य, स्कूबा डाइविंग, इको लॉज, छिपा हुआ रत्न, मूल्य-लाभ, प्रामाणिक, टिकाऊ",
+      "keywords_zh": "鲸鱼, 海豚, 火山, 温泉, 野生动物, 独特景观, 潜水, 生态旅馆, 隐藏的宝石, 性价比, 原生态, 可持续",
+      "keywords_ar": "حوت, دلفين, بركان, ينابيع حارة, الحياة البرية, منظر فريد, غوص, نزل بيئي, جوهرة مخفية, قيمة مقابل السعر, أصيل, مستدام",
+      "keywords_ru": "Кит, Дельфин, Вулкан, Горячие источники, Дикая природа, Уникальный пейзаж, Дайвинг, Эко-лодж, Скрытая жемчужина, Цена-качество, Аутентичный, Экологичный"
+    },
+    {
+      "id": "amazon-bra",
+      "name": "Amazon Rainforest",
+      "country": "Brazil",
+      "region": "Amazonas",
+      "latitude": -3.4653,
+      "longitude": -62.2159,
+      "destination_type": "forest",
+      "rarity_score": 9,
+      "fauna": [
+        "dolphin"
+      ],
+      "experiences": [
+        "rainforest",
+        "wildlife",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "treehouse"
+      ],
+      "context_tags": [
+        "bucket_list",
+        "adventure",
+        "authentic",
+        "sustainable"
+      ],
+      "best_months": [
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov"
+      ],
+      "keywords_pt": "Golfinho, Floresta tropical, Vida selvagem, Bioma único, Eco lodge, Casa na árvore, Imperdível, Aventura, Autêntico, Sustentável",
+      "keywords_en": "Dolphin, Rainforest, Wildlife, Unique biome, Eco Lodge, Treehouse, Bucket List, Adventure, Authentic, Sustainable",
+      "keywords_es": "Delfín, Selva tropical, Vida salvaje, Bioma único, Eco lodge, Casa del árbol, Lista de deseos, Aventura, Auténtico, Sostenible",
+      "keywords_fr": "Dauphin, Forêt tropicale, Faune sauvage, Biome unique, Éco-lodge, Cabane dans les arbres, À faire absolument, Aventure, Authentique, Durable",
+      "keywords_hi": "डॉल्फ़िन, वर्षावन, वन्यजीव, अनोखा जैव क्षेत्र, इको लॉज, पेड़ पर घर, अवश्य देखें, साहसिक, प्रामाणिक, टिकाऊ",
+      "keywords_zh": "海豚, 热带雨林, 野生动物, 独特生物群系, 生态旅馆, 树屋, 必去, 冒险, 原生态, 可持续",
+      "keywords_ar": "دلفين, غابة مطيرة, الحياة البرية, نظام بيئي فريد, نزل بيئي, بيت شجرة, قائمة الأمنيات, مغامرة, أصيل, مستدام",
+      "keywords_ru": "Дельфин, Тропический лес, Дикая природа, Уникальный биом, Эко-лодж, Дом на дереве, Обязательно посетить, Приключение, Аутентичный, Экологичный"
+    },
+    {
+      "id": "costa-rica-osa",
+      "name": "Osa Peninsula",
+      "country": "Costa Rica",
+      "region": "Puntarenas",
+      "latitude": 8.5,
+      "longitude": -83.5,
+      "destination_type": "forest",
+      "rarity_score": 9,
+      "fauna": [
+        "whale",
+        "dolphin",
+        "sea_turtle"
+      ],
+      "experiences": [
+        "rainforest",
+        "wildlife",
+        "scuba_diving",
+        "unique_biome"
+      ],
+      "accommodation": [
+        "eco_lodge",
+        "treehouse"
+      ],
+      "context_tags": [
+        "hidden_gem",
+        "sustainable",
+        "adventure",
+        "authentic"
+      ],
+      "best_months": [
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ],
+      "keywords_pt": "Baleia, Golfinho, Tartaruga marinha, Floresta tropical, Vida selvagem, Mergulho, Bioma único, Eco lodge, Casa na árvore, Joia escondida, Sustentável, Aventura, Autêntico",
+      "keywords_en": "Whale, Dolphin, Sea Turtle, Rainforest, Wildlife, Scuba Diving, Unique biome, Eco Lodge, Treehouse, Hidden Gem, Sustainable, Adventure, Authentic",
+      "keywords_es": "Ballena, Delfín, Tortuga marina, Selva tropical, Vida salvaje, Buceo, Bioma único, Eco lodge, Casa del árbol, Joya oculta, Sostenible, Aventura, Auténtico",
+      "keywords_fr": "Baleine, Dauphin, Tortue de mer, Forêt tropicale, Faune sauvage, Plongée, Biome unique, Éco-lodge, Cabane dans les arbres, Perle cachée, Durable, Aventure, Authentique",
+      "keywords_hi": "व्हेल, डॉल्फ़िन, समुद्री कछुआ, वर्षावन, वन्यजीव, स्कूबा डाइविंग, अनोखा जैव क्षेत्र, इको लॉज, पेड़ पर घर, छिपा हुआ रत्न, टिकाऊ, साहसिक, प्रामाणिक",
+      "keywords_zh": "鲸鱼, 海豚, 海龟, 热带雨林, 野生动物, 潜水, 独特生物群系, 生态旅馆, 树屋, 隐藏的宝石, 可持续, 冒险, 原生态",
+      "keywords_ar": "حوت, دلفين, سلحفاة بحرية, غابة مطيرة, الحياة البرية, غوص, نظام بيئي فريد, نزل بيئي, بيت شجرة, جوهرة مخفية, مستدام, مغامرة, أصيل",
+      "keywords_ru": "Кит, Дельфин, Морская черепаха, Тропический лес, Дикая природа, Дайвинг, Уникальный биом, Эко-лодж, Дом на дереве, Скрытая жемчужина, Экологичный, Приключение, Аутентичный"
+    }
+  ]
+}

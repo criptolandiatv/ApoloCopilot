@@ -1,0 +1,558 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "description": "Multilingual destination keyword vectors for global travel discovery",
+    "languages": ["pt", "en", "es", "fr", "hi", "zh", "ar", "ru"],
+    "purpose": "Improve organic search, reduce western bias, enable cross-cultural discovery"
+  },
+  "vocabulary": {
+    "fauna": {
+      "elephant": {
+        "pt": "Elefante",
+        "en": "Elephant",
+        "es": "Elefante",
+        "fr": "Éléphant",
+        "hi": "हाथी",
+        "zh": "大象",
+        "ar": "فيل",
+        "ru": "Слон"
+      },
+      "giraffe": {
+        "pt": "Girafa",
+        "en": "Giraffe",
+        "es": "Jirafa",
+        "fr": "Girafe",
+        "hi": "जिराफ़",
+        "zh": "长颈鹿",
+        "ar": "زرافة",
+        "ru": "Жираф"
+      },
+      "whale": {
+        "pt": "Baleia",
+        "en": "Whale",
+        "es": "Ballena",
+        "fr": "Baleine",
+        "hi": "व्हेल",
+        "zh": "鲸鱼",
+        "ar": "حوت",
+        "ru": "Кит"
+      },
+      "whale_shark": {
+        "pt": "Tubarão-baleia",
+        "en": "Whale Shark",
+        "es": "Tiburón ballena",
+        "fr": "Requin-baleine",
+        "hi": "व्हेल शार्क",
+        "zh": "鲸鲨",
+        "ar": "قرش الحوت",
+        "ru": "Китовая акула"
+      },
+      "manta_ray": {
+        "pt": "Arraia-manta",
+        "en": "Manta Ray",
+        "es": "Manta",
+        "fr": "Raie manta",
+        "hi": "मंटा रे",
+        "zh": "蝠鲼",
+        "ar": "مانتا راي",
+        "ru": "Манта"
+      },
+      "lion": {
+        "pt": "Leão",
+        "en": "Lion",
+        "es": "León",
+        "fr": "Lion",
+        "hi": "सिंह",
+        "zh": "狮子",
+        "ar": "أسد",
+        "ru": "Лев"
+      },
+      "tiger": {
+        "pt": "Tigre",
+        "en": "Tiger",
+        "es": "Tigre",
+        "fr": "Tigre",
+        "hi": "बाघ",
+        "zh": "老虎",
+        "ar": "نمر",
+        "ru": "Тигр"
+      },
+      "polar_bear": {
+        "pt": "Urso polar",
+        "en": "Polar Bear",
+        "es": "Oso polar",
+        "fr": "Ours polaire",
+        "hi": "ध्रुवीय भालू",
+        "zh": "北极熊",
+        "ar": "دب قطبي",
+        "ru": "Белый медведь"
+      },
+      "penguin": {
+        "pt": "Pinguim",
+        "en": "Penguin",
+        "es": "Pingüino",
+        "fr": "Pingouin",
+        "hi": "पेंगुइन",
+        "zh": "企鹅",
+        "ar": "بطريق",
+        "ru": "Пингвин"
+      },
+      "dolphin": {
+        "pt": "Golfinho",
+        "en": "Dolphin",
+        "es": "Delfín",
+        "fr": "Dauphin",
+        "hi": "डॉल्फ़िन",
+        "zh": "海豚",
+        "ar": "دلفين",
+        "ru": "Дельфин"
+      },
+      "sea_turtle": {
+        "pt": "Tartaruga marinha",
+        "en": "Sea Turtle",
+        "es": "Tortuga marina",
+        "fr": "Tortue de mer",
+        "hi": "समुद्री कछुआ",
+        "zh": "海龟",
+        "ar": "سلحفاة بحرية",
+        "ru": "Морская черепаха"
+      },
+      "gorilla": {
+        "pt": "Gorila",
+        "en": "Gorilla",
+        "es": "Gorila",
+        "fr": "Gorille",
+        "hi": "गोरिल्ला",
+        "zh": "大猩猩",
+        "ar": "غوريلا",
+        "ru": "Горилла"
+      },
+      "orangutan": {
+        "pt": "Orangotango",
+        "en": "Orangutan",
+        "es": "Orangután",
+        "fr": "Orang-outan",
+        "hi": "ओरांगुटान",
+        "zh": "红毛猩猩",
+        "ar": "إنسان الغاب",
+        "ru": "Орангутан"
+      },
+      "komodo_dragon": {
+        "pt": "Dragão de Komodo",
+        "en": "Komodo Dragon",
+        "es": "Dragón de Komodo",
+        "fr": "Dragon de Komodo",
+        "hi": "कोमोडो ड्रैगन",
+        "zh": "科莫多龙",
+        "ar": "تنين كومودو",
+        "ru": "Комодский варан"
+      },
+      "aurora_borealis": {
+        "pt": "Aurora boreal",
+        "en": "Northern Lights",
+        "es": "Aurora boreal",
+        "fr": "Aurore boréale",
+        "hi": "उत्तरी रोशनी",
+        "zh": "北极光",
+        "ar": "الشفق القطبي",
+        "ru": "Северное сияние"
+      }
+    },
+    "experiences": {
+      "safari": {
+        "pt": "Safári",
+        "en": "Safari",
+        "es": "Safari",
+        "fr": "Safari",
+        "hi": "सफारी",
+        "zh": "野生动物园",
+        "ar": "سفاري",
+        "ru": "Сафари"
+      },
+      "scuba_diving": {
+        "pt": "Mergulho",
+        "en": "Scuba Diving",
+        "es": "Buceo",
+        "fr": "Plongée",
+        "hi": "स्कूबा डाइविंग",
+        "zh": "潜水",
+        "ar": "غوص",
+        "ru": "Дайвинг"
+      },
+      "snorkeling": {
+        "pt": "Snorkel",
+        "en": "Snorkeling",
+        "es": "Snorkel",
+        "fr": "Snorkeling",
+        "hi": "स्नॉर्कलिंग",
+        "zh": "浮潜",
+        "ar": "غطس سطحي",
+        "ru": "Снорклинг"
+      },
+      "wildlife": {
+        "pt": "Vida selvagem",
+        "en": "Wildlife",
+        "es": "Vida salvaje",
+        "fr": "Faune sauvage",
+        "hi": "वन्यजीव",
+        "zh": "野生动物",
+        "ar": "الحياة البرية",
+        "ru": "Дикая природа"
+      },
+      "unique_biome": {
+        "pt": "Bioma único",
+        "en": "Unique biome",
+        "es": "Bioma único",
+        "fr": "Biome unique",
+        "hi": "अनोखा जैव क्षेत्र",
+        "zh": "独特生物群系",
+        "ar": "نظام بيئي فريد",
+        "ru": "Уникальный биом"
+      },
+      "unique_landscape": {
+        "pt": "Paisagem única",
+        "en": "Unique landscape",
+        "es": "Paisaje único",
+        "fr": "Paysage unique",
+        "hi": "अनोखा परिदृश्य",
+        "zh": "独特景观",
+        "ar": "منظر فريد",
+        "ru": "Уникальный пейзаж"
+      },
+      "stargazing": {
+        "pt": "Observação de estrelas",
+        "en": "Stargazing",
+        "es": "Observación de estrellas",
+        "fr": "Observation des étoiles",
+        "hi": "तारे देखना",
+        "zh": "观星",
+        "ar": "مراقبة النجوم",
+        "ru": "Наблюдение за звёздами"
+      },
+      "eclipse": {
+        "pt": "Eclipse",
+        "en": "Eclipse",
+        "es": "Eclipse",
+        "fr": "Éclipse",
+        "hi": "ग्रहण",
+        "zh": "日食月食",
+        "ar": "كسوف",
+        "ru": "Затмение"
+      },
+      "trekking": {
+        "pt": "Trekking",
+        "en": "Trekking",
+        "es": "Senderismo",
+        "fr": "Randonnée",
+        "hi": "ट्रेकिंग",
+        "zh": "徒步旅行",
+        "ar": "المشي لمسافات طويلة",
+        "ru": "Треккинг"
+      },
+      "mountain_climbing": {
+        "pt": "Alpinismo",
+        "en": "Mountain Climbing",
+        "es": "Alpinismo",
+        "fr": "Alpinisme",
+        "hi": "पर्वतारोहण",
+        "zh": "登山",
+        "ar": "تسلق الجبال",
+        "ru": "Альпинизм"
+      },
+      "hot_springs": {
+        "pt": "Águas termais",
+        "en": "Hot Springs",
+        "es": "Aguas termales",
+        "fr": "Sources chaudes",
+        "hi": "गर्म पानी के झरने",
+        "zh": "温泉",
+        "ar": "ينابيع حارة",
+        "ru": "Горячие источники"
+      },
+      "volcano": {
+        "pt": "Vulcão",
+        "en": "Volcano",
+        "es": "Volcán",
+        "fr": "Volcan",
+        "hi": "ज्वालामुखी",
+        "zh": "火山",
+        "ar": "بركان",
+        "ru": "Вулкан"
+      },
+      "glacier": {
+        "pt": "Geleira",
+        "en": "Glacier",
+        "es": "Glaciar",
+        "fr": "Glacier",
+        "hi": "ग्लेशियर",
+        "zh": "冰川",
+        "ar": "نهر جليدي",
+        "ru": "Ледник"
+      },
+      "desert": {
+        "pt": "Deserto",
+        "en": "Desert",
+        "es": "Desierto",
+        "fr": "Désert",
+        "hi": "रेगिस्तान",
+        "zh": "沙漠",
+        "ar": "صحراء",
+        "ru": "Пустыня"
+      },
+      "rainforest": {
+        "pt": "Floresta tropical",
+        "en": "Rainforest",
+        "es": "Selva tropical",
+        "fr": "Forêt tropicale",
+        "hi": "वर्षावन",
+        "zh": "热带雨林",
+        "ar": "غابة مطيرة",
+        "ru": "Тропический лес"
+      },
+      "coral_reef": {
+        "pt": "Recife de coral",
+        "en": "Coral Reef",
+        "es": "Arrecife de coral",
+        "fr": "Récif corallien",
+        "hi": "मूंगे की चट्टान",
+        "zh": "珊瑚礁",
+        "ar": "شعاب مرجانية",
+        "ru": "Коралловый риф"
+      },
+      "fjord": {
+        "pt": "Fiorde",
+        "en": "Fjord",
+        "es": "Fiordo",
+        "fr": "Fjord",
+        "hi": "फ़्योर्ड",
+        "zh": "峡湾",
+        "ar": "مضيق بحري",
+        "ru": "Фьорд"
+      },
+      "waterfall": {
+        "pt": "Cachoeira",
+        "en": "Waterfall",
+        "es": "Cascada",
+        "fr": "Cascade",
+        "hi": "झरना",
+        "zh": "瀑布",
+        "ar": "شلال",
+        "ru": "Водопад"
+      },
+      "bioluminescence": {
+        "pt": "Bioluminescência",
+        "en": "Bioluminescence",
+        "es": "Bioluminiscencia",
+        "fr": "Bioluminescence",
+        "hi": "जैव प्रकाश",
+        "zh": "生物发光",
+        "ar": "تلألؤ بيولوجي",
+        "ru": "Биолюминесценция"
+      },
+      "marine_safari": {
+        "pt": "Safári marinho",
+        "en": "Marine Safari",
+        "es": "Safari marino",
+        "fr": "Safari marin",
+        "hi": "समुद्री सफारी",
+        "zh": "海洋野生动物",
+        "ar": "سفاري بحري",
+        "ru": "Морское сафари"
+      }
+    },
+    "accommodation": {
+      "castle": {
+        "pt": "Castelo",
+        "en": "Castle",
+        "es": "Castillo",
+        "fr": "Château",
+        "hi": "महल",
+        "zh": "城堡",
+        "ar": "قلعة",
+        "ru": "Замок"
+      },
+      "treehouse": {
+        "pt": "Casa na árvore",
+        "en": "Treehouse",
+        "es": "Casa del árbol",
+        "fr": "Cabane dans les arbres",
+        "hi": "पेड़ पर घर",
+        "zh": "树屋",
+        "ar": "بيت شجرة",
+        "ru": "Дом на дереве"
+      },
+      "mountain_lodge": {
+        "pt": "Chalé de montanha",
+        "en": "Mountain Lodge",
+        "es": "Cabaña de montaña",
+        "fr": "Chalet de montagne",
+        "hi": "पर्वत लॉज",
+        "zh": "山间小屋",
+        "ar": "نزل جبلي",
+        "ru": "Горный домик"
+      },
+      "overwater_bungalow": {
+        "pt": "Bangalô sobre água",
+        "en": "Overwater Bungalow",
+        "es": "Bungalow sobre el agua",
+        "fr": "Bungalow sur pilotis",
+        "hi": "पानी पर बंगला",
+        "zh": "水上屋",
+        "ar": "بنغل فوق الماء",
+        "ru": "Бунгало над водой"
+      },
+      "ice_hotel": {
+        "pt": "Hotel de gelo",
+        "en": "Ice Hotel",
+        "es": "Hotel de hielo",
+        "fr": "Hôtel de glace",
+        "hi": "बर्फ़ का होटल",
+        "zh": "冰酒店",
+        "ar": "فندق جليدي",
+        "ru": "Ледяной отель"
+      },
+      "glamping": {
+        "pt": "Glamping",
+        "en": "Glamping",
+        "es": "Glamping",
+        "fr": "Glamping",
+        "hi": "ग्लैम्पिंग",
+        "zh": "豪华露营",
+        "ar": "تخييم فاخر",
+        "ru": "Глэмпинг"
+      },
+      "eco_lodge": {
+        "pt": "Eco lodge",
+        "en": "Eco Lodge",
+        "es": "Eco lodge",
+        "fr": "Éco-lodge",
+        "hi": "इको लॉज",
+        "zh": "生态旅馆",
+        "ar": "نزل بيئي",
+        "ru": "Эко-лодж"
+      },
+      "cave_hotel": {
+        "pt": "Hotel caverna",
+        "en": "Cave Hotel",
+        "es": "Hotel cueva",
+        "fr": "Hôtel troglodyte",
+        "hi": "गुफा होटल",
+        "zh": "洞穴酒店",
+        "ar": "فندق كهف",
+        "ru": "Пещерный отель"
+      }
+    },
+    "context": {
+      "value_for_money": {
+        "pt": "Custo-benefício",
+        "en": "Value for money",
+        "es": "Buena relación precio",
+        "fr": "Bon rapport qualité-prix",
+        "hi": "मूल्य-लाभ",
+        "zh": "性价比",
+        "ar": "قيمة مقابل السعر",
+        "ru": "Цена-качество"
+      },
+      "off_beaten_path": {
+        "pt": "Fora do radar",
+        "en": "Off the beaten path",
+        "es": "Poco turístico",
+        "fr": "Hors des sentiers battus",
+        "hi": "कम भीड़",
+        "zh": "小众目的地",
+        "ar": "خارج المسار",
+        "ru": "Вне туристических троп"
+      },
+      "exclusive": {
+        "pt": "Exclusivo",
+        "en": "Exclusive",
+        "es": "Exclusivo",
+        "fr": "Exclusif",
+        "hi": "विशिष्ट",
+        "zh": "独特",
+        "ar": "حصري",
+        "ru": "Эксклюзивный"
+      },
+      "authentic": {
+        "pt": "Autêntico",
+        "en": "Authentic",
+        "es": "Auténtico",
+        "fr": "Authentique",
+        "hi": "प्रामाणिक",
+        "zh": "原生态",
+        "ar": "أصيل",
+        "ru": "Аутентичный"
+      },
+      "bucket_list": {
+        "pt": "Imperdível",
+        "en": "Bucket List",
+        "es": "Lista de deseos",
+        "fr": "À faire absolument",
+        "hi": "अवश्य देखें",
+        "zh": "必去",
+        "ar": "قائمة الأمنيات",
+        "ru": "Обязательно посетить"
+      },
+      "hidden_gem": {
+        "pt": "Joia escondida",
+        "en": "Hidden Gem",
+        "es": "Joya oculta",
+        "fr": "Perle cachée",
+        "hi": "छिपा हुआ रत्न",
+        "zh": "隐藏的宝石",
+        "ar": "جوهرة مخفية",
+        "ru": "Скрытая жемчужина"
+      },
+      "sustainable": {
+        "pt": "Sustentável",
+        "en": "Sustainable",
+        "es": "Sostenible",
+        "fr": "Durable",
+        "hi": "टिकाऊ",
+        "zh": "可持续",
+        "ar": "مستدام",
+        "ru": "Экологичный"
+      },
+      "luxury": {
+        "pt": "Luxo",
+        "en": "Luxury",
+        "es": "Lujo",
+        "fr": "Luxe",
+        "hi": "विलासिता",
+        "zh": "奢华",
+        "ar": "فاخر",
+        "ru": "Люкс"
+      },
+      "budget_friendly": {
+        "pt": "Econômico",
+        "en": "Budget Friendly",
+        "es": "Económico",
+        "fr": "Économique",
+        "hi": "बजट में",
+        "zh": "经济实惠",
+        "ar": "اقتصادي",
+        "ru": "Бюджетный"
+      },
+      "adventure": {
+        "pt": "Aventura",
+        "en": "Adventure",
+        "es": "Aventura",
+        "fr": "Aventure",
+        "hi": "साहसिक",
+        "zh": "冒险",
+        "ar": "مغامرة",
+        "ru": "Приключение"
+      },
+      "remote": {
+        "pt": "Remoto",
+        "en": "Remote",
+        "es": "Remoto",
+        "fr": "Isolé",
+        "hi": "दूरस्थ",
+        "zh": "偏远",
+        "ar": "نائي",
+        "ru": "Отдалённый"
+      }
+    }
+  }
+}
