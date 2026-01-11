@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Intelligence Dashboard - HealthTech</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-yellow: #d29922;
+            --accent-purple: #a371f7;
+            --border-color: #30363d;
+            --shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header h1 span {
+            color: var(--accent-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Main Content */
+        .main {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 1200px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+        }
+
+        .card-badge.up { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        .card-badge.down { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+
+        /* KPI Cards */
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value.blue { color: var(--accent-blue); }
+        .kpi-value.green { color: var(--accent-green); }
+        .kpi-value.yellow { color: var(--accent-yellow); }
+        .kpi-value.purple { color: var(--accent-purple); }
+
+        .kpi-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-change.positive { color: var(--accent-green); }
+        .kpi-change.negative { color: var(--accent-red); }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .chart-container.small {
+            height: 200px;
+        }
+
+        /* Rankings Table */
+        .rankings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rankings-table th,
+        .rankings-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .rankings-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rankings-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .rank-badge.gold { background: linear-gradient(135deg, #ffd700, #ffb700); color: #000; }
+        .rank-badge.silver { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
+        .rank-badge.bronze { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
+
+        .movement-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+        }
+
+        .movement-indicator.up { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        .movement-indicator.down { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        .movement-indicator.new { background: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+
+        .platform-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+        }
+
+        .score-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Insights Panel */
+        .insight-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .insight-icon.trend { background: rgba(88, 166, 255, 0.2); }
+        .insight-icon.alert { background: rgba(248, 81, 73, 0.2); }
+        .insight-icon.success { background: rgba(63, 185, 80, 0.2); }
+
+        .insight-content h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-content p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Efficiency Matrix */
+        .efficiency-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .efficiency-cell {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .efficiency-cell.high { border-left: 3px solid var(--accent-green); }
+        .efficiency-cell.medium { border-left: 3px solid var(--accent-yellow); }
+        .efficiency-cell.low { border-left: 3px solid var(--accent-red); }
+
+        .efficiency-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .efficiency-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Scatter Plot Container */
+        #scatterPlot {
+            width: 100%;
+            height: 400px;
+        }
+
+        .scatter-tooltip {
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        /* Pipeline View */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 0;
+            overflow-x: auto;
+        }
+
+        .pipeline-stage {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .pipeline-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem;
+            border: 2px solid var(--accent-blue);
+        }
+
+        .pipeline-arrow {
+            flex: 0 0 40px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+        }
+
+        .pipeline-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        .pipeline-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tabs Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>
+            <span>OSINT</span> Intelligence Dashboard
+        </h1>
+        <div class="header-actions">
+            <select id="periodSelector" class="btn">
+                <option value="7">Last 7 days</option>
+                <option value="14">Last 14 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+            </select>
+            <button class="btn" onclick="refreshData()">Refresh</button>
+            <button class="btn btn-primary" onclick="exportReport()">Export Report</button>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-tabs">
+        <a class="nav-tab active" data-tab="overview">Overview</a>
+        <a class="nav-tab" data-tab="rankings">Rankings</a>
+        <a class="nav-tab" data-tab="efficiency">Efficiency</a>
+        <a class="nav-tab" data-tab="pipeline">Pipeline</a>
+        <a class="nav-tab" data-tab="trends">Trends</a>
+        <a class="nav-tab" data-tab="learning">Learning Loop</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <!-- KPI Cards -->
+            <div class="grid grid-4" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Total Signals</span>
+                        <span id="signalsChange" class="card-badge up">+12%</span>
+                    </div>
+                    <div class="kpi-value blue" id="totalSignals">--</div>
+                    <div class="kpi-change positive" id="signalsTrend">
+                        <span>vs previous period</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Outliers Found</span>
+                        <span id="outliersChange" class="card-badge up">+8%</span>
+                    </div>
+                    <div class="kpi-value green" id="totalOutliers">--</div>
+                    <div class="kpi-change" id="outliersRate">
+                        <span>outlier rate</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Avg Trust Score</span>
+                    </div>
+                    <div class="kpi-value yellow" id="avgTrust">--</div>
+                    <div class="kpi-change" id="trustTrend">
+                        <span>weighted average</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Content Efficiency</span>
+                    </div>
+                    <div class="kpi-value purple" id="avgEfficiency">--</div>
+                    <div class="kpi-change" id="efficiencyTrend">
+                        <span>output/input ratio</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-2" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Signal Volume Trend</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Platform Distribution</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="platformChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights & Top Performers -->
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Key Insights</span>
+                    </div>
+                    <div id="insightsContainer">
+                        <div class="insight-item">
+                            <div class="insight-icon trend">+</div>
+                            <div class="insight-content">
+                                <h4>Loading insights...</h4>
+                                <p>Analyzing data patterns</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Top Performers This Week</span>
+                    </div>
+                    <table class="rankings-table" id="topPerformersTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Author</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rankings Tab -->
+        <div id="rankings" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Influencer Rankings</h2>
+                <div>
+                    <button class="btn active" data-ranking="weekly">Weekly</button>
+                    <button class="btn" data-ranking="alltime">All Time</button>
+                </div>
+            </div>
+
+            <div class="grid grid-3" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Total Ranked Authors</span>
+                    </div>
+                    <div class="kpi-value blue" id="rankedAuthors">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">New Entries</span>
+                    </div>
+                    <div class="kpi-value green" id="newEntries">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Biggest Mover</span>
+                    </div>
+                    <div class="kpi-value yellow" id="biggestMover">--</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <table class="rankings-table" id="fullRankingsTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Author</th>
+                            <th>Platform</th>
+                            <th>Score</th>
+                            <th>Trust</th>
+                            <th>Posts</th>
+                            <th>Movement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingsBody">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Efficiency Tab -->
+        <div id="efficiency" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Content Efficiency Analysis</h2>
+            </div>
+
+            <div class="grid grid-3" style="margin-bottom: 1.5rem;">
+                <div class="card efficiency-cell high">
+                    <div class="efficiency-value" id="highLeverage">--</div>
+                    <div class="efficiency-label">High Leverage</div>
+                </div>
+                <div class="card efficiency-cell medium">
+                    <div class="efficiency-value" id="mediumLeverage">--</div>
+                    <div class="efficiency-label">Medium Leverage</div>
+                </div>
+                <div class="card efficiency-cell low">
+                    <div class="efficiency-value" id="lowLeverage">--</div>
+                    <div class="efficiency-label">Low Leverage</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">IQS vs OPS Correlation</span>
+                    </div>
+                    <div id="scatterPlot"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Top Efficiency Content</span>
+                    </div>
+                    <table class="rankings-table" id="efficiencyTable">
+                        <thead>
+                            <tr>
+                                <th>Content</th>
+                                <th>IQS</th>
+                                <th>OPS</th>
+                                <th>Efficiency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Tab -->
+        <div id="pipeline" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Intelligence Pipeline</h2>
+            </div>
+
+            <div class="card">
+                <div class="pipeline">
+                    <div class="pipeline-stage">
+                        <div class="pipeline-icon">R</div>
+                        <div class="pipeline-value" id="pipelineResearch">--</div>
+                        <div class="pipeline-label">Research Items</div>
+                    </div>
+                    <div class="pipeline-arrow">></div>
+                    <div class="pipeline-stage">
+                        <div class="pipeline-icon">S</div>
+                        <div class="pipeline-value" id="pipelineSignals">--</div>
+                        <div class="pipeline-label">Social Signals</div>
+                    </div>
+                    <div class="pipeline-arrow">></div>
+                    <div class="pipeline-stage">
+                        <div class="pipeline-icon">A</div>
+                        <div class="pipeline-value" id="pipelineAnalysis">--</div>
+                        <div class="pipeline-label">Analyzed</div>
+                    </div>
+                    <div class="pipeline-arrow">></div>
+                    <div class="pipeline-stage">
+                        <div class="pipeline-icon">C</div>
+                        <div class="pipeline-value" id="pipelineContent">--</div>
+                        <div class="pipeline-label">Content Created</div>
+                    </div>
+                    <div class="pipeline-arrow">></div>
+                    <div class="pipeline-stage">
+                        <div class="pipeline-icon">I</div>
+                        <div class="pipeline-value" id="pipelineInsights">--</div>
+                        <div class="pipeline-label">Insights Generated</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Pipeline Flow (Sankey)</span>
+                    </div>
+                    <div id="sankeyChart" style="height: 300px;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Conversion Rates</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div id="trends" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Trend Analysis</h2>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Daily Signal Volume</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dailyVolumeChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Score Trend</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="scoreTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <span class="card-title">Platform Performance Over Time</span>
+                </div>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="platformTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Loop Tab -->
+        <div id="learning" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Learning Loop (Outliers)</h2>
+            </div>
+
+            <div class="grid grid-4" style="margin-bottom: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Iterations</span>
+                    </div>
+                    <div class="kpi-value blue" id="learningIterations">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Mean Efficiency</span>
+                    </div>
+                    <div class="kpi-value green" id="learningEfficiency">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Improvement Rate</span>
+                    </div>
+                    <div class="kpi-value yellow" id="learningImprovement">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Best Platform</span>
+                    </div>
+                    <div class="kpi-value purple" id="learningBestPlatform">--</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Current Weights</span>
+                    </div>
+                    <div id="weightsContainer">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Platform Weights</h4>
+                        <div id="platformWeights"></div>
+                        <h4 style="margin: 1rem 0; color: var(--text-secondary);">Timing Weights</h4>
+                        <div id="timingWeights"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Learning Progress</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="learningProgressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <span class="card-title">Recommendations</span>
+                </div>
+                <div id="recommendationsContainer">
+                    <div class="insight-item">
+                        <div class="insight-icon success">L</div>
+                        <div class="insight-content">
+                            <h4>Loading recommendations...</h4>
+                            <p>Analyzing learning data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>OSINT Intelligence Dashboard - HealthTech Domain</p>
+        <p>Powered by n8n + Supabase + Claude</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const API_BASE = '/api/osint';
+        let currentPeriod = 7;
+        let charts = {};
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Period Selector
+        document.getElementById('periodSelector').addEventListener('change', (e) => {
+            currentPeriod = parseInt(e.target.value);
+            refreshData();
+        });
+
+        // Refresh Data
+        async function refreshData() {
+            await Promise.all([
+                loadDashboardSummary(),
+                loadRankings(),
+                loadEfficiency(),
+                loadTrends(),
+                loadLearning()
+            ]);
+        }
+
+        // Load Dashboard Summary
+        async function loadDashboardSummary() {
+            try {
+                // Simulated data for demo
+                const data = generateMockData();
+
+                // Update KPIs
+                document.getElementById('totalSignals').textContent = data.signals.total.toLocaleString();
+                document.getElementById('totalOutliers').textContent = data.signals.outliers.toLocaleString();
+                document.getElementById('avgTrust').textContent = (data.signals.avg_trust * 100).toFixed(1) + '%';
+                document.getElementById('avgEfficiency').textContent = data.content.avg_efficiency.toFixed(2) + 'x';
+
+                // Update insights
+                updateInsights(data);
+
+                // Update charts
+                updateTrendChart(data);
+                updatePlatformChart(data);
+
+                // Update top performers
+                updateTopPerformers(generateMockRankings());
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Generate Mock Data
+        function generateMockData() {
+            return {
+                signals: {
+                    total: Math.floor(Math.random() * 500) + 200,
+                    outliers: Math.floor(Math.random() * 50) + 10,
+                    avg_score: Math.random() * 0.3 + 0.5,
+                    avg_trust: Math.random() * 0.2 + 0.6,
+                    by_platform: {
+                        twitter: Math.floor(Math.random() * 200) + 50,
+                        linkedin: Math.floor(Math.random() * 100) + 30,
+                        reddit: Math.floor(Math.random() * 80) + 20,
+                        hackernews: Math.floor(Math.random() * 50) + 10
+                    }
+                },
+                research: {
+                    total: Math.floor(Math.random() * 100) + 30,
+                    actionable: Math.floor(Math.random() * 30) + 10,
+                    avg_quality: Math.random() * 0.2 + 0.6
+                },
+                content: {
+                    total: Math.floor(Math.random() * 50) + 10,
+                    high_leverage: Math.floor(Math.random() * 10) + 2,
+                    avg_efficiency: Math.random() * 0.5 + 0.8
+                }
+            };
+        }
+
+        // Generate Mock Rankings
+        function generateMockRankings() {
+            const authors = ['@EricTopol', '@venrock', '@a]gilbert', '@healthtech_io', '@biotech_news',
+                           '@FDA_news', '@digital_health', '@medtech_today', '@pharma_intel', '@clinical_ai'];
+            const platforms = ['twitter', 'linkedin', 'hackernews'];
+
+            return authors.map((author, i) => ({
+                rank: i + 1,
+                author: author,
+                platform: platforms[Math.floor(Math.random() * platforms.length)],
+                ranking_score: (0.9 - i * 0.05 + Math.random() * 0.02).toFixed(4),
+                avg_trust_score: (0.85 - i * 0.03 + Math.random() * 0.05).toFixed(3),
+                total_posts: Math.floor(Math.random() * 20) + 5,
+                movement: Math.floor(Math.random() * 5) - 2,
+                movement_type: ['up', 'down', 'stable', 'new'][Math.floor(Math.random() * 4)]
+            }));
+        }
+
+        // Update Insights
+        function updateInsights(data) {
+            const container = document.getElementById('insightsContainer');
+            const insights = [
+                {
+                    icon: '+',
+                    type: 'trend',
+                    title: `${data.signals.outliers} high-impact signals detected`,
+                    desc: `${((data.signals.outliers / data.signals.total) * 100).toFixed(1)}% outlier rate this period`
+                },
+                {
+                    icon: '!',
+                    type: 'alert',
+                    title: `Twitter leading with ${data.signals.by_platform.twitter} signals`,
+                    desc: 'Consider increasing focus on this platform'
+                },
+                {
+                    icon: '*',
+                    type: 'success',
+                    title: `${data.content.high_leverage} high-leverage content pieces`,
+                    desc: `Average efficiency: ${data.content.avg_efficiency.toFixed(2)}x`
+                }
+            ];
+
+            container.innerHTML = insights.map(i => `
+                <div class="insight-item">
+                    <div class="insight-icon ${i.type}">${i.icon}</div>
+                    <div class="insight-content">
+                        <h4>${i.title}</h4>
+                        <p>${i.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update Trend Chart
+        function updateTrendChart(data) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            if (charts.trend) charts.trend.destroy();
+
+            const labels = [];
+            const values = [];
+            for (let i = currentPeriod; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                values.push(Math.floor(Math.random() * 50) + 20);
+            }
+
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Signals',
+                        data: values,
+                        borderColor: '#58a6ff',
+                        backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#30363d' },
+                            ticks: { color: '#8b949e' }
+                        },
+                        y: {
+                            grid: { color: '#30363d' },
+                            ticks: { color: '#8b949e' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Platform Chart
+        function updatePlatformChart(data) {
+            const ctx = document.getElementById('platformChart').getContext('2d');
+
+            if (charts.platform) charts.platform.destroy();
+
+            charts.platform = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.signals.by_platform),
+                    datasets: [{
+                        data: Object.values(data.signals.by_platform),
+                        backgroundColor: ['#58a6ff', '#3fb950', '#d29922', '#a371f7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#f0f6fc' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Top Performers Table
+        function updateTopPerformers(rankings) {
+            const tbody = document.querySelector('#topPerformersTable tbody');
+
+            tbody.innerHTML = rankings.slice(0, 5).map(r => `
+                <tr>
+                    <td>
+                        <span class="rank-badge ${r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''}">${r.rank}</span>
+                    </td>
+                    <td>
+                        ${r.author}
+                        <span class="platform-badge">${r.platform}</span>
+                    </td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="score-bar-fill" style="width: ${r.ranking_score * 100}%"></div>
+                        </div>
+                        ${r.ranking_score}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Rankings
+        async function loadRankings() {
+            const rankings = generateMockRankings();
+
+            document.getElementById('rankedAuthors').textContent = rankings.length;
+            document.getElementById('newEntries').textContent = rankings.filter(r => r.movement_type === 'new').length;
+
+            const biggestMover = rankings.reduce((max, r) =>
+                Math.abs(r.movement) > Math.abs(max.movement) ? r : max, rankings[0]);
+            document.getElementById('biggestMover').textContent = biggestMover.author;
+
+            const tbody = document.getElementById('rankingsBody');
+            tbody.innerHTML = rankings.map(r => `
+                <tr>
+                    <td>
+                        <span class="rank-badge ${r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''}">${r.rank}</span>
+                    </td>
+                    <td>${r.author}</td>
+                    <td><span class="platform-badge">${r.platform}</span></td>
+                    <td>${r.ranking_score}</td>
+                    <td>${r.avg_trust_score}</td>
+                    <td>${r.total_posts}</td>
+                    <td>
+                        <span class="movement-indicator ${r.movement_type}">
+                            ${r.movement_type === 'up' ? '+' : r.movement_type === 'down' ? '' : ''}${r.movement_type === 'new' ? 'NEW' : r.movement}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Efficiency
+        async function loadEfficiency() {
+            const data = {
+                high: Math.floor(Math.random() * 10) + 5,
+                medium: Math.floor(Math.random() * 20) + 10,
+                low: Math.floor(Math.random() * 15) + 5
+            };
+
+            document.getElementById('highLeverage').textContent = data.high;
+            document.getElementById('mediumLeverage').textContent = data.medium;
+            document.getElementById('lowLeverage').textContent = data.low;
+
+            // Create scatter plot
+            createScatterPlot();
+
+            // Update efficiency table
+            const efficiencyData = Array.from({ length: 10 }, (_, i) => ({
+                content: `Content ${i + 1}`,
+                iqs: (Math.random() * 0.4 + 0.5).toFixed(3),
+                ops: (Math.random() * 0.5 + 0.4).toFixed(3),
+                efficiency: (Math.random() * 1 + 0.5).toFixed(2)
+            })).sort((a, b) => b.efficiency - a.efficiency);
+
+            document.querySelector('#efficiencyTable tbody').innerHTML = efficiencyData.map(e => `
+                <tr>
+                    <td>${e.content}</td>
+                    <td>${e.iqs}</td>
+                    <td>${e.ops}</td>
+                    <td style="color: ${parseFloat(e.efficiency) > 1 ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${e.efficiency}x</td>
+                </tr>
+            `).join('');
+        }
+
+        // Create Scatter Plot with D3
+        function createScatterPlot() {
+            const container = document.getElementById('scatterPlot');
+            container.innerHTML = '';
+
+            const width = container.offsetWidth;
+            const height = 400;
+            const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+            const svg = d3.select('#scatterPlot')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Generate mock data points
+            const data = Array.from({ length: 50 }, () => ({
+                iqs: Math.random() * 0.5 + 0.4,
+                ops: Math.random() * 0.6 + 0.3,
+                efficiency: Math.random() * 1.5 + 0.5
+            }));
+
+            const x = d3.scaleLinear()
+                .domain([0.3, 1])
+                .range([margin.left, width - margin.right]);
+
+            const y = d3.scaleLinear()
+                .domain([0.2, 1])
+                .range([height - margin.bottom, margin.top]);
+
+            // Axes
+            svg.append('g')
+                .attr('transform', `translate(0,${height - margin.bottom})`)
+                .call(d3.axisBottom(x).ticks(5))
+                .attr('color', '#8b949e');
+
+            svg.append('g')
+                .attr('transform', `translate(${margin.left},0)`)
+                .call(d3.axisLeft(y).ticks(5))
+                .attr('color', '#8b949e');
+
+            // Labels
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height - 5)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#8b949e')
+                .text('Input Quality Score (IQS)');
+
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -height / 2)
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#8b949e')
+                .text('Output Performance Score (OPS)');
+
+            // Points
+            svg.selectAll('circle')
+                .data(data)
+                .enter()
+                .append('circle')
+                .attr('cx', d => x(d.iqs))
+                .attr('cy', d => y(d.ops))
+                .attr('r', d => 4 + d.efficiency * 3)
+                .attr('fill', d => d.efficiency > 1 ? '#3fb950' : d.efficiency > 0.7 ? '#d29922' : '#f85149')
+                .attr('opacity', 0.7);
+
+            // Trend line
+            const xMean = d3.mean(data, d => d.iqs);
+            const yMean = d3.mean(data, d => d.ops);
+            const slope = d3.sum(data, d => (d.iqs - xMean) * (d.ops - yMean)) /
+                         d3.sum(data, d => Math.pow(d.iqs - xMean, 2));
+            const intercept = yMean - slope * xMean;
+
+            svg.append('line')
+                .attr('x1', x(0.3))
+                .attr('y1', y(0.3 * slope + intercept))
+                .attr('x2', x(1))
+                .attr('y2', y(1 * slope + intercept))
+                .attr('stroke', '#58a6ff')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '5,5')
+                .attr('opacity', 0.5);
+        }
+
+        // Load Trends
+        async function loadTrends() {
+            // Daily volume chart
+            const volumeCtx = document.getElementById('dailyVolumeChart').getContext('2d');
+            if (charts.volume) charts.volume.destroy();
+
+            const days = [];
+            const volumes = [];
+            for (let i = 30; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                volumes.push(Math.floor(Math.random() * 50) + 20);
+            }
+
+            charts.volume = new Chart(volumeCtx, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Signals',
+                        data: volumes,
+                        backgroundColor: '#58a6ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e', maxRotation: 45 } },
+                        y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+                    }
+                }
+            });
+
+            // Score trend chart
+            const scoreCtx = document.getElementById('scoreTrendChart').getContext('2d');
+            if (charts.scoreTrend) charts.scoreTrend.destroy();
+
+            const scores = days.map(() => (Math.random() * 0.2 + 0.6).toFixed(3));
+
+            charts.scoreTrend = new Chart(scoreCtx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Avg Score',
+                        data: scores,
+                        borderColor: '#3fb950',
+                        backgroundColor: 'rgba(63, 185, 80, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e', maxRotation: 45 } },
+                        y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' }, min: 0.5, max: 0.9 }
+                    }
+                }
+            });
+        }
+
+        // Load Learning
+        async function loadLearning() {
+            document.getElementById('learningIterations').textContent = Math.floor(Math.random() * 30) + 10;
+            document.getElementById('learningEfficiency').textContent = (Math.random() * 0.3 + 0.7).toFixed(2);
+            document.getElementById('learningImprovement').textContent = '+' + (Math.random() * 10 + 5).toFixed(1) + '%';
+            document.getElementById('learningBestPlatform').textContent = 'Twitter';
+
+            // Platform weights
+            const platformWeights = {
+                twitter: (Math.random() * 0.5 + 1).toFixed(2),
+                linkedin: (Math.random() * 0.4 + 0.9).toFixed(2),
+                reddit: (Math.random() * 0.3 + 0.8).toFixed(2),
+                hackernews: (Math.random() * 0.3 + 0.7).toFixed(2)
+            };
+
+            document.getElementById('platformWeights').innerHTML = Object.entries(platformWeights)
+                .map(([p, w]) => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>${p}</span>
+                        <span style="color: ${parseFloat(w) > 1 ? 'var(--accent-green)' : 'var(--text-secondary)'}">${w}x</span>
+                    </div>
+                `).join('');
+
+            // Timing weights
+            const timingWeights = {
+                morning: (Math.random() * 0.3 + 0.9).toFixed(2),
+                afternoon: (Math.random() * 0.4 + 1).toFixed(2),
+                evening: (Math.random() * 0.2 + 0.8).toFixed(2)
+            };
+
+            document.getElementById('timingWeights').innerHTML = Object.entries(timingWeights)
+                .map(([t, w]) => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>${t}</span>
+                        <span style="color: ${parseFloat(w) > 1 ? 'var(--accent-green)' : 'var(--text-secondary)'}">${w}x</span>
+                    </div>
+                `).join('');
+
+            // Learning progress chart
+            const progressCtx = document.getElementById('learningProgressChart').getContext('2d');
+            if (charts.learningProgress) charts.learningProgress.destroy();
+
+            const iterations = Array.from({ length: 20 }, (_, i) => `#${i + 1}`);
+            const efficiencies = iterations.map(() => (Math.random() * 0.3 + 0.6).toFixed(3));
+
+            charts.learningProgress = new Chart(progressCtx, {
+                type: 'line',
+                data: {
+                    labels: iterations,
+                    datasets: [{
+                        label: 'Mean Efficiency',
+                        data: efficiencies,
+                        borderColor: '#a371f7',
+                        backgroundColor: 'rgba(163, 113, 247, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+                        y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+                    }
+                }
+            });
+
+            // Recommendations
+            document.getElementById('recommendationsContainer').innerHTML = `
+                <div class="insight-item">
+                    <div class="insight-icon success">1</div>
+                    <div class="insight-content">
+                        <h4>Focus on Twitter</h4>
+                        <p>Weight: ${platformWeights.twitter}x - Highest performing platform</p>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon trend">2</div>
+                    <div class="insight-content">
+                        <h4>Post in the afternoon</h4>
+                        <p>Weight: ${timingWeights.afternoon}x - Best engagement window</p>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon alert">3</div>
+                    <div class="insight-content">
+                        <h4>Reduce Reddit focus</h4>
+                        <p>Weight: ${platformWeights.reddit}x - Below average performance</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Export Report
+        function exportReport() {
+            alert('Report export functionality - would generate PDF/CSV');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshData();
+        });
+    </script>
+</body>
+</html>

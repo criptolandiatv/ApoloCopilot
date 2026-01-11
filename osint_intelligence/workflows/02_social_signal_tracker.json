@@ -1,0 +1,253 @@
+{
+  "name": "OSINT Social Signal Tracker - HealthTech",
+  "nodes": [
+    {
+      "id": "schedule-trigger",
+      "name": "Scheduled Trigger (Every 6h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "hours", "hoursInterval": 6}]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [100, 150],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "config-loader",
+      "name": "Load Tracking Config",
+      "type": "n8n-nodes-base.code",
+      "position": [300, 225],
+      "parameters": {
+        "jsCode": "// Healthtech KOLs and influencers to track\nconst healthtechKOLs = [\n  { handle: 'EricTopol', platform: 'twitter', domain: 'digital_health' },\n  { handle: 'venaborenstein', platform: 'twitter', domain: 'healthtech_vc' },\n  { handle: 'haborenstein', platform: 'twitter', domain: 'biotech' },\n  { handle: 'arlogilbert', platform: 'twitter', domain: 'health_innovation' },\n  { handle: 'techreview', platform: 'twitter', domain: 'health_tech_news' }\n];\n\n// Keywords to monitor\nconst keywords = [\n  'digital health',\n  'FDA approval',\n  'clinical trial results',\n  'healthtech funding',\n  'telemedicine',\n  'AI healthcare',\n  'wearable devices',\n  'remote patient monitoring',\n  'precision medicine',\n  'HIPAA compliance'\n];\n\n// Platforms to scan\nconst platforms = ['twitter', 'linkedin', 'reddit', 'hackernews'];\n\nreturn {\n  kols: healthtechKOLs,\n  keywords: keywords,\n  platforms: platforms,\n  scan_timestamp: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "twitter-search",
+      "name": "Twitter/X Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 100],
+      "parameters": {
+        "url": "https://api.twitter.com/2/tweets/search/recent",
+        "method": "GET",
+        "authentication": "oAuth2Api",
+        "qs": {
+          "query": "={{ $json.keywords.slice(0, 5).join(' OR ') }} -is:retweet lang:en",
+          "max_results": "100",
+          "tweet.fields": "author_id,created_at,public_metrics,entities",
+          "expansions": "author_id",
+          "user.fields": "public_metrics,verified,description"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "reddit-search",
+      "name": "Reddit Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 200],
+      "parameters": {
+        "url": "https://www.reddit.com/search.json",
+        "method": "GET",
+        "qs": {
+          "q": "={{ $json.keywords.slice(0, 3).join(' OR ') }}",
+          "sort": "new",
+          "limit": "50",
+          "t": "day"
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "User-Agent", "value": "HealthTech-OSINT-Bot/1.0"}
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "hackernews-search",
+      "name": "HackerNews Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 300],
+      "parameters": {
+        "url": "https://hn.algolia.com/api/v1/search",
+        "method": "GET",
+        "qs": {
+          "query": "healthtech OR digital health OR FDA OR biotech",
+          "tags": "story",
+          "numericFilters": "created_at_i>={{ Math.floor(Date.now()/1000) - 86400 }}"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "linkedin-scrape",
+      "name": "LinkedIn Posts (via API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 400],
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/shares",
+        "method": "GET",
+        "authentication": "oAuth2Api",
+        "qs": {
+          "q": "owners",
+          "sharesPerOwner": "100"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "merge-social",
+      "name": "Merge All Social Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [750, 250],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "normalize-signals",
+      "name": "Normalize Social Signals",
+      "type": "n8n-nodes-base.code",
+      "position": [950, 250],
+      "parameters": {
+        "jsCode": "const allSignals = $input.all();\nconst normalized = [];\n\nfor (const item of allSignals) {\n  const data = item.json;\n  \n  // Twitter normalization\n  if (data.data && Array.isArray(data.data)) {\n    for (const tweet of data.data) {\n      const author = data.includes?.users?.find(u => u.id === tweet.author_id);\n      normalized.push({\n        platform: 'twitter',\n        post_id: tweet.id,\n        author: author?.username || 'unknown',\n        author_followers: author?.public_metrics?.followers_count || 0,\n        content: tweet.text,\n        engagement: (tweet.public_metrics?.like_count || 0) + \n                   (tweet.public_metrics?.retweet_count || 0) * 2 + \n                   (tweet.public_metrics?.reply_count || 0) * 3,\n        likes: tweet.public_metrics?.like_count || 0,\n        shares: tweet.public_metrics?.retweet_count || 0,\n        comments: tweet.public_metrics?.reply_count || 0,\n        created_at: tweet.created_at,\n        verified: author?.verified || false\n      });\n    }\n  }\n  \n  // Reddit normalization\n  if (data.data?.children) {\n    for (const post of data.data.children) {\n      const p = post.data;\n      normalized.push({\n        platform: 'reddit',\n        post_id: p.id,\n        author: p.author,\n        author_followers: 0,\n        content: p.title + ' ' + (p.selftext || ''),\n        engagement: (p.score || 0) + (p.num_comments || 0) * 2,\n        likes: p.score || 0,\n        shares: 0,\n        comments: p.num_comments || 0,\n        created_at: new Date(p.created_utc * 1000).toISOString(),\n        verified: false,\n        subreddit: p.subreddit\n      });\n    }\n  }\n  \n  // HackerNews normalization\n  if (data.hits) {\n    for (const story of data.hits) {\n      normalized.push({\n        platform: 'hackernews',\n        post_id: story.objectID,\n        author: story.author,\n        author_followers: 0,\n        content: story.title,\n        engagement: (story.points || 0) + (story.num_comments || 0) * 2,\n        likes: story.points || 0,\n        shares: 0,\n        comments: story.num_comments || 0,\n        created_at: story.created_at,\n        verified: false,\n        url: story.url\n      });\n    }\n  }\n}\n\n// Sort by engagement\nnormalized.sort((a, b) => b.engagement - a.engagement);\n\nreturn normalized.map(n => ({ json: n }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "calculate-scores",
+      "name": "Calculate Trust & Velocity Scores",
+      "type": "n8n-nodes-base.code",
+      "position": [1150, 250],
+      "parameters": {
+        "jsCode": "const signals = $input.all();\nconst scored = [];\n\nfor (const item of signals) {\n  const s = item.json;\n  \n  // Trust Score (0-1)\n  // Based on: followers, verification, platform reputation\n  let trustFactors = 0;\n  let trustDivisor = 0;\n  \n  // Follower trust (log scale, max contribution 0.4)\n  const followerScore = Math.min(0.4, Math.log10(Math.max(1, s.author_followers)) / 15);\n  trustFactors += followerScore;\n  trustDivisor += 0.4;\n  \n  // Verification bonus\n  if (s.verified) {\n    trustFactors += 0.2;\n  }\n  trustDivisor += 0.2;\n  \n  // Platform trust\n  const platformTrust = {\n    'twitter': 0.3,\n    'linkedin': 0.4,\n    'hackernews': 0.35,\n    'reddit': 0.25\n  };\n  trustFactors += platformTrust[s.platform] || 0.2;\n  trustDivisor += 0.4;\n  \n  const trustScore = trustFactors / trustDivisor;\n  \n  // Velocity Score (engagement rate over time)\n  const postAge = (Date.now() - new Date(s.created_at).getTime()) / (1000 * 60 * 60); // hours\n  const velocity = postAge > 0 ? s.engagement / postAge : s.engagement;\n  const normalizedVelocity = Math.min(1, velocity / 100); // normalize to 0-1\n  \n  // Final Score (weighted combination)\n  // trust_weighted_engagement = engagement * trust_score\n  const trustWeightedEngagement = s.engagement * trustScore;\n  \n  // Final score formula\n  const finalScore = (\n    0.4 * trustScore +\n    0.3 * normalizedVelocity +\n    0.3 * Math.min(1, trustWeightedEngagement / 1000)\n  );\n  \n  scored.push({\n    ...s,\n    trust_score: Math.round(trustScore * 1000) / 1000,\n    velocity: Math.round(normalizedVelocity * 1000) / 1000,\n    trust_weighted_engagement: Math.round(trustWeightedEngagement * 100) / 100,\n    final_score: Math.round(finalScore * 1000) / 1000,\n    post_age_hours: Math.round(postAge * 10) / 10\n  });\n}\n\n// Sort by final score\nscored.sort((a, b) => b.final_score - a.final_score);\n\nreturn scored.map(s => ({ json: s }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "filter-outliers",
+      "name": "Identify Outliers",
+      "type": "n8n-nodes-base.code",
+      "position": [1350, 250],
+      "parameters": {
+        "jsCode": "const signals = $input.all().map(i => i.json);\n\n// Calculate statistics\nconst scores = signals.map(s => s.final_score);\nconst mean = scores.reduce((a, b) => a + b, 0) / scores.length;\nconst variance = scores.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / scores.length;\nconst stdDev = Math.sqrt(variance);\n\n// Identify outliers (> 1.5 std dev above mean)\nconst outlierThreshold = mean + (1.5 * stdDev);\n\nconst enriched = signals.map(s => ({\n  ...s,\n  is_outlier: s.final_score > outlierThreshold,\n  z_score: Math.round(((s.final_score - mean) / stdDev) * 100) / 100,\n  percentile: Math.round((scores.filter(x => x <= s.final_score).length / scores.length) * 100)\n}));\n\n// Return outliers first, then by score\nconst sorted = enriched.sort((a, b) => {\n  if (a.is_outlier && !b.is_outlier) return -1;\n  if (!a.is_outlier && b.is_outlier) return 1;\n  return b.final_score - a.final_score;\n});\n\nreturn sorted.map(s => ({ json: s }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "supabase-batch-insert",
+      "name": "Batch Insert to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1550, 250],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/social_posts",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $input.all().slice(0, 100).map(item => ({\n  platform: item.json.platform,\n  author: item.json.author,\n  post_id: item.json.post_id,\n  content: item.json.content?.substring(0, 1000),\n  followers: item.json.author_followers,\n  engagement: item.json.engagement,\n  velocity: item.json.velocity,\n  trust_score: item.json.trust_score,\n  final_score: item.json.final_score,\n  is_outlier: item.json.is_outlier,\n  z_score: item.json.z_score,\n  percentile: item.json.percentile,\n  domain: 'healthtech',\n  created_at: item.json.created_at\n})) }}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "generate-summary",
+      "name": "Generate Daily Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [1750, 250],
+      "parameters": {
+        "jsCode": "const signals = $input.all().map(i => i.json);\nconst outliers = signals.filter(s => s.is_outlier);\n\n// Platform breakdown\nconst byPlatform = {};\nfor (const s of signals) {\n  if (!byPlatform[s.platform]) {\n    byPlatform[s.platform] = { count: 0, totalEngagement: 0, avgScore: 0 };\n  }\n  byPlatform[s.platform].count++;\n  byPlatform[s.platform].totalEngagement += s.engagement;\n}\n\nfor (const p in byPlatform) {\n  byPlatform[p].avgScore = byPlatform[p].totalEngagement / byPlatform[p].count;\n}\n\n// Top authors\nconst authorScores = {};\nfor (const s of signals) {\n  if (!authorScores[s.author]) {\n    authorScores[s.author] = { totalScore: 0, count: 0, platform: s.platform };\n  }\n  authorScores[s.author].totalScore += s.final_score;\n  authorScores[s.author].count++;\n}\n\nconst topAuthors = Object.entries(authorScores)\n  .map(([author, data]) => ({\n    author,\n    avgScore: data.totalScore / data.count,\n    postCount: data.count,\n    platform: data.platform\n  }))\n  .sort((a, b) => b.avgScore - a.avgScore)\n  .slice(0, 10);\n\nreturn {\n  summary: {\n    total_signals: signals.length,\n    outliers_found: outliers.length,\n    by_platform: byPlatform,\n    top_authors: topAuthors,\n    generated_at: new Date().toISOString()\n  },\n  top_outliers: outliers.slice(0, 5),\n  insights: [\n    `Found ${outliers.length} high-impact signals out of ${signals.length} total`,\n    `Top platform: ${Object.entries(byPlatform).sort((a,b) => b[1].totalEngagement - a[1].totalEngagement)[0]?.[0] || 'N/A'}`,\n    `Top author: ${topAuthors[0]?.author || 'N/A'} with avg score ${topAuthors[0]?.avgScore?.toFixed(3) || 'N/A'}`\n  ]\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack-notification",
+      "name": "Send Slack Summary",
+      "type": "n8n-nodes-base.slack",
+      "position": [1950, 250],
+      "parameters": {
+        "operation": "postMessage",
+        "channel": "osint-intelligence",
+        "text": "=*HealthTech Social Signal Report*\n\n:mag: *Summary*\n- Total Signals: {{ $json.summary.total_signals }}\n- Outliers Found: {{ $json.summary.outliers_found }}\n\n:fire: *Top Insights*\n{{ $json.insights.join('\\n') }}\n\n:trophy: *Top Authors*\n{{ $json.summary.top_authors.slice(0, 5).map((a, i) => `${i+1}. @${a.author} (${a.platform}) - Score: ${a.avgScore.toFixed(3)}`).join('\\n') }}\n\n:star2: *Top Outlier Signals*\n{{ $json.top_outliers.slice(0, 3).map((o, i) => `${i+1}. [${o.platform}] @${o.author}: ${o.content?.substring(0, 100)}...`).join('\\n\\n') }}"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "connections": {
+    "Scheduled Trigger (Every 6h)": {
+      "main": [[{"node": "Load Tracking Config", "type": "main", "index": 0}]]
+    },
+    "Manual Trigger": {
+      "main": [[{"node": "Load Tracking Config", "type": "main", "index": 0}]]
+    },
+    "Load Tracking Config": {
+      "main": [
+        [
+          {"node": "Twitter/X Search", "type": "main", "index": 0},
+          {"node": "Reddit Search", "type": "main", "index": 0},
+          {"node": "HackerNews Search", "type": "main", "index": 0},
+          {"node": "LinkedIn Posts (via API)", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Twitter/X Search": {
+      "main": [[{"node": "Merge All Social Data", "type": "main", "index": 0}]]
+    },
+    "Reddit Search": {
+      "main": [[{"node": "Merge All Social Data", "type": "main", "index": 1}]]
+    },
+    "HackerNews Search": {
+      "main": [[{"node": "Merge All Social Data", "type": "main", "index": 2}]]
+    },
+    "LinkedIn Posts (via API)": {
+      "main": [[{"node": "Merge All Social Data", "type": "main", "index": 3}]]
+    },
+    "Merge All Social Data": {
+      "main": [[{"node": "Normalize Social Signals", "type": "main", "index": 0}]]
+    },
+    "Normalize Social Signals": {
+      "main": [[{"node": "Calculate Trust & Velocity Scores", "type": "main", "index": 0}]]
+    },
+    "Calculate Trust & Velocity Scores": {
+      "main": [[{"node": "Identify Outliers", "type": "main", "index": 0}]]
+    },
+    "Identify Outliers": {
+      "main": [[{"node": "Batch Insert to Supabase", "type": "main", "index": 0}]]
+    },
+    "Batch Insert to Supabase": {
+      "main": [[{"node": "Generate Daily Summary", "type": "main", "index": 0}]]
+    },
+    "Generate Daily Summary": {
+      "main": [[{"node": "Send Slack Summary", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "errorWorkflow": ""
+  },
+  "tags": ["osint", "healthtech", "social", "signals", "tracking"],
+  "active": false
+}

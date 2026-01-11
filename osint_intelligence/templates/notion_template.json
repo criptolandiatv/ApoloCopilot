@@ -1,0 +1,154 @@
+{
+  "name": "OSINT Intelligence OS - HealthTech",
+  "description": "Complete intelligence system for HealthTech brand monitoring and content optimization",
+  "structure": {
+    "pages": [
+      {
+        "name": "Dashboard",
+        "icon": "chart_with_upwards_trend",
+        "type": "page",
+        "content": "# Intelligence Dashboard\n\nWeekly summary of OSINT activities and KPIs.\n\n## Key Metrics\n- Total Signals: {{total_signals}}\n- Outliers Found: {{outliers}}\n- Avg Trust Score: {{avg_trust}}\n- Content Efficiency: {{efficiency}}"
+      },
+      {
+        "name": "Research Log",
+        "icon": "mag",
+        "type": "database",
+        "properties": [
+          {"name": "Topic", "type": "title"},
+          {"name": "Source", "type": "select", "options": ["PubMed", "ClinicalTrials", "FDA", "Manual", "Telegram"]},
+          {"name": "Insight Type", "type": "select", "options": ["Trend", "Competitor", "Regulatory", "Opportunity", "Risk"]},
+          {"name": "Confidence", "type": "number", "format": "percent"},
+          {"name": "Novelty", "type": "number", "format": "percent"},
+          {"name": "IQS", "type": "formula", "formula": "0.4 * prop(\"Confidence\") + 0.4 * 0.6 + 0.2 * prop(\"Novelty\")"},
+          {"name": "Actionable", "type": "checkbox"},
+          {"name": "Priority", "type": "select", "options": ["Low", "Medium", "High", "Critical"]},
+          {"name": "Status", "type": "status", "options": ["Not Started", "In Progress", "Done", "Archived"]},
+          {"name": "Created", "type": "created_time"},
+          {"name": "Insight", "type": "rich_text"}
+        ]
+      },
+      {
+        "name": "Social Signals",
+        "icon": "speech_balloon",
+        "type": "database",
+        "properties": [
+          {"name": "Author", "type": "title"},
+          {"name": "Platform", "type": "select", "options": ["Twitter", "LinkedIn", "Reddit", "HackerNews"]},
+          {"name": "Content", "type": "rich_text"},
+          {"name": "Engagement", "type": "number"},
+          {"name": "Trust Score", "type": "number", "format": "percent"},
+          {"name": "Final Score", "type": "number", "format": "percent"},
+          {"name": "Is Outlier", "type": "checkbox"},
+          {"name": "Post URL", "type": "url"},
+          {"name": "Captured", "type": "created_time"}
+        ]
+      },
+      {
+        "name": "KOL Rankings",
+        "icon": "trophy",
+        "type": "database",
+        "properties": [
+          {"name": "Author", "type": "title"},
+          {"name": "Rank", "type": "number"},
+          {"name": "Platform", "type": "select", "options": ["Twitter", "LinkedIn", "Reddit", "HackerNews"]},
+          {"name": "Ranking Score", "type": "number", "format": "percent"},
+          {"name": "Avg Trust", "type": "number", "format": "percent"},
+          {"name": "Post Count", "type": "number"},
+          {"name": "Movement", "type": "select", "options": ["Up", "Down", "Stable", "New"]},
+          {"name": "Period", "type": "select", "options": ["Weekly", "Monthly", "All-Time"]},
+          {"name": "Last Updated", "type": "date"}
+        ]
+      },
+      {
+        "name": "Content Factory",
+        "icon": "factory",
+        "type": "database",
+        "properties": [
+          {"name": "Title", "type": "title"},
+          {"name": "Research Source", "type": "relation", "relation_to": "Research Log"},
+          {"name": "Platform", "type": "select", "options": ["Twitter", "LinkedIn", "Blog", "Newsletter"]},
+          {"name": "Content Type", "type": "select", "options": ["Post", "Thread", "Article", "Video"]},
+          {"name": "Status", "type": "status", "options": ["Idea", "Drafting", "Review", "Published", "Analyzing"]},
+          {"name": "IQS", "type": "number", "format": "percent"},
+          {"name": "OPS", "type": "number", "format": "percent"},
+          {"name": "Efficiency", "type": "formula", "formula": "prop(\"OPS\") / prop(\"IQS\")"},
+          {"name": "Leverage", "type": "select", "options": ["Low", "Medium", "High"]},
+          {"name": "Published At", "type": "date"},
+          {"name": "URL", "type": "url"},
+          {"name": "Learnings", "type": "rich_text"}
+        ]
+      },
+      {
+        "name": "Learning Iterations",
+        "icon": "brain",
+        "type": "database",
+        "properties": [
+          {"name": "Iteration", "type": "title"},
+          {"name": "Date", "type": "date"},
+          {"name": "Mean Efficiency", "type": "number", "format": "percent"},
+          {"name": "Improvement Rate", "type": "number", "format": "percent"},
+          {"name": "Best Platform", "type": "select", "options": ["Twitter", "LinkedIn", "Reddit", "HackerNews"]},
+          {"name": "Key Insights", "type": "rich_text"},
+          {"name": "Weight Changes", "type": "rich_text"},
+          {"name": "Recommendations", "type": "rich_text"}
+        ]
+      },
+      {
+        "name": "Playbooks",
+        "icon": "book",
+        "type": "page",
+        "children": [
+          {
+            "name": "Research Workflow",
+            "content": "# Research Workflow\n\n1. **Trigger**: /research command in Telegram\n2. **Sources**: PubMed, ClinicalTrials, FDA\n3. **Analysis**: Claude AI extracts insights\n4. **Scoring**: IQS calculation\n5. **Storage**: Supabase + Notion"
+          },
+          {
+            "name": "Content Creation",
+            "content": "# Content Creation Workflow\n\n1. Select high-IQS research item\n2. Draft content based on insights\n3. Choose optimal platform (check weights)\n4. Publish at optimal time (check timing weights)\n5. Track performance\n6. Update efficiency metrics"
+          },
+          {
+            "name": "Weekly Review",
+            "content": "# Weekly Review Checklist\n\n- [ ] Review ranking changes\n- [ ] Analyze top outliers\n- [ ] Check learning loop recommendations\n- [ ] Update content strategy\n- [ ] Plan next week's content"
+          }
+        ]
+      }
+    ]
+  },
+  "views": {
+    "research_log": [
+      {"name": "All Research", "type": "table"},
+      {"name": "Actionable", "type": "table", "filter": "Actionable = true"},
+      {"name": "By Source", "type": "board", "group_by": "Source"},
+      {"name": "Calendar", "type": "calendar", "date_property": "Created"}
+    ],
+    "social_signals": [
+      {"name": "All Signals", "type": "table"},
+      {"name": "Outliers Only", "type": "table", "filter": "Is Outlier = true"},
+      {"name": "By Platform", "type": "board", "group_by": "Platform"},
+      {"name": "Top Scores", "type": "table", "sort": "Final Score DESC"}
+    ],
+    "content_factory": [
+      {"name": "Kanban", "type": "board", "group_by": "Status"},
+      {"name": "By Platform", "type": "board", "group_by": "Platform"},
+      {"name": "High Efficiency", "type": "table", "filter": "Efficiency > 1"},
+      {"name": "Timeline", "type": "timeline", "date_property": "Published At"}
+    ]
+  },
+  "automations": [
+    {
+      "name": "New Research Notification",
+      "trigger": "New item in Research Log where Priority = High",
+      "action": "Send Slack notification"
+    },
+    {
+      "name": "Weekly Ranking Update",
+      "trigger": "Every Monday at 9am",
+      "action": "Update KOL Rankings from Supabase"
+    },
+    {
+      "name": "Content Performance Check",
+      "trigger": "48 hours after Published At",
+      "action": "Update OPS metrics"
+    }
+  ]
+}

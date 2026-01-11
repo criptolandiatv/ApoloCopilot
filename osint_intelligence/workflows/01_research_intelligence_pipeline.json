@@ -1,0 +1,233 @@
+{
+  "name": "OSINT Research Intelligence Pipeline - HealthTech",
+  "nodes": [
+    {
+      "id": "telegram-trigger",
+      "name": "Telegram Command Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [100, 300],
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "command-router",
+      "name": "Command Router",
+      "type": "n8n-nodes-base.switch",
+      "position": [300, 300],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.message.text.split(' ')[0] }}",
+        "rules": {
+          "rules": [
+            {"value2": "/research", "output": 0},
+            {"value2": "/social", "output": 1},
+            {"value2": "/ranking", "output": 2},
+            {"value2": "/content", "output": 3},
+            {"value2": "/analyze", "output": 4},
+            {"value2": "/report", "output": 5}
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "research-parser",
+      "name": "Research Input Parser",
+      "type": "n8n-nodes-base.code",
+      "position": [500, 100],
+      "parameters": {
+        "jsCode": "const message = $input.first().json.message.text;\nconst parts = message.split(' ');\nparts.shift(); // Remove command\n\nconst query = parts.join(' ');\nconst now = new Date().toISOString();\n\n// Extract healthtech keywords\nconst healthKeywords = ['biotech', 'medtech', 'healthtech', 'pharma', 'clinical', 'FDA', 'HIPAA', 'telemedicine', 'digital health', 'wearables', 'diagnostics', 'genomics', 'personalized medicine'];\nconst detectedKeywords = healthKeywords.filter(k => query.toLowerCase().includes(k.toLowerCase()));\n\nreturn {\n  query: query,\n  timestamp: now,\n  source: 'telegram',\n  detected_keywords: detectedKeywords,\n  domain: 'healthtech',\n  priority: detectedKeywords.length > 2 ? 'high' : detectedKeywords.length > 0 ? 'medium' : 'low'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "pubmed-search",
+      "name": "PubMed Research Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 50],
+      "parameters": {
+        "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+        "method": "GET",
+        "qs": {
+          "db": "pubmed",
+          "term": "={{ $json.query }} AND healthtech",
+          "retmax": "20",
+          "retmode": "json",
+          "sort": "relevance"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "clinicaltrials-search",
+      "name": "ClinicalTrials.gov Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 150],
+      "parameters": {
+        "url": "https://clinicaltrials.gov/api/v2/studies",
+        "method": "GET",
+        "qs": {
+          "query.term": "={{ $json.query }}",
+          "pageSize": "20",
+          "format": "json"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fda-search",
+      "name": "FDA Drug/Device Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 250],
+      "parameters": {
+        "url": "https://api.fda.gov/drug/event.json",
+        "method": "GET",
+        "qs": {
+          "search": "={{ $json.query }}",
+          "limit": "20"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "merge-research",
+      "name": "Merge Research Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [900, 150],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "claude-analysis",
+      "name": "Claude Intelligence Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1100, 150],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "x-api-key", "value": "={{ $credentials.anthropicApi.apiKey }}"},
+            {"name": "anthropic-version", "value": "2023-06-01"},
+            {"name": "content-type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an expert OSINT analyst specializing in healthtech intelligence. Analyze research data and extract actionable insights for brand positioning, competitive intelligence, and market opportunities. Focus on: 1) Emerging trends 2) Key opinion leaders 3) Regulatory signals 4) Investment patterns 5) Technology breakthroughs. Return structured JSON with confidence scores.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze this healthtech research data and provide intelligence insights:\\n\\n\" + JSON.stringify($json)\n    }\n  ]\n}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "score-calculator",
+      "name": "Calculate Intelligence Scores",
+      "type": "n8n-nodes-base.code",
+      "position": [1300, 150],
+      "parameters": {
+        "jsCode": "const analysis = $input.first().json;\nconst content = analysis.content?.[0]?.text || '{}';\n\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch(e) {\n  parsed = { raw_analysis: content };\n}\n\n// Calculate Input Quality Score (IQS)\nconst confidence = parsed.confidence || 0.7;\nconst novelty = parsed.novelty || 0.5;\nconst signal_strength = parsed.signal_strength || 0.6;\n\nconst IQS = (0.4 * confidence) + (0.4 * signal_strength) + (0.2 * novelty);\n\n// Categorize insight type\nconst insightTypes = ['trend', 'competitor', 'regulatory', 'opportunity', 'risk'];\nconst detectedType = parsed.insight_type || 'general';\n\nreturn {\n  ...parsed,\n  scores: {\n    input_quality_score: Math.round(IQS * 100) / 100,\n    confidence: confidence,\n    novelty: novelty,\n    signal_strength: signal_strength\n  },\n  insight_type: detectedType,\n  processed_at: new Date().toISOString(),\n  source_count: parsed.sources?.length || 0,\n  actionable: IQS > 0.6\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "supabase-insert",
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1500, 150],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/research_items",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"source\": \"research_pipeline\",\n  \"topic\": $json.topic || $json.query,\n  \"insight\": $json.insight || $json.raw_analysis,\n  \"confidence\": $json.scores.confidence,\n  \"novelty\": $json.scores.novelty,\n  \"signal_strength\": $json.scores.signal_strength,\n  \"input_quality_score\": $json.scores.input_quality_score,\n  \"insight_type\": $json.insight_type,\n  \"sources\": $json.sources,\n  \"actionable\": $json.actionable,\n  \"domain\": \"healthtech\",\n  \"metadata\": $json\n}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "telegram-response",
+      "name": "Send Telegram Response",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1700, 150],
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Command Trigger').item.json.message.chat.id }}",
+        "text": "=**Research Intelligence Report**\n\n**Topic:** {{ $json.topic }}\n**Quality Score:** {{ $json.scores.input_quality_score }}/1.0\n**Confidence:** {{ Math.round($json.scores.confidence * 100) }}%\n**Novelty:** {{ Math.round($json.scores.novelty * 100) }}%\n\n**Key Insight:**\n{{ $json.insight?.substring(0, 500) || 'Analysis complete' }}\n\n**Sources:** {{ $json.source_count }}\n**Actionable:** {{ $json.actionable ? 'Yes' : 'No' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "typeVersion": 3.1
+    }
+  ],
+  "connections": {
+    "Telegram Command Trigger": {
+      "main": [[{"node": "Command Router", "type": "main", "index": 0}]]
+    },
+    "Command Router": {
+      "main": [
+        [{"node": "Research Input Parser", "type": "main", "index": 0}],
+        [{"node": "Social Signal Parser", "type": "main", "index": 0}],
+        [{"node": "Ranking Request Handler", "type": "main", "index": 0}],
+        [{"node": "Content Generator", "type": "main", "index": 0}],
+        [{"node": "Deep Analysis Handler", "type": "main", "index": 0}],
+        [{"node": "Report Generator", "type": "main", "index": 0}]
+      ]
+    },
+    "Research Input Parser": {
+      "main": [
+        [
+          {"node": "PubMed Research Search", "type": "main", "index": 0},
+          {"node": "ClinicalTrials.gov Search", "type": "main", "index": 0},
+          {"node": "FDA Drug/Device Search", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "PubMed Research Search": {
+      "main": [[{"node": "Merge Research Results", "type": "main", "index": 0}]]
+    },
+    "ClinicalTrials.gov Search": {
+      "main": [[{"node": "Merge Research Results", "type": "main", "index": 1}]]
+    },
+    "FDA Drug/Device Search": {
+      "main": [[{"node": "Merge Research Results", "type": "main", "index": 2}]]
+    },
+    "Merge Research Results": {
+      "main": [[{"node": "Claude Intelligence Analysis", "type": "main", "index": 0}]]
+    },
+    "Claude Intelligence Analysis": {
+      "main": [[{"node": "Calculate Intelligence Scores", "type": "main", "index": 0}]]
+    },
+    "Calculate Intelligence Scores": {
+      "main": [[{"node": "Store in Supabase", "type": "main", "index": 0}]]
+    },
+    "Store in Supabase": {
+      "main": [[{"node": "Send Telegram Response", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "tags": ["osint", "healthtech", "research", "intelligence"],
+  "active": false
+}
