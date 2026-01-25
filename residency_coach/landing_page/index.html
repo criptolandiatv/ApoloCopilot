@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESIDENCY ELITE | O Sistema Operacional da Aprovação</title>
+    <meta name="description" content="Plataforma de preparação para residência médica com IA. USP, Unicamp, ENARE. Algoritmo de aprendizado adaptativo baseado em 10.000 horas de prática deliberada.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Deep Dark Palette */
+            --void: #050505;
+            --surface: #0a0a0a;
+            --surface-elevated: #121212;
+            --surface-hover: #1a1a1a;
+            --border: #1f1f1f;
+            --border-bright: #2a2a2a;
+
+            /* Terminal Green (Primary) */
+            --terminal-green: #00FF41;
+            --terminal-green-dim: #00cc34;
+            --terminal-green-glow: rgba(0, 255, 65, 0.15);
+
+            /* Cyber Cyan (Secondary) */
+            --cyber-cyan: #03D8F3;
+            --cyber-cyan-dim: #02a8bd;
+            --cyber-cyan-glow: rgba(3, 216, 243, 0.15);
+
+            /* Alert Red */
+            --alert-red: #FF2A6D;
+            --alert-red-glow: rgba(255, 42, 109, 0.15);
+
+            /* Text */
+            --text-primary: #E8E8E8;
+            --text-secondary: #888888;
+            --text-muted: #555555;
+
+            /* Gradients */
+            --gradient-main: linear-gradient(135deg, var(--terminal-green) 0%, var(--cyber-cyan) 100%);
+            --gradient-surface: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--void);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* Utility */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .text-gradient {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glow-green {
+            text-shadow: 0 0 20px var(--terminal-green-glow), 0 0 40px var(--terminal-green-glow);
+        }
+
+        .glow-cyan {
+            text-shadow: 0 0 20px var(--cyber-cyan-glow), 0 0 40px var(--cyber-cyan-glow);
+        }
+
+        /* Animated Background */
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, var(--terminal-green-glow) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, var(--cyber-cyan-glow) 0%, transparent 50%),
+                var(--void);
+            z-index: -1;
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--terminal-green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-logo::before {
+            content: '>';
+            opacity: 0.5;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--terminal-green);
+        }
+
+        .nav-cta {
+            background: var(--terminal-green);
+            color: var(--void);
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .nav-cta:hover {
+            background: var(--terminal-green-dim);
+            box-shadow: 0 0 30px var(--terminal-green-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--terminal-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 48px;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: var(--terminal-green);
+            color: var(--void);
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--terminal-green-glow);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            background: transparent;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1rem;
+            border: 1px solid var(--border-bright);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyber-cyan);
+            color: var(--cyber-cyan);
+        }
+
+        /* GitHub Grid (Contribution Graph) */
+        .contribution-section {
+            padding: 120px 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .contribution-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .contribution-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .contribution-header p {
+            color: var(--text-secondary);
+        }
+
+        .contribution-grid {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .contribution-week {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .contribution-day {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: var(--surface-elevated);
+            transition: all 0.3s;
+        }
+
+        .contribution-day.level-1 { background: rgba(0, 255, 65, 0.2); }
+        .contribution-day.level-2 { background: rgba(0, 255, 65, 0.4); }
+        .contribution-day.level-3 { background: rgba(0, 255, 65, 0.6); }
+        .contribution-day.level-4 { background: var(--terminal-green); }
+
+        .contribution-day:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 10px var(--terminal-green-glow);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 0;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .features-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .features-header p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-card {
+            background: var(--gradient-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-main);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-4px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--terminal-green-glow);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--terminal-green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .feature-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            padding: 120px 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .quote {
+            font-size: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 24px;
+            line-height: 1.4;
+        }
+
+        .quote-author {
+            color: var(--terminal-green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 80px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--terminal-green);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--terminal-green-glow) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            margin-bottom: 32px;
+        }
+
+        /* Form */
+        .cta-form {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cta-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 16px 20px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .cta-input:focus {
+            border-color: var(--terminal-green);
+        }
+
+        .cta-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 48px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-content {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Sticky CTA */
+        .sticky-cta {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+
+        .sticky-cta a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 24px;
+            background: var(--alert-red);
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 100px;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 4px 20px var(--alert-red-glow);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Terminal Animation */
+        .terminal {
+            background: var(--surface);
+            border: 1px solid var(--border-bright);
+            border-radius: 8px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            max-width: 600px;
+            margin: 48px auto 0;
+            text-align: left;
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f57; }
+        .terminal-dot.yellow { background: #febc2e; }
+        .terminal-dot.green { background: #28c840; }
+
+        .terminal-line {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .terminal-line .prompt {
+            color: var(--terminal-green);
+        }
+
+        .terminal-line .command {
+            color: var(--text-primary);
+        }
+
+        .terminal-line .output {
+            color: var(--cyber-cyan);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--terminal-green);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .features-header h2,
+            .cta-section h2 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <a href="#" class="nav-logo">RESIDENCY_ELITE</a>
+            <ul class="nav-links">
+                <li><a href="#features">Sistema</a></li>
+                <li><a href="#method">Metodologia</a></li>
+                <li><a href="#stats">Resultados</a></li>
+            </ul>
+            <a href="#cta" class="nav-cta">INICIAR SEQUÊNCIA</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="grid-pattern"></div>
+        <div class="container hero-content">
+            <div class="hero-badge">
+                <span>SISTEMA OPERACIONAL v2.0 ATIVO</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="text-gradient">Intelligence</span> is the ability<br>to adapt to change.
+            </h1>
+            <p class="hero-subtitle">
+                O sistema de preparação para residência médica que usa IA para identificar seus pontos fracos e criar um caminho personalizado de aprovação.
+            </p>
+            <div class="hero-cta-group">
+                <a href="#cta" class="btn-primary">
+                    <span>SOLICITAR ACESSO</span>
+                    <span>→</span>
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <span>Ver demonstração</span>
+                </a>
+            </div>
+
+            <!-- Terminal Demo -->
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot yellow"></div>
+                    <div class="terminal-dot green"></div>
+                </div>
+                <div class="terminal-line">
+                    <span class="prompt">coach@elite:~$</span>
+                    <span class="command"> analyze --user="dr.silva" --exam="USP-2026"</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output">[ANÁLISE] Tags fracas identificadas: #apendicite #pre_eclampsia #iam</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output">[PLANO] 47 questões prioritárias selecionadas</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output">[PROGNÓSTICO] Probabilidade de aprovação: 78% → 91% em 30 dias</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="prompt">coach@elite:~$</span>
+                    <span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contribution Grid -->
+    <section class="contribution-section">
+        <div class="container">
+            <div class="contribution-header">
+                <h2 class="font-mono">VISUALIZAÇÃO DE PERFORMANCE OPERACIONAL</h2>
+                <p>Consistência é o caminho para a aprovação</p>
+            </div>
+            <div class="contribution-grid" id="contributionGrid"></div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-header">
+                <h2>ARQUIVOS DE <span class="text-gradient">MISSÃO</span></h2>
+                <p>Cada módulo é uma arma no seu arsenal de aprovação</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">AI</div>
+                    <h3>IA Tática</h3>
+                    <p>Preceptor Virtual disponível 24/07 com latência zero. Baseado em Claude e GPT-4 para análise profunda de casos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">></div>
+                    <h3>Bullets System</h3>
+                    <p>Compressão de 10 anos de provas em pílulas de alto rendimento. Cada questão vira um gatilho mental.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">W</div>
+                    <h3>Weighting Algorithm</h3>
+                    <p>Algoritmo de ponderação que prioriza seus pontos fracos. Baseado em 10.000 horas de prática deliberada.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">$</div>
+                    <h3>BetCoins System</h3>
+                    <p>Gamificação com apostas virtuais. Coloque skin no jogo e aumente seu comprometimento.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">M</div>
+                    <h3>Show do Milhão</h3>
+                    <p>Modo de quiz com tensão real. 15 perguntas, checkpoints, e prêmios em BetCoins.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">#</div>
+                    <h3>Tag Intelligence</h3>
+                    <p>Sistema de tags de alta especificidade. Correlação entre temas e tracking de maestria.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="quote-section" id="method">
+        <div class="container">
+            <p class="quote">"Sucesso não é um evento aleatório. É o resultado previsível de prática deliberada, feedback imediato e correção sistemática de erros."</p>
+            <p class="quote-author">// Baseado em Anders Ericsson & Malcolm Gladwell</p>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">15.000+</div>
+                    <div class="stat-label">Questões tagueadas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">Taxa de aprovação</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Dias médios para pico</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Suporte IA</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="cta">
+        <div class="container">
+            <h2>Pronto para entrar no <span class="text-gradient">sistema</span>?</h2>
+            <p>Acesso antecipado para médicos que pensam diferente.</p>
+            <form class="cta-form" id="ctaForm">
+                <input type="text" class="cta-input" placeholder="Seu WhatsApp" id="whatsappInput" required>
+                <button type="submit" class="btn-primary">
+                    <span>ENTRAR NA LISTA</span>
+                    <span>→</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">> RESIDENCY_ELITE</div>
+            <p>© 2025 Residency Elite. Todos os direitos reservados.</p>
+            <p style="margin-top: 8px; color: var(--terminal-green);">Powered by AI. Built for Outliers.</p>
+        </div>
+    </footer>
+
+    <!-- Sticky CTA -->
+    <div class="sticky-cta">
+        <a href="#cta">
+            <span>QUERO ACESSO</span>
+            <span>→</span>
+        </a>
+    </div>
+
+    <script>
+        // Generate contribution grid
+        function generateContributionGrid() {
+            const grid = document.getElementById('contributionGrid');
+            const weeks = 52;
+            const daysPerWeek = 7;
+
+            for (let w = 0; w < weeks; w++) {
+                const week = document.createElement('div');
+                week.className = 'contribution-week';
+
+                for (let d = 0; d < daysPerWeek; d++) {
+                    const day = document.createElement('div');
+                    day.className = 'contribution-day';
+
+                    // Random level based on probability (more zeros, fewer high levels)
+                    const rand = Math.random();
+                    if (rand > 0.7) {
+                        const level = Math.ceil(Math.random() * 4);
+                        day.classList.add(`level-${level}`);
+                    }
+
+                    week.appendChild(day);
+                }
+
+                grid.appendChild(week);
+            }
+        }
+
+        // Form submission
+        document.getElementById('ctaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const whatsapp = document.getElementById('whatsappInput').value;
+            alert(`Obrigado! Entraremos em contato pelo WhatsApp: ${whatsapp}`);
+            this.reset();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Initialize
+        generateContributionGrid();
+
+        // Terminal typing effect
+        const terminalLines = document.querySelectorAll('.terminal-line');
+        terminalLines.forEach((line, index) => {
+            line.style.opacity = '0';
+            line.style.transform = 'translateY(10px)';
+            line.style.transition = 'all 0.3s ease';
+
+            setTimeout(() => {
+                line.style.opacity = '1';
+                line.style.transform = 'translateY(0)';
+            }, 500 + (index * 300));
+        });
+    </script>
+</body>
+</html>

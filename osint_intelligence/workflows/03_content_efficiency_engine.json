@@ -1,0 +1,134 @@
+{
+  "name": "OSINT Content Efficiency Engine - HealthTech",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Content Published Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [100, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-published",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "content-efficiency-webhook",
+      "typeVersion": 1.1
+    },
+    {
+      "id": "validate-input",
+      "name": "Validate Content Input",
+      "type": "n8n-nodes-base.code",
+      "position": [300, 300],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Validate required fields\nconst required = ['content_id', 'platform', 'research_id'];\nfor (const field of required) {\n  if (!input[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nreturn {\n  content_id: input.content_id,\n  research_id: input.research_id,\n  platform: input.platform,\n  content_type: input.content_type || 'post',\n  published_at: input.published_at || new Date().toISOString(),\n  content_url: input.content_url,\n  initial_metrics: input.metrics || {},\n  tracking_started: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fetch-research-context",
+      "name": "Fetch Research Context",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [500, 300],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/research_items",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "qs": {
+          "id": "=eq.{{ $json.research_id }}",
+          "select": "*"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "calculate-iqs",
+      "name": "Calculate Input Quality Score",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 300],
+      "parameters": {
+        "jsCode": "const content = $('Validate Content Input').first().json;\nconst researchData = $input.first().json;\n\n// Get research scores (or defaults)\nconst research = Array.isArray(researchData) ? researchData[0] : researchData;\n\nconst confidence = research?.confidence || 0.5;\nconst novelty = research?.novelty || 0.5;\nconst signalStrength = research?.signal_strength || 0.5;\n\n// Calculate IQS (Input Quality Score)\nconst IQS = (0.4 * confidence) + (0.4 * signalStrength) + (0.2 * novelty);\n\nreturn {\n  ...content,\n  research: {\n    topic: research?.topic,\n    insight: research?.insight,\n    confidence: confidence,\n    novelty: novelty,\n    signal_strength: signalStrength\n  },\n  input_quality_score: Math.round(IQS * 1000) / 1000\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "schedule-tracking",
+      "name": "Schedule Performance Tracking",
+      "type": "n8n-nodes-base.code",
+      "position": [900, 300],
+      "parameters": {
+        "jsCode": "// Define tracking schedule\n// Track at: 1h, 6h, 24h, 48h, 7d\nconst content = $input.first().json;\nconst publishedAt = new Date(content.published_at);\n\nconst trackingSchedule = [\n  { hours: 1, label: '1h' },\n  { hours: 6, label: '6h' },\n  { hours: 24, label: '24h' },\n  { hours: 48, label: '48h' },\n  { hours: 168, label: '7d' }\n];\n\nconst scheduledChecks = trackingSchedule.map(s => ({\n  check_at: new Date(publishedAt.getTime() + (s.hours * 60 * 60 * 1000)).toISOString(),\n  label: s.label,\n  hours_after_publish: s.hours\n}));\n\nreturn {\n  ...content,\n  tracking_schedule: scheduledChecks,\n  next_check: scheduledChecks[0]\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-content-tracking",
+      "name": "Store Content for Tracking",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1100, 300],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/content_outputs",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_id\": \"{{ $json.content_id }}\",\n  \"research_id\": \"{{ $json.research_id }}\",\n  \"platform\": \"{{ $json.platform }}\",\n  \"content_type\": \"{{ $json.content_type }}\",\n  \"published_at\": \"{{ $json.published_at }}\",\n  \"content_url\": \"{{ $json.content_url }}\",\n  \"input_quality_score\": {{ $json.input_quality_score }},\n  \"research_confidence\": {{ $json.research.confidence }},\n  \"research_novelty\": {{ $json.research.novelty }},\n  \"tracking_status\": \"active\",\n  \"tracking_schedule\": {{ JSON.stringify($json.tracking_schedule) }},\n  \"domain\": \"healthtech\"\n}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "respond-success",
+      "name": "Respond with Tracking Info",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [1300, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"message\": \"Content tracking initiated\",\n  \"content_id\": \"{{ $('Validate Content Input').first().json.content_id }}\",\n  \"input_quality_score\": {{ $('Calculate Input Quality Score').first().json.input_quality_score }},\n  \"tracking_schedule\": {{ JSON.stringify($('Schedule Performance Tracking').first().json.tracking_schedule) }}\n}"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Content Published Webhook": {
+      "main": [[{"node": "Validate Content Input", "type": "main", "index": 0}]]
+    },
+    "Validate Content Input": {
+      "main": [[{"node": "Fetch Research Context", "type": "main", "index": 0}]]
+    },
+    "Fetch Research Context": {
+      "main": [[{"node": "Calculate Input Quality Score", "type": "main", "index": 0}]]
+    },
+    "Calculate Input Quality Score": {
+      "main": [[{"node": "Schedule Performance Tracking", "type": "main", "index": 0}]]
+    },
+    "Schedule Performance Tracking": {
+      "main": [[{"node": "Store Content for Tracking", "type": "main", "index": 0}]]
+    },
+    "Store Content for Tracking": {
+      "main": [[{"node": "Respond with Tracking Info", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": ["osint", "healthtech", "content", "efficiency", "tracking"],
+  "active": false
+}

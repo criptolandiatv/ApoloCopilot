@@ -1,0 +1,149 @@
+{
+  "name": "OSINT Outliers Learning Loop - HealthTech",
+  "nodes": [
+    {
+      "id": "daily-trigger",
+      "name": "Daily Learning Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "days", "daysInterval": 1}]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "fetch-content-performance",
+      "name": "Fetch Content Performance",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [300, 300],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/content_outputs",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "qs": {
+          "published_at": "=gte.{{ new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() }}",
+          "tracking_status": "eq.completed",
+          "domain": "eq.healthtech",
+          "select": "*"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "calculate-efficiency",
+      "name": "Calculate Efficiency Scores",
+      "type": "n8n-nodes-base.code",
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "const contents = $input.first().json;\n\nif (!Array.isArray(contents) || contents.length === 0) {\n  return { efficiency_data: [], insights: ['No data available for analysis'] };\n}\n\nconst analyzed = contents.map(c => {\n  // Output Performance Score (OPS)\n  const engagementRate = c.engagement_rate || 0;\n  const velocity = c.velocity || 0;\n  const trustEngagement = c.trust_engagement || 0;\n  \n  const OPS = (0.5 * engagementRate) + (0.3 * velocity) + (0.2 * trustEngagement);\n  \n  // Input Quality Score (IQS) - from research\n  const IQS = c.input_quality_score || 0.5;\n  \n  // Efficiency = OPS / IQS\n  // High efficiency = low input produced high output (leverage)\n  const efficiency = IQS > 0 ? OPS / IQS : 0;\n  \n  // ROI-style metric: how much output per unit of input\n  const leverage = efficiency > 1 ? 'high' : efficiency > 0.5 ? 'medium' : 'low';\n  \n  return {\n    content_id: c.content_id,\n    research_id: c.research_id,\n    platform: c.platform,\n    published_at: c.published_at,\n    input_quality_score: Math.round(IQS * 1000) / 1000,\n    output_performance_score: Math.round(OPS * 1000) / 1000,\n    efficiency: Math.round(efficiency * 1000) / 1000,\n    leverage_level: leverage,\n    engagement_rate: engagementRate,\n    velocity: velocity,\n    research_topic: c.research_topic\n  };\n});\n\n// Sort by efficiency to find outliers\nanalyzed.sort((a, b) => b.efficiency - a.efficiency);\n\n// Calculate statistics\nconst efficiencies = analyzed.map(a => a.efficiency);\nconst mean = efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length;\nconst variance = efficiencies.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / efficiencies.length;\nconst stdDev = Math.sqrt(variance);\n\n// Mark outliers (> 1.5 std dev above mean)\nconst outlierThreshold = mean + (1.5 * stdDev);\nanalyzed.forEach(a => {\n  a.is_efficiency_outlier = a.efficiency > outlierThreshold;\n  a.z_score = Math.round(((a.efficiency - mean) / stdDev) * 100) / 100;\n});\n\nreturn {\n  efficiency_data: analyzed,\n  statistics: {\n    mean_efficiency: Math.round(mean * 1000) / 1000,\n    std_dev: Math.round(stdDev * 1000) / 1000,\n    outlier_threshold: Math.round(outlierThreshold * 1000) / 1000,\n    outlier_count: analyzed.filter(a => a.is_efficiency_outlier).length,\n    total_analyzed: analyzed.length\n  },\n  outliers: analyzed.filter(a => a.is_efficiency_outlier),\n  bottom_performers: analyzed.slice(-10).reverse()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "identify-patterns",
+      "name": "Identify Success Patterns",
+      "type": "n8n-nodes-base.code",
+      "position": [700, 300],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst outliers = data.outliers;\nconst bottomPerformers = data.bottom_performers;\n\n// Pattern analysis\nconst patterns = {\n  high_performers: {\n    platforms: {},\n    topics: {},\n    timing: {},\n    common_traits: []\n  },\n  low_performers: {\n    platforms: {},\n    topics: {},\n    timing: {},\n    common_traits: []\n  }\n};\n\n// Analyze high performers\nfor (const item of outliers) {\n  patterns.high_performers.platforms[item.platform] = \n    (patterns.high_performers.platforms[item.platform] || 0) + 1;\n  \n  if (item.research_topic) {\n    patterns.high_performers.topics[item.research_topic] = \n      (patterns.high_performers.topics[item.research_topic] || 0) + 1;\n  }\n  \n  const hour = new Date(item.published_at).getHours();\n  const timeSlot = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';\n  patterns.high_performers.timing[timeSlot] = \n    (patterns.high_performers.timing[timeSlot] || 0) + 1;\n}\n\n// Analyze low performers\nfor (const item of bottomPerformers) {\n  patterns.low_performers.platforms[item.platform] = \n    (patterns.low_performers.platforms[item.platform] || 0) + 1;\n  \n  if (item.research_topic) {\n    patterns.low_performers.topics[item.research_topic] = \n      (patterns.low_performers.topics[item.research_topic] || 0) + 1;\n  }\n}\n\n// Generate insights\nconst insights = [];\n\n// Best platform\nconst bestPlatform = Object.entries(patterns.high_performers.platforms)\n  .sort((a, b) => b[1] - a[1])[0];\nif (bestPlatform) {\n  insights.push(`Best performing platform: ${bestPlatform[0]} (${bestPlatform[1]} outliers)`);\n}\n\n// Best topics\nconst bestTopics = Object.entries(patterns.high_performers.topics)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 3);\nif (bestTopics.length > 0) {\n  insights.push(`Top topics: ${bestTopics.map(t => t[0]).join(', ')}`);\n}\n\n// Best timing\nconst bestTiming = Object.entries(patterns.high_performers.timing)\n  .sort((a, b) => b[1] - a[1])[0];\nif (bestTiming) {\n  insights.push(`Best publishing time: ${bestTiming[0]}`);\n}\n\n// Avoid patterns\nconst worstPlatform = Object.entries(patterns.low_performers.platforms)\n  .sort((a, b) => b[1] - a[1])[0];\nif (worstPlatform) {\n  insights.push(`Consider avoiding: ${worstPlatform[0]} (${worstPlatform[1]} low performers)`);\n}\n\nreturn {\n  ...data,\n  patterns: patterns,\n  insights: insights,\n  recommendations: {\n    focus_on: bestPlatform ? bestPlatform[0] : null,\n    best_topics: bestTopics.map(t => t[0]),\n    optimal_timing: bestTiming ? bestTiming[0] : null,\n    avoid: worstPlatform ? worstPlatform[0] : null\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "update-weights",
+      "name": "Calculate Updated Weights",
+      "type": "n8n-nodes-base.code",
+      "position": [900, 300],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// Dynamic weight adjustment based on performance\n// This implements the \"cumulative advantage\" loop from Outliers\n\nconst currentWeights = {\n  // Default weights\n  platform_weights: {\n    twitter: 1.0,\n    linkedin: 1.0,\n    reddit: 1.0,\n    hackernews: 1.0\n  },\n  topic_weights: {},\n  timing_weights: {\n    morning: 1.0,\n    afternoon: 1.0,\n    evening: 1.0\n  }\n};\n\n// Adjust platform weights based on performance\nconst platformPerf = data.patterns.high_performers.platforms;\nconst totalPlatformOutliers = Object.values(platformPerf).reduce((a, b) => a + b, 0) || 1;\n\nfor (const platform of Object.keys(currentWeights.platform_weights)) {\n  const outlierCount = platformPerf[platform] || 0;\n  const performanceRatio = outlierCount / totalPlatformOutliers;\n  \n  // Increase weight for high performers, decrease for low performers\n  // Use a bounded adjustment to prevent extreme swings\n  const adjustment = 1 + (performanceRatio - 0.25) * 0.5; // 0.25 = equal distribution\n  currentWeights.platform_weights[platform] = Math.max(0.5, Math.min(2.0, adjustment));\n}\n\n// Adjust topic weights\nconst topicPerf = data.patterns.high_performers.topics;\nconst totalTopicOutliers = Object.values(topicPerf).reduce((a, b) => a + b, 0) || 1;\n\nfor (const [topic, count] of Object.entries(topicPerf)) {\n  const performanceRatio = count / totalTopicOutliers;\n  currentWeights.topic_weights[topic] = Math.max(0.5, Math.min(2.0, 1 + performanceRatio));\n}\n\n// Adjust timing weights\nconst timingPerf = data.patterns.high_performers.timing;\nconst totalTimingOutliers = Object.values(timingPerf).reduce((a, b) => a + b, 0) || 1;\n\nfor (const timing of Object.keys(currentWeights.timing_weights)) {\n  const outlierCount = timingPerf[timing] || 0;\n  const performanceRatio = outlierCount / totalTimingOutliers;\n  currentWeights.timing_weights[timing] = Math.max(0.5, Math.min(2.0, 1 + (performanceRatio - 0.33)));\n}\n\nreturn {\n  ...data,\n  updated_weights: currentWeights,\n  weight_update_timestamp: new Date().toISOString(),\n  learning_iteration: 1 // Should be fetched from DB and incremented\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-learning",
+      "name": "Store Learning Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1100, 300],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/learning_iterations",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"iteration_date\": \"{{ new Date().toISOString() }}\",\n  \"platform_weights\": {{ JSON.stringify($json.updated_weights.platform_weights) }},\n  \"topic_weights\": {{ JSON.stringify($json.updated_weights.topic_weights) }},\n  \"timing_weights\": {{ JSON.stringify($json.updated_weights.timing_weights) }},\n  \"statistics\": {{ JSON.stringify($json.statistics) }},\n  \"insights\": {{ JSON.stringify($json.insights) }},\n  \"recommendations\": {{ JSON.stringify($json.recommendations) }},\n  \"domain\": \"healthtech\"\n}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "generate-report",
+      "name": "Generate Learning Report",
+      "type": "n8n-nodes-base.code",
+      "position": [1300, 300],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst report = `\n# OSINT Learning Loop Report\n_Generated: ${new Date().toISOString()}_\n\n## Efficiency Statistics\n- Mean Efficiency: ${data.statistics.mean_efficiency}\n- Standard Deviation: ${data.statistics.std_dev}\n- Outlier Threshold: ${data.statistics.outlier_threshold}\n- High Performers Found: ${data.statistics.outlier_count} / ${data.statistics.total_analyzed}\n\n## Key Insights\n${data.insights.map(i => `- ${i}`).join('\\n')}\n\n## Updated Weights (Cumulative Advantage)\n\n### Platform Weights\n${Object.entries(data.updated_weights.platform_weights)\n  .map(([k, v]) => `- ${k}: ${v.toFixed(2)}`).join('\\n')}\n\n### Timing Weights\n${Object.entries(data.updated_weights.timing_weights)\n  .map(([k, v]) => `- ${k}: ${v.toFixed(2)}`).join('\\n')}\n\n## Recommendations\n- Focus On: ${data.recommendations.focus_on || 'N/A'}\n- Best Topics: ${data.recommendations.best_topics?.join(', ') || 'N/A'}\n- Optimal Timing: ${data.recommendations.optimal_timing || 'N/A'}\n- Consider Avoiding: ${data.recommendations.avoid || 'N/A'}\n\n## Top Efficiency Outliers\n${data.outliers.slice(0, 5).map((o, i) => \n  `${i + 1}. [${o.platform}] ${o.research_topic || 'Unknown'} - Efficiency: ${o.efficiency}`\n).join('\\n')}\n`;\n\nreturn {\n  report: report,\n  data: data\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-report",
+      "name": "Send Learning Report",
+      "type": "n8n-nodes-base.slack",
+      "position": [1500, 300],
+      "parameters": {
+        "operation": "postMessage",
+        "channel": "osint-learning",
+        "text": "={{ $json.report }}"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "connections": {
+    "Daily Learning Trigger": {
+      "main": [[{"node": "Fetch Content Performance", "type": "main", "index": 0}]]
+    },
+    "Fetch Content Performance": {
+      "main": [[{"node": "Calculate Efficiency Scores", "type": "main", "index": 0}]]
+    },
+    "Calculate Efficiency Scores": {
+      "main": [[{"node": "Identify Success Patterns", "type": "main", "index": 0}]]
+    },
+    "Identify Success Patterns": {
+      "main": [[{"node": "Calculate Updated Weights", "type": "main", "index": 0}]]
+    },
+    "Calculate Updated Weights": {
+      "main": [[{"node": "Store Learning Data", "type": "main", "index": 0}]]
+    },
+    "Store Learning Data": {
+      "main": [[{"node": "Generate Learning Report", "type": "main", "index": 0}]]
+    },
+    "Generate Learning Report": {
+      "main": [[{"node": "Send Learning Report", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": ["osint", "healthtech", "learning", "outliers", "optimization"],
+  "active": false
+}

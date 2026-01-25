@@ -1,0 +1,177 @@
+{
+  "name": "OSINT Ranking System - HealthTech",
+  "nodes": [
+    {
+      "id": "schedule-weekly",
+      "name": "Weekly Ranking Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 200],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "weeks", "weeksInterval": 1}]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [100, 350],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "fetch-social-data",
+      "name": "Fetch Week Social Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [300, 275],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/social_posts",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "qs": {
+          "created_at": "=gte.{{ new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() }}",
+          "domain": "eq.healthtech",
+          "select": "*",
+          "order": "final_score.desc",
+          "limit": "1000"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "calculate-rankings",
+      "name": "Calculate Author Rankings",
+      "type": "n8n-nodes-base.code",
+      "position": [500, 275],
+      "parameters": {
+        "jsCode": "const posts = $input.first().json;\n\nif (!Array.isArray(posts) || posts.length === 0) {\n  return { rankings: [], period: 'weekly', generated_at: new Date().toISOString() };\n}\n\n// Aggregate by author\nconst authorStats = {};\n\nfor (const post of posts) {\n  const author = post.author;\n  if (!authorStats[author]) {\n    authorStats[author] = {\n      author: author,\n      platform: post.platform,\n      total_posts: 0,\n      total_engagement: 0,\n      total_score: 0,\n      avg_trust_score: 0,\n      avg_velocity: 0,\n      outlier_count: 0,\n      max_followers: 0,\n      scores: [],\n      trust_scores: [],\n      velocities: []\n    };\n  }\n  \n  authorStats[author].total_posts++;\n  authorStats[author].total_engagement += post.engagement || 0;\n  authorStats[author].total_score += post.final_score || 0;\n  authorStats[author].scores.push(post.final_score || 0);\n  authorStats[author].trust_scores.push(post.trust_score || 0);\n  authorStats[author].velocities.push(post.velocity || 0);\n  authorStats[author].max_followers = Math.max(authorStats[author].max_followers, post.followers || 0);\n  if (post.is_outlier) authorStats[author].outlier_count++;\n}\n\n// Calculate averages and final ranking score\nconst rankings = Object.values(authorStats).map(a => {\n  const avgScore = a.total_score / a.total_posts;\n  const avgTrust = a.trust_scores.reduce((x, y) => x + y, 0) / a.trust_scores.length;\n  const avgVelocity = a.velocities.reduce((x, y) => x + y, 0) / a.velocities.length;\n  \n  // Consistency score (lower std dev = more consistent)\n  const mean = avgScore;\n  const variance = a.scores.reduce((acc, s) => acc + Math.pow(s - mean, 2), 0) / a.scores.length;\n  const stdDev = Math.sqrt(variance);\n  const consistency = 1 - Math.min(1, stdDev / mean);\n  \n  // Final ranking score formula:\n  // 40% average post score\n  // 25% trust score\n  // 20% consistency\n  // 15% outlier ratio\n  const outlierRatio = a.outlier_count / a.total_posts;\n  const rankingScore = (\n    0.40 * avgScore +\n    0.25 * avgTrust +\n    0.20 * consistency +\n    0.15 * outlierRatio\n  );\n  \n  return {\n    author: a.author,\n    platform: a.platform,\n    ranking_score: Math.round(rankingScore * 10000) / 10000,\n    avg_post_score: Math.round(avgScore * 1000) / 1000,\n    avg_trust_score: Math.round(avgTrust * 1000) / 1000,\n    avg_velocity: Math.round(avgVelocity * 1000) / 1000,\n    consistency_score: Math.round(consistency * 1000) / 1000,\n    total_posts: a.total_posts,\n    total_engagement: a.total_engagement,\n    outlier_count: a.outlier_count,\n    outlier_ratio: Math.round(outlierRatio * 100) / 100,\n    max_followers: a.max_followers\n  };\n});\n\n// Sort by ranking score\nrankings.sort((a, b) => b.ranking_score - a.ranking_score);\n\n// Add rank position\nrankings.forEach((r, i) => r.rank = i + 1);\n\nreturn {\n  rankings: rankings,\n  period: 'weekly',\n  total_authors: rankings.length,\n  total_posts_analyzed: posts.length,\n  generated_at: new Date().toISOString(),\n  week_start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),\n  week_end: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-rankings",
+      "name": "Store Rankings History",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [700, 275],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/rankings",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.rankings.slice(0, 100).map(r => ({\n  author: r.author,\n  platform: r.platform,\n  rank: r.rank,\n  ranking_score: r.ranking_score,\n  avg_post_score: r.avg_post_score,\n  avg_trust_score: r.avg_trust_score,\n  consistency_score: r.consistency_score,\n  total_posts: r.total_posts,\n  total_engagement: r.total_engagement,\n  outlier_count: r.outlier_count,\n  period_type: 'weekly',\n  period_start: $json.week_start,\n  period_end: $json.week_end,\n  domain: 'healthtech'\n})) }}"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "compare-previous",
+      "name": "Compare with Previous Week",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 200],
+      "parameters": {
+        "url": "={{ $credentials.supabaseApi.url }}/rest/v1/rankings",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "qs": {
+          "period_type": "eq.weekly",
+          "period_end": "=lt.{{ $('Calculate Author Rankings').first().json.week_start }}",
+          "order": "period_end.desc,rank.asc",
+          "limit": "100"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "calculate-movement",
+      "name": "Calculate Rank Movement",
+      "type": "n8n-nodes-base.code",
+      "position": [1100, 275],
+      "parameters": {
+        "jsCode": "const currentRankings = $('Calculate Author Rankings').first().json.rankings;\nconst previousRankings = $input.first().json;\n\n// Build previous rank lookup\nconst prevRankLookup = {};\nif (Array.isArray(previousRankings)) {\n  for (const r of previousRankings) {\n    prevRankLookup[r.author] = r.rank;\n  }\n}\n\n// Calculate movement for each author\nconst withMovement = currentRankings.map(r => {\n  const prevRank = prevRankLookup[r.author];\n  let movement = null;\n  let movementType = 'new';\n  \n  if (prevRank !== undefined) {\n    movement = prevRank - r.rank; // positive = moved up\n    if (movement > 0) movementType = 'up';\n    else if (movement < 0) movementType = 'down';\n    else movementType = 'stable';\n  }\n  \n  return {\n    ...r,\n    previous_rank: prevRank || null,\n    movement: movement,\n    movement_type: movementType\n  };\n});\n\n// Find biggest movers\nconst risers = withMovement\n  .filter(r => r.movement > 0)\n  .sort((a, b) => b.movement - a.movement)\n  .slice(0, 5);\n\nconst fallers = withMovement\n  .filter(r => r.movement < 0)\n  .sort((a, b) => a.movement - b.movement)\n  .slice(0, 5);\n\nconst newEntries = withMovement\n  .filter(r => r.movement_type === 'new')\n  .slice(0, 5);\n\nreturn {\n  rankings: withMovement,\n  movers: {\n    biggest_risers: risers,\n    biggest_fallers: fallers,\n    new_entries: newEntries\n  },\n  summary: {\n    total_ranked: withMovement.length,\n    moved_up: withMovement.filter(r => r.movement_type === 'up').length,\n    moved_down: withMovement.filter(r => r.movement_type === 'down').length,\n    stable: withMovement.filter(r => r.movement_type === 'stable').length,\n    new: withMovement.filter(r => r.movement_type === 'new').length\n  },\n  generated_at: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format-report",
+      "name": "Format Ranking Report",
+      "type": "n8n-nodes-base.code",
+      "position": [1300, 275],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// Format top 10 for display\nconst top10 = data.rankings.slice(0, 10).map(r => {\n  const movementIcon = {\n    'up': `+${r.movement}`,\n    'down': `${r.movement}`,\n    'stable': '=',\n    'new': 'NEW'\n  }[r.movement_type];\n  \n  return `${r.rank}. @${r.author} (${r.platform})\\n   Score: ${r.ranking_score.toFixed(4)} | Trust: ${r.avg_trust_score.toFixed(3)} | ${movementIcon}`;\n}).join('\\n\\n');\n\n// Format movers\nconst risersText = data.movers.biggest_risers\n  .map(r => `@${r.author}: +${r.movement} (now #${r.rank})`)\n  .join('\\n');\n\nconst fallersText = data.movers.biggest_fallers\n  .map(r => `@${r.author}: ${r.movement} (now #${r.rank})`)\n  .join('\\n');\n\nreturn {\n  report: {\n    title: 'Weekly HealthTech OSINT Rankings',\n    generated_at: data.generated_at,\n    top_10: top10,\n    movers: {\n      risers: risersText,\n      fallers: fallersText\n    },\n    summary: data.summary\n  },\n  raw_data: data\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-slack-report",
+      "name": "Send Slack Ranking Report",
+      "type": "n8n-nodes-base.slack",
+      "position": [1500, 275],
+      "parameters": {
+        "operation": "postMessage",
+        "channel": "osint-rankings",
+        "text": "=*{{ $json.report.title }}*\n_Generated: {{ new Date($json.report.generated_at).toLocaleDateString() }}_\n\n:trophy: *Top 10 Influencers*\n```\n{{ $json.report.top_10 }}\n```\n\n:chart_with_upwards_trend: *Biggest Risers*\n{{ $json.report.movers.risers || 'None this week' }}\n\n:chart_with_downwards_trend: *Notable Drops*\n{{ $json.report.movers.fallers || 'None this week' }}\n\n:bar_chart: *Summary*\n- Total Ranked: {{ $json.raw_data.summary.total_ranked }}\n- Moved Up: {{ $json.raw_data.summary.moved_up }}\n- Moved Down: {{ $json.raw_data.summary.moved_down }}\n- New Entries: {{ $json.raw_data.summary.new }}"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "connections": {
+    "Weekly Ranking Trigger": {
+      "main": [[{"node": "Fetch Week Social Data", "type": "main", "index": 0}]]
+    },
+    "Manual Trigger": {
+      "main": [[{"node": "Fetch Week Social Data", "type": "main", "index": 0}]]
+    },
+    "Fetch Week Social Data": {
+      "main": [[{"node": "Calculate Author Rankings", "type": "main", "index": 0}]]
+    },
+    "Calculate Author Rankings": {
+      "main": [[{"node": "Store Rankings History", "type": "main", "index": 0}]]
+    },
+    "Store Rankings History": {
+      "main": [[{"node": "Compare with Previous Week", "type": "main", "index": 0}]]
+    },
+    "Compare with Previous Week": {
+      "main": [[{"node": "Calculate Rank Movement", "type": "main", "index": 0}]]
+    },
+    "Calculate Rank Movement": {
+      "main": [[{"node": "Format Ranking Report", "type": "main", "index": 0}]]
+    },
+    "Format Ranking Report": {
+      "main": [[{"node": "Send Slack Ranking Report", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "tags": ["osint", "healthtech", "ranking", "analytics"],
+  "active": false
+}
