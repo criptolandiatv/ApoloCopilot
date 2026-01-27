@@ -108,6 +108,12 @@ class BetDecision(BaseModel):
 # =============================================================================
 
 def get_supabase() -> Client:
+    """
+    Create and return a Supabase client configured with the module's SUPABASE_URL and SUPABASE_KEY.
+    
+    Returns:
+        Client: A Supabase client connected to the configured Supabase project.
+    """
     return create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
 
 
@@ -116,7 +122,14 @@ def get_supabase() -> Client:
 # =============================================================================
 
 def load_system_prompt() -> str:
-    """Load the master system prompt"""
+    """
+    Load the master system prompt text.
+    
+    Reads the prompt file from the package prompts directory and, if that file is not found, returns the built-in default system prompt.
+    
+    Returns:
+        str: The system prompt content (file contents when present, otherwise the default prompt).
+    """
     prompt_path = os.path.join(os.path.dirname(__file__), "..", "prompts", "system_instruction.md")
     try:
         with open(prompt_path, "r", encoding="utf-8") as f:
@@ -126,6 +139,12 @@ def load_system_prompt() -> str:
 
 
 def get_default_system_prompt() -> str:
+    """
+    Provide the default Portuguese system prompt that defines the COACH R1 persona for the agent.
+    
+    Returns:
+        str: The system prompt text (in Portuguese) instructing the agent to act as COACH R1 — a Brazil-focused, tactical medical residency coach that favors concise bullets, highlights common traps, extracts learning tags, and uses informal bet/meme references when appropriate.
+    """
     return """Você é o COACH R1 - um mentor de elite para residência médica brasileira.
 
 Combine rigor técnico com cultura brasileira natural. Use linguagem de bet (red/green),
@@ -144,8 +163,17 @@ Formate respostas com bullets, destaque armadilhas, e sempre extraia tags para o
 @tool
 def get_user_weak_tags(user_id: str) -> str:
     """
-    Retrieve the user's weakest tags (topics they struggle with most).
-    Returns a list of tags ordered by priority weight.
+    Return a formatted list of a user's weakest topic tags.
+    
+    Queries the user's tag weights and returns a human-readable Portuguese string listing up to 10 tags where the user has seen the tag at least 3 times, ordered by priority weight (highest first). Each line is formatted as:
+    "- {tag_name}: {error_rate}% erro, prioridade {priority}".
+    If the user has insufficient history the function returns the Portuguese message "Usuário ainda não tem histórico suficiente de questões."
+    
+    Parameters:
+    	user_id (str): The user's identifier.
+    
+    Returns:
+    	str: A formatted Portuguese string with the user's weak tags or an informational message when no sufficient history exists.
     """
     supabase = get_supabase()
 
@@ -173,8 +201,18 @@ def get_user_weak_tags(user_id: str) -> str:
 @tool
 def get_question_by_tags(tags: List[str], exclude_recent: bool = True) -> str:
     """
-    Fetch a question that matches the given tags.
-    Prioritizes questions the user hasn't seen recently.
+    Selects a question associated with the provided tag slugs.
+    
+    When possible, prefers questions the user has not seen recently if `exclude_recent` is True.
+    
+    Parameters:
+    	tags (List[str]): List of tag slugs to match questions against.
+    	exclude_recent (bool): If True, prefer questions not seen recently (default True).
+    
+    Returns:
+    	str: A JSON string with keys `id`, `bullet`, `options`, and `difficulty` for the selected question,
+    	     or an error message string in Portuguese: `"Nenhum tag encontrado."` if no matching tags exist,
+    	     or `"Nenhuma questão encontrada para esses tags."` if no questions are associated with the matching tags.
     """
     supabase = get_supabase()
 
@@ -214,9 +252,25 @@ def record_answer(user_id: str, question_id: str, selected_answer: str,
                   is_correct: bool, time_taken_seconds: int,
                   betcoins_wagered: int = 0) -> str:
     """
-    Record a user's answer to a question and update their tag weights.
-    Returns the result and any achievements unlocked.
-    """
+                  Record a user's answer, award XP and BetCoins, update related database records, and return a JSON summary.
+                  
+                  This function inserts the answer into the `user_answers` table, invokes the `award_xp` RPC to add XP to the user, updates the user's BetCoins balance when a wager is present, and creates a betcoin transaction record when the balance changes.
+                  
+                  Parameters:
+                      user_id (str): ID of the user submitting the answer.
+                      question_id (str): ID of the question answered.
+                      selected_answer (str): The option chosen by the user.
+                      is_correct (bool): Whether the submitted answer is correct.
+                      time_taken_seconds (int): Time the user took to answer in seconds.
+                      betcoins_wagered (int): Amount of BetCoins wagered on the question (0 means no wager).
+                  
+                  Returns:
+                      result_json (str): JSON string with keys:
+                          - "recorded" (bool): `true` when the answer was recorded.
+                          - "xp_earned" (int): XP awarded for this answer.
+                          - "betcoins_change" (int): Net BetCoins change (positive for winnings, negative for loss, zero if no wager).
+                          - "message" (str): Short user-facing message indicating result.
+                  """
     supabase = get_supabase()
 
     # Calculate XP and BetCoins
@@ -268,8 +322,13 @@ def record_answer(user_id: str, question_id: str, selected_answer: str,
 @tool
 def get_exam_profile(exam_name: str) -> str:
     """
-    Get the profile of a specific exam (tag distribution, difficulty, etc.).
-    Helps calibrate question selection.
+    Return a JSON string describing the exam's profile (difficulty, top tags, style, and study tip).
+    
+    Parameters:
+        exam_name (str): Exam identifier (e.g., "USP", "Unicamp", "ENARE"); case-insensitive.
+    
+    Returns:
+        profile_json (str): JSON object with keys `difficulty_avg`, `top_tags`, `style`, and `tip`.
     """
     profiles = {
         "USP": {
@@ -299,7 +358,24 @@ def get_exam_profile(exam_name: str) -> str:
 @tool
 def generate_study_plan(user_id: str, days_until_exam: int) -> str:
     """
-    Generate a personalized study plan based on user's weak tags and time available.
+    Create a personalized study-plan JSON using the user's weakest topic tags and the time remaining until the exam.
+    
+    Fetches up to five weak tags for the given user (tags seen at least three times, ordered by priority) and builds a plan containing:
+    - days_until_exam: the provided days remaining,
+    - priority_topics: top three weak tags or a default set if none available,
+    - daily_questions_target: max(20, 100 - days_until_exam),
+    - weekly_simulados: 2 when days_until_exam > 30, otherwise 3,
+    - focus_mode: "intensivo" when days_until_exam < 30, otherwise "equilibrado",
+    - recommendation: a short Portuguese recommendation referencing the top weak tags or a data-collection message.
+    
+    Parameters:
+        user_id (str): Identifier of the user whose weak tags will be used.
+        days_until_exam (int): Number of days remaining until the exam.
+    
+    Returns:
+        str: A JSON-formatted string (utf-8) containing the plan with the keys
+        `days_until_exam`, `priority_topics`, `daily_questions_target`, `weekly_simulados`,
+        `focus_mode`, and `recommendation`.
     """
     supabase = get_supabase()
 
@@ -330,8 +406,22 @@ def generate_study_plan(user_id: str, days_until_exam: int) -> str:
 @tool
 def get_show_milhao_question(session_id: str, difficulty_level: str) -> str:
     """
-    Get the next question for Show do Milhão mode.
-    difficulty_level: 'easy', 'medium', 'hard'
+    Selects an active question for Show do Milhão within a difficulty band and returns it as a JSON string.
+    
+    Parameters:
+        session_id (str): Identifier for the current session (used for logging/context; not persisted by this function).
+        difficulty_level (str): One of 'easy', 'medium', or 'hard'. These map to difficulty ranges:
+            - 'easy' -> [0.0, 0.4)
+            - 'medium' -> [0.4, 0.7)
+            - 'hard' -> [0.7, 1.0)
+    
+    Returns:
+        str: A JSON-formatted string. On success, contains keys:
+            - "question_id": question identifier
+            - "bullet": compressed question text
+            - "options": answer options
+            - "difficulty": numeric difficulty score
+        If no matching question is available, returns JSON with an "error" message (Portuguese).
     """
     supabase = get_supabase()
 
@@ -372,6 +462,12 @@ class ResidencyCoachAgent:
     """Main agent class that orchestrates the coaching experience"""
 
     def __init__(self, user_context: Optional[UserContext] = None):
+        """
+        Initialize a ResidencyCoachAgent with optional user context and prepare its memory, models, tools, system prompt, and agent executor.
+        
+        Parameters:
+            user_context (Optional[UserContext]): Optional preloaded user session data (identifiers, exam target, streak, BetCoins, level, weak tags, and short-term session metrics). When provided, the agent will include this context in its system instructions.
+        """
         self.user_context = user_context
         self.mode = CoachMode.FREE_CHAT
         self.memory = ConversationBufferWindowMemory(
@@ -411,7 +507,11 @@ class ResidencyCoachAgent:
         self._create_agent()
 
     def _create_agent(self):
-        """Create the LangChain agent with tools"""
+        """
+        Initialize and attach a LangChain AgentExecutor configured with the coach's models, tools, memory, and system prompt.
+        
+        Sets self.agent_executor to an AgentExecutor that uses the smart LLM, registered tools, conversation memory, and the prompt constructed from the system message and chat history.
+        """
         prompt = ChatPromptTemplate.from_messages([
             ("system", self._build_system_message()),
             MessagesPlaceholder(variable_name="chat_history"),
@@ -435,7 +535,12 @@ class ResidencyCoachAgent:
         )
 
     def _build_system_message(self) -> str:
-        """Build the system message with user context"""
+        """
+        Compose the system prompt, appending the current user context if one is set.
+        
+        Returns:
+            str: The full system message to be used by the agent; includes a user-context section when a UserContext is present.
+        """
         base = self.system_prompt
 
         if self.user_context:
@@ -456,11 +561,23 @@ class ResidencyCoachAgent:
         return base
 
     def set_mode(self, mode: CoachMode):
-        """Change the coaching mode"""
+        """
+        Set the agent's coaching mode.
+        
+        Parameters:
+        	mode (CoachMode): The coaching mode to apply; affects how the agent formulates prompts and responds.
+        """
         self.mode = mode
 
     async def chat(self, message: str) -> str:
-        """Process a user message and return the coach's response"""
+        """
+        Send a user message to the coach agent and return the agent's textual reply.
+        
+        The current coaching mode (e.g., Show do Milhão, Outlier, Bullet) is prepended to the message as a mode prefix before invoking the agent.
+        
+        Returns:
+            str: The coach agent's response text.
+        """
 
         # Add mode context to the message if needed
         mode_prefix = ""
@@ -481,7 +598,12 @@ class ResidencyCoachAgent:
         return result["output"]
 
     def sync_chat(self, message: str) -> str:
-        """Synchronous version of chat"""
+        """
+        Send a message to the agent synchronously, applying the current coaching mode as a mode-specific prefix.
+        
+        Returns:
+            response (str): The agent's textual response.
+        """
         mode_prefix = ""
         if self.mode == CoachMode.SHOW_MILHAO:
             mode_prefix = "[MODO: SHOW DO MILHÃO] "
@@ -507,6 +629,18 @@ class QuestionAnalyzer:
     """Chain for analyzing and compressing questions into bullets"""
 
     def __init__(self):
+        """
+        Initialize a QuestionAnalyzer that compresses medical residency questions into tactical "bullet" form and extracts structured metadata, returning only valid JSON.
+        
+        The produced JSON contains:
+        - `bullet_text`: 1–2 lines with essential diagnostic triggers.
+        - `correct_answer`: the canonical correct option.
+        - `explanation`: concise rationale for the correct answer.
+        - `traps`: reasons why each distractor may appear correct.
+        - `tags`: 3–6 specific topic tags relevant to the question.
+        - `difficulty`: a numeric score from 0.0 to 1.0 representing expected complexity/error rate.
+        - `related_topics`: additional topics related to the question.
+        """
         self.model = ChatAnthropic(
             model=config.SMART_MODEL,
             api_key=config.ANTHROPIC_API_KEY,
@@ -541,7 +675,18 @@ Forneça a análise estruturada.""")
 
     def analyze(self, question_text: str, options: Dict[str, str],
                 correct_answer: str) -> QuestionAnalysis:
-        """Analyze a question and return structured data"""
+        """
+                Compresses and analyzes a multiple-choice question into a structured QuestionAnalysis object.
+                
+                Parameters:
+                    question_text (str): The question stem or prompt to analyze.
+                    options (Dict[str, str]): Mapping of option labels (e.g., "A", "B") to option text.
+                    correct_answer (str): The label of the correct option (e.g., "A").
+                
+                Returns:
+                    QuestionAnalysis: Structured analysis including tactical bullet text, the correct answer label,
+                    a concise explanation, identified traps, extracted tags, difficulty score, and related topics.
+                """
         result = self.chain.invoke({
             "question_text": question_text,
             "options": json.dumps(options, ensure_ascii=False),
@@ -555,6 +700,14 @@ class BetRecommender:
     """Chain for recommending bet amounts based on user confidence and history"""
 
     def __init__(self):
+        """
+        Initialize the bet recommender chain that suggests BetCoins wagers as structured JSON.
+        
+        Configures a fast chat model, a prompt (system rules + human context placeholders) enforcing betting constraints, and composes a pipeline that parses model output into JSON containing:
+        - recommended_bet: integer wager
+        - confidence: "low", "medium", or "high"
+        - reasoning: explanatory text
+        """
         self.model = ChatOpenAI(
             model=config.FAST_MODEL,
             api_key=config.OPENAI_API_KEY,
@@ -585,7 +738,19 @@ Qual aposta você recomenda?""")
 
     def recommend(self, balance: int, topic: str, topic_history: Dict,
                   streak: int, difficulty: float) -> BetDecision:
-        """Get bet recommendation"""
+        """
+                  Recommend a bet amount and provide confidence and reasoning based on the user's state and topic context.
+                  
+                  Parameters:
+                      balance (int): User's current BetCoins balance.
+                      topic (str): Topic or tag for which the bet is being recommended.
+                      topic_history (Dict): Recent performance/history for the topic (metrics such as attempts, corrects, and timestamps).
+                      streak (int): Current correct-answer streak length for the user.
+                      difficulty (float): Difficulty of the upcoming question; larger values indicate greater difficulty.
+                  
+                  Returns:
+                      BetDecision: Structured recommendation including `recommended_bet`, `confidence`, and `reasoning`.
+                  """
         result = self.chain.invoke({
             "balance": balance,
             "topic": topic,
@@ -602,7 +767,18 @@ Qual aposta você recomenda?""")
 # =============================================================================
 
 def create_coach(user_id: str) -> ResidencyCoachAgent:
-    """Factory function to create a coach with user context loaded from DB"""
+    """
+    Create a ResidencyCoachAgent initialized with the user's context from the database.
+    
+    If the user is not found, returns an agent without a user context. When the user exists,
+    constructs a UserContext populated from the user's stored profile and up to 10 weak tag slugs.
+    
+    Parameters:
+        user_id (str): The ID of the user to load context for.
+    
+    Returns:
+        ResidencyCoachAgent: An agent initialized with the loaded UserContext, or an agent with no context if the user does not exist.
+    """
     supabase = get_supabase()
 
     # Load user data

@@ -27,7 +27,12 @@ class ScoreMetrics:
 
     @property
     def iqs(self) -> float:
-        """Calculate Input Quality Score"""
+        """
+        Compute the input quality score as a weighted aggregate of confidence, signal strength, and novelty.
+        
+        Returns:
+            float: Input Quality Score between 0.0 and 1.0 representing the combined quality of the input.
+        """
         return (0.4 * self.confidence) + (0.4 * self.signal_strength) + (0.2 * self.novelty)
 
 
@@ -40,7 +45,12 @@ class PerformanceMetrics:
 
     @property
     def ops(self) -> float:
-        """Calculate Output Performance Score"""
+        """
+        Compute the Output Performance Score as a weighted combination of engagement rate, velocity, and trust engagement.
+        
+        Returns:
+            float: Output Performance Score computed as 0.5 * engagement_rate + 0.3 * velocity + 0.2 * trust_engagement.
+        """
         return (0.5 * self.engagement_rate) + (0.3 * self.velocity) + (0.2 * self.trust_engagement)
 
 
@@ -60,7 +70,12 @@ class SocialSignal:
 
     @property
     def engagement(self) -> int:
-        """Calculate total engagement"""
+        """
+        Compute an aggregated engagement score from likes, shares, and comments.
+        
+        Returns:
+            aggregated_engagement (int): Total engagement as a single integer value.
+        """
         return self.likes + (self.shares * 2) + (self.comments * 3)
 
 
@@ -90,6 +105,11 @@ class OSINTAnalytics:
     }
 
     def __init__(self):
+        """
+        Initialize the OSINTAnalytics instance.
+        
+        Creates an empty in-memory cache stored on the instance as `self.cache` for short-term storage of computed results.
+        """
         self.cache = {}
 
     # -------------------------------------------------------------------------
@@ -103,17 +123,17 @@ class OSINTAnalytics:
         signal_strength: float
     ) -> float:
         """
-        Calculate IQS (Input Quality Score)
-
-        Formula: IQS = 0.4*confidence + 0.4*signal_strength + 0.2*novelty
-
-        Args:
-            confidence: Research confidence (0-1)
-            novelty: Information novelty (0-1)
-            signal_strength: Signal strength (0-1)
-
+        Compute the Input Quality Score (IQS) from confidence, novelty, and signal strength.
+        
+        Input values outside the 0–1 range are clamped to that range before scoring.
+        
+        Parameters:
+            confidence (float): Research or signal confidence, expected 0–1.
+            novelty (float): Information novelty or uniqueness, expected 0–1.
+            signal_strength (float): Measured strength of the signal, expected 0–1.
+        
         Returns:
-            IQS value between 0 and 1
+            float: IQS value between 0 and 1 computed as 0.4*confidence + 0.4*signal_strength + 0.2*novelty.
         """
         confidence = np.clip(confidence, 0, 1)
         novelty = np.clip(novelty, 0, 1)
@@ -128,17 +148,17 @@ class OSINTAnalytics:
         trust_engagement: float
     ) -> float:
         """
-        Calculate OPS (Output Performance Score)
-
-        Formula: OPS = 0.5*engagement_rate + 0.3*velocity + 0.2*trust_engagement
-
-        Args:
-            engagement_rate: Normalized engagement rate (0-1)
-            velocity: Engagement velocity (0-1)
-            trust_engagement: Trust-weighted engagement (0-1)
-
+        Compute the Output Performance Score (OPS) from engagement rate, velocity, and trust-weighted engagement.
+        
+        Each input is treated as a normalized value between 0 and 1 and clipped to that range before scoring.
+        
+        Parameters:
+            engagement_rate (float): Normalized engagement rate (0 to 1).
+            velocity (float): Engagement velocity normalized to 0 to 1.
+            trust_engagement (float): Trust-weighted engagement normalized to 0 to 1.
+        
         Returns:
-            OPS value between 0 and 1
+            float: OPS value between 0 and 1.
         """
         engagement_rate = np.clip(engagement_rate, 0, 1)
         velocity = np.clip(velocity, 0, 1)
@@ -153,20 +173,15 @@ class OSINTAnalytics:
         platform: str
     ) -> float:
         """
-        Calculate trust score for social signal
-
-        Components:
-        - Follower score (log scale, max 0.4)
-        - Verification bonus (0.2 if verified)
-        - Platform trust (varies by platform)
-
-        Args:
-            followers: Number of followers
-            verified: Whether account is verified
-            platform: Social platform name
-
+        Estimate a normalized trust score for a social signal.
+        
+        Parameters:
+        	followers (int): Number of followers for the account.
+        	verified (bool): Whether the account is verified.
+        	platform (str): Social platform name; lookup is case-insensitive and unknown platforms use a default platform weight.
+        
         Returns:
-            Trust score between 0 and 1
+        	float: Trust score in the range 0.0 to 1.0, where higher values indicate greater trust.
         """
         # Follower trust (logarithmic scale)
         follower_score = min(0.4, np.log10(max(1, followers)) / 15)
@@ -189,14 +204,14 @@ class OSINTAnalytics:
         hours_since_post: float
     ) -> float:
         """
-        Calculate engagement velocity (engagement per hour)
-
-        Args:
-            engagement: Total engagement count
-            hours_since_post: Hours since post was created
-
+        Compute a normalized engagement velocity score from total engagement and post age.
+        
+        Parameters:
+            engagement (int): Total engagement count for the post.
+            hours_since_post (float): Hours elapsed since the post was created; if zero or negative, the function treats the age as instantaneous for normalization.
+        
         Returns:
-            Normalized velocity score (0-1)
+            float: Normalized velocity score between 0.0 and 1.0 where higher values indicate faster engagement.
         """
         if hours_since_post <= 0:
             return min(1.0, engagement / 100)
@@ -210,18 +225,16 @@ class OSINTAnalytics:
         iqs: float
     ) -> float:
         """
-        Calculate content efficiency (ROI)
-
-        Formula: Efficiency = OPS / IQS
-
-        High efficiency means low input produced high output (leverage)
-
-        Args:
-            ops: Output Performance Score
-            iqs: Input Quality Score
-
+        Compute efficiency as the ratio of output performance to input quality.
+        
+        Represents leverage where values greater than 1 indicate outputs exceed inputs.
+        
+        Parameters:
+            ops (float): Output Performance Score.
+            iqs (float): Input Quality Score.
+        
         Returns:
-            Efficiency ratio (can be > 1 for high performers)
+            float: Efficiency ratio (ops / iqs). Returns 0.0 if iqs is less than or equal to 0.
         """
         if iqs <= 0:
             return 0.0
@@ -234,17 +247,17 @@ class OSINTAnalytics:
         engagement: int
     ) -> float:
         """
-        Calculate final social signal score
-
-        Formula: 0.4*trust + 0.3*velocity + 0.3*normalized_trust_weighted_engagement
-
-        Args:
-            trust_score: Trust score (0-1)
-            velocity: Velocity score (0-1)
-            engagement: Raw engagement count
-
+        Compute a combined final score for a social signal.
+        
+        The score mixes trust, velocity, and a trust-weighted engagement component (engagement multiplied by trust_score, scaled and capped to the [0,1] range) into a single value in [0,1].
+        
+        Parameters:
+            trust_score (float): Trust weight between 0 and 1.
+            velocity (float): Velocity score between 0 and 1.
+            engagement (int): Raw engagement count (e.g., likes + shares + comments).
+        
         Returns:
-            Final score (0-1)
+            float: Final score between 0 and 1.
         """
         trust_weighted = engagement * trust_score
         normalized_twe = min(1.0, trust_weighted / 1000)
@@ -261,14 +274,28 @@ class OSINTAnalytics:
         threshold: float = 1.5
     ) -> Dict[str, Any]:
         """
-        Detect statistical outliers using z-score method
-
-        Args:
-            values: List of numeric values
-            threshold: Z-score threshold for outlier detection (default 1.5)
-
+        Identify high-value statistical outliers in a numeric sequence using a z-score cutoff.
+        
+        Requires at least three values; if fewer are provided the function returns {"outliers": [], "statistics": None}. If all values have zero standard deviation the function returns no outliers and a statistics dict with std_dev 0 and threshold equal to the mean.
+        
+        Parameters:
+            values (List[float]): Sequence of numeric values to analyze.
+            threshold (float): Multiplier of the standard deviation to define the outlier cutoff (default 1.5).
+        
         Returns:
-            Dictionary with outlier analysis results
+            Dict[str, Any]: Dictionary with two keys:
+                - "outliers": list of outlier records, each containing:
+                    - "index": index of the outlier in the input list
+                    - "value": the outlier value
+                    - "z_score": z-score of the value
+                    - "percentile": percentile of the value within the input list
+                - "statistics": summary statistics or None. When present includes:
+                    - "mean": mean of the input values
+                    - "std_dev": standard deviation
+                    - "threshold": numeric cutoff used to classify outliers
+                    - "count": total number of input values
+                    - "outlier_count": number of detected outliers
+                    - "outlier_rate": outlier_count / count
         """
         if not values or len(values) < 3:
             return {"outliers": [], "statistics": None}
@@ -319,14 +346,19 @@ class OSINTAnalytics:
         y: List[float]
     ) -> Dict[str, float]:
         """
-        Calculate Pearson correlation between two variables
-
-        Args:
-            x: First variable values
-            y: Second variable values
-
+        Compute the Pearson correlation between two numeric vectors.
+        
+        Parameters:
+            x (List[float]): Values of the first variable; must have the same length as `y` and at least 3 elements.
+            y (List[float]): Values of the second variable; must have the same length as `x` and at least 3 elements.
+        
         Returns:
-            Dictionary with correlation coefficient and p-value
+            dict: {
+                "correlation": Pearson correlation coefficient as a float, or `None` if inputs are invalid;
+                "p_value": two-tailed p-value for the test of non-correlation as a float, or `None` if inputs are invalid;
+                "r_squared": coefficient of determination (correlation squared) as a float, or `None` if inputs are invalid;
+                "sample_size": number of paired observations (int) when valid
+            }
         """
         if len(x) != len(y) or len(x) < 3:
             return {"correlation": None, "p_value": None, "r_squared": None}
@@ -348,22 +380,16 @@ class OSINTAnalytics:
         outlier_ratio: float
     ) -> float:
         """
-        Calculate author ranking score
-
-        Formula:
-        - 40% average post score
-        - 25% trust score
-        - 20% consistency
-        - 15% outlier ratio
-
-        Args:
-            avg_score: Average post score
-            avg_trust: Average trust score
-            consistency: Consistency score (1 - normalized std dev)
-            outlier_ratio: Ratio of outlier posts
-
+        Compute a composite ranking score for an author using averaged metrics.
+        
+        Parameters:
+            avg_score (float): Average post score for the author.
+            avg_trust (float): Average trust score for the author.
+            consistency (float): Consistency metric (higher means more consistent).
+            outlier_ratio (float): Proportion of the author's posts classified as outliers.
+        
         Returns:
-            Ranking score (0-1)
+            float: Ranking score between 0 and 1.
         """
         return (
             0.40 * avg_score +
@@ -377,13 +403,13 @@ class OSINTAnalytics:
         scores: List[float]
     ) -> float:
         """
-        Calculate consistency score (lower variance = more consistent)
-
-        Args:
-            scores: List of scores
-
+        Compute a consistency score for a series of numeric scores where lower relative variance indicates higher consistency.
+        
         Returns:
-            Consistency score (0-1, higher is more consistent)
+            consistency (float): Value between 0 and 1; `1.0` indicates perfect or undefined variability (used when fewer than two scores or mean equals zero), values closer to 0 indicate greater relative variability.
+        
+        Parameters:
+            scores (List[float]): Sequence of numeric scores to evaluate.
         """
         if not scores or len(scores) < 2:
             return 1.0
@@ -408,14 +434,24 @@ class OSINTAnalytics:
         timestamps: Optional[List[datetime]] = None
     ) -> Dict[str, Any]:
         """
-        Analyze trend in time series data
-
-        Args:
-            values: List of metric values
-            timestamps: Optional list of timestamps
-
+        Determine trend direction and compute basic trend statistics for a numeric series.
+        
+        Parameters:
+            values (List[float]): Ordered sequence of numeric observations (length must be >= 3).
+            timestamps (Optional[List[datetime]]): Optional timestamps corresponding to values; provided for context but not required.
+        
         Returns:
-            Trend analysis results
+            dict: Analysis results containing:
+                - trend (str): One of "increasing", "decreasing", or "stable" indicating the trend direction.
+                - slope (float): Estimated slope of the fitted linear trend.
+                - r_squared (float): Coefficient of determination for the fitted trend.
+                - p_value (float): Two-sided p-value for the slope (trend) estimate.
+                - moving_average (List[float]): Short-window moving average series (may be the original values if window is too small).
+                - first_value (float): First value of the input series.
+                - last_value (float): Last value of the input series.
+                - change_percent (float): Percentage change from first to last value (0 if first value is 0).
+        
+        If fewer than three values are provided, returns {"trend": "insufficient_data"}.
         """
         if not values or len(values) < 3:
             return {"trend": "insufficient_data"}
@@ -464,13 +500,23 @@ class OSINTAnalytics:
         signals: List[Dict]
     ) -> Dict[str, Dict]:
         """
-        Compare performance across platforms
-
-        Args:
-            signals: List of social signal dictionaries
-
+        Compute per-platform aggregate metrics from a list of social signal records.
+        
+        Parameters:
+            signals (List[Dict]): Iterable of signal dictionaries. Each dictionary is expected to contain at least the keys:
+                - "platform": platform name (str)
+                - "final_score": numeric score for the signal
+                - "engagement": numeric engagement value for the signal
+                - "is_outlier": boolean flag indicating whether the signal is an outlier
+        
         Returns:
-            Platform comparison results
+            Dict[str, Dict]: Mapping from platform name to a metrics dictionary containing:
+                - "signal_count" (int): number of signals for the platform
+                - "avg_score" (float): mean of `final_score` values (0 if none)
+                - "std_score" (float): standard deviation of `final_score` values (0 if fewer than 2)
+                - "total_engagement" (int/float): sum of `engagement` values
+                - "outlier_count" (int): number of signals marked as outliers
+                - "outlier_rate" (float): outlier_count divided by signal_count (0 if signal_count is 0)
         """
         platforms = {}
 
@@ -516,17 +562,15 @@ class OSINTAnalytics:
         learning_rate: float = 0.1
     ) -> Dict[str, float]:
         """
-        Calculate weight adjustments based on performance
-
-        Implements cumulative advantage from Outliers theory
-
-        Args:
-            performance_data: Performance metrics by category
-            current_weights: Current weight values
-            learning_rate: How aggressively to adjust (0-1)
-
+        Adjusts category weights based on observed outlier counts to emphasize categories with higher outlier rates.
+        
+        Parameters:
+        	performance_data (Dict[str, Dict]): Mapping of category to metrics dictionary; expects an integer "outlier_count" key for each category.
+        	current_weights (Dict[str, float]): Existing weights keyed by category; categories not present are ignored.
+        	learning_rate (float): Fractional scaling of adjustments (0 to 1) that controls how aggressively weights are changed.
+        
         Returns:
-            Updated weights dictionary
+        	Dict[str, float]: New weights keyed by category. Each weight is scaled relative to the original and clamped to the range [0.5, 2.0].
         """
         updated_weights = current_weights.copy()
 
@@ -562,14 +606,21 @@ class OSINTAnalytics:
         low_performers: List[Dict]
     ) -> Dict[str, Any]:
         """
-        Identify patterns that distinguish high vs low performers
-
-        Args:
-            high_performers: List of high-performing items
-            low_performers: List of low-performing items
-
+        Extracts characteristic patterns from high- and low-performing items and identifies platform-level differentiators.
+        
+        Parameters:
+            high_performers (List[Dict]): List of records representing high-performing items (each record should include at least a "platform" key; other keys like topics or timestamps may be used by pattern extraction).
+            low_performers (List[Dict]): List of records representing low-performing items (same structure as high_performers).
+        
         Returns:
-            Pattern analysis results
+            Dict[str, Any]: A mapping with keys:
+                - "high_performers": normalized pattern distributions for the high-performing set (platforms, topics, timings, count).
+                - "low_performers": normalized pattern distributions for the low-performing set (platforms, topics, timings, count).
+                - "differentiators": list of factors that differ between the two sets; each entry contains:
+                    - "factor": identifier for the differentiator (e.g., "platform_<name>"),
+                    - "high_performer_rate": rate for the high-performing group,
+                    - "low_performer_rate": rate for the low-performing group,
+                    - "recommendation": "focus" when the factor is more prevalent among high performers, otherwise "avoid".
         """
         patterns = {
             "high_performers": self._extract_patterns(high_performers),
@@ -596,7 +647,25 @@ class OSINTAnalytics:
         return patterns
 
     def _extract_patterns(self, items: List[Dict]) -> Dict:
-        """Extract patterns from a list of items"""
+        """
+        Aggregate categorical distributions for platform, topic, and posting time from a list of item records.
+        
+        Parameters:
+            items (List[Dict]): Sequence of item records. Each item may include:
+                - 'platform' (str): platform name.
+                - 'research_topic' or 'topic' (str): topic label.
+                - 'created_at' or 'published_at' (datetime or ISO-8601 str): timestamp of the item.
+              Missing fields are treated as "unknown"; unparsable timestamp strings are ignored for timing.
+        
+        Returns:
+            Dict: A dictionary with:
+                - 'platforms': mapping of platform -> relative frequency (0.0-1.0).
+                - 'topics': mapping of topic -> relative frequency (0.0-1.0).
+                - 'timings': mapping of timing bucket -> relative frequency (0.0-1.0). Timing buckets are:
+                    'morning' (hour < 12), 'afternoon' (12 <= hour < 17), 'evening' (hour >= 17).
+                  Items without valid timestamps are excluded from timing counts.
+                - 'count': total number of input items.
+        """
         if not items:
             return {}
 
@@ -645,13 +714,27 @@ class OSINTAnalytics:
         signals: List[SocialSignal]
     ) -> pd.DataFrame:
         """
-        Process a batch of social signals and return analyzed DataFrame
-
-        Args:
-            signals: List of SocialSignal objects
-
+        Aggregate a list of SocialSignal objects into a DataFrame with computed trust, velocity, final score, and outlier annotations.
+        
+        Parameters:
+            signals (List[SocialSignal]): SocialSignal instances to process.
+        
         Returns:
-            DataFrame with all calculated metrics
+            pd.DataFrame: DataFrame containing one row per signal with columns:
+                - platform: source platform name
+                - author: author identifier
+                - post_id: post identifier
+                - followers: follower count
+                - engagement: computed engagement value from the signal
+                - verified: verification status (bool)
+                - trust_score: computed trust score for the author/platform
+                - velocity: engagement per hour metric
+                - final_score: aggregated final score combining trust, velocity, and engagement
+                - hours_old: age of the post in hours (0 if created_at missing or in future)
+                - created_at: original timestamp from the signal
+                - is_outlier: boolean flag set when the final_score is detected as an outlier (z-score based)
+                - z_score: standardized final_score (0 when variance is zero or insufficient rows)
+                - percentile: percentile rank of final_score in the batch (0-100)
         """
         records = []
 
@@ -713,13 +796,25 @@ class OSINTAnalytics:
         df: pd.DataFrame
     ) -> pd.DataFrame:
         """
-        Generate author rankings from signal DataFrame
-
-        Args:
-            df: DataFrame with processed signals
-
+        Generate a per-author-and-platform ranking table from processed signal records.
+        
+        Parameters:
+            df (pd.DataFrame): Processed signals with columns: 'author', 'platform', 'final_score', 'trust_score', 'engagement', and 'is_outlier'.
+        
         Returns:
-            Rankings DataFrame
+            pd.DataFrame: Rankings table with columns:
+                - author: author identifier
+                - platform: platform name
+                - avg_score: mean of final_score for the group
+                - score_std: standard deviation of final_score for the group
+                - post_count: number of posts for the group
+                - avg_trust: mean trust_score for the group
+                - total_engagement: sum of engagement for the group
+                - outlier_count: count of posts marked as outliers
+                - consistency: consistency metric in [0,1], higher is more consistent
+                - outlier_ratio: fraction of posts that are outliers
+                - ranking_score: composite ranking score used for ordering
+                - rank: integer rank (1 = highest ranking_score)
         """
         rankings = df.groupby(["author", "platform"]).agg({
             "final_score": ["mean", "std", "count"],
@@ -768,12 +863,34 @@ class VisualizationHelper:
 
     @staticmethod
     def prepare_scatter_data(df: pd.DataFrame, x: str, y: str) -> List[Dict]:
-        """Prepare data for scatter plot"""
+        """
+        Prepare a list of point records for a scatter plot using two DataFrame columns.
+        
+        Parameters:
+            df (pd.DataFrame): Source DataFrame containing the columns.
+            x (str): Column name for the x-axis values.
+            y (str): Column name for the y-axis values.
+        
+        Returns:
+            records (List[Dict]): List of dictionaries with keys `x` and `y` (column names) for rows where both values are present.
+        """
         return df[[x, y]].dropna().to_dict("records")
 
     @staticmethod
     def prepare_time_series(df: pd.DataFrame, value_col: str, date_col: str) -> Dict:
-        """Prepare data for time series chart"""
+        """
+        Aggregate a numeric column by calendar date and return aligned date and mean-value series.
+        
+        Parameters:
+            df (pd.DataFrame): Input DataFrame containing the date and value columns.
+            value_col (str): Name of the numeric column to aggregate (mean).
+            date_col (str): Name of the column containing datetimes or date-like values; values are converted to calendar dates.
+        
+        Returns:
+            Dict: A dictionary with:
+                - "dates" (List[str]): ISO-formatted calendar date strings in ascending order.
+                - "values" (List[float]): Mean of `value_col` for each corresponding date.
+        """
         grouped = df.groupby(pd.to_datetime(df[date_col]).dt.date)[value_col].mean()
         return {
             "dates": [d.isoformat() for d in grouped.index],
@@ -782,7 +899,15 @@ class VisualizationHelper:
 
     @staticmethod
     def prepare_platform_distribution(df: pd.DataFrame) -> Dict:
-        """Prepare data for platform distribution chart"""
+        """
+        Prepare labels and values for a platform distribution chart from a DataFrame.
+        
+        Parameters:
+            df (pd.DataFrame): DataFrame containing a "platform" column.
+        
+        Returns:
+            dict: Mapping with "labels" as a list of platform names and "values" as the corresponding counts.
+        """
         counts = df["platform"].value_counts()
         return {
             "labels": counts.index.tolist(),
@@ -795,7 +920,12 @@ class VisualizationHelper:
 # =============================================================================
 
 def create_analytics_engine() -> OSINTAnalytics:
-    """Factory function to create analytics engine"""
+    """
+    Create and return a new OSINTAnalytics engine instance.
+    
+    Returns:
+        OSINTAnalytics: A newly constructed analytics engine ready for use.
+    """
     return OSINTAnalytics()
 
 
