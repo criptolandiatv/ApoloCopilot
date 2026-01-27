@@ -24,6 +24,12 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 
 
 def get_supabase() -> Client:
+    """
+    Create and return a Supabase client configured with the module's SUPABASE_URL and SUPABASE_KEY.
+    
+    Returns:
+        client (Client): A configured Supabase client instance ready for database and auth operations.
+    """
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -88,11 +94,22 @@ class BetCoinsEngine:
     """Manages all BetCoin transactions and balances"""
 
     def __init__(self, user_id: str):
+        """
+        Initialize the instance with the target user's identifier and a Supabase client.
+        
+        Parameters:
+            user_id (str): The unique identifier of the user whose data this instance will operate on.
+        """
         self.user_id = user_id
         self.supabase = get_supabase()
 
     def get_balance(self) -> int:
-        """Get current BetCoin balance"""
+        """
+        Return the current BetCoin balance for the engine's user.
+        
+        Returns:
+            int: The user's current BetCoin balance; returns 0 if the balance is not available.
+        """
         result = self.supabase.table("users") \
             .select("total_betcoins") \
             .eq("id", self.user_id) \
@@ -108,7 +125,18 @@ class BetCoinsEngine:
         description: str = None,
         reference_id: str = None
     ) -> int:
-        """Record a transaction and update balance"""
+        """
+        Apply a betcoin change for the user and persist a corresponding transaction record.
+        
+        Parameters:
+            amount (int): Change to apply to the user's balance; positive to credit, negative to debit. If the debit would make the balance negative, the amount is adjusted so the balance becomes zero.
+            transaction_type (TransactionType): The category of the transaction.
+            description (str, optional): Human-readable note about the transaction.
+            reference_id (str, optional): External identifier linking this transaction to another entity (e.g., question, session, achievement).
+        
+        Returns:
+            int: The user's updated total betcoins balance after the transaction (always zero or greater).
+        """
         current_balance = self.get_balance()
         new_balance = current_balance + amount
 
@@ -136,7 +164,14 @@ class BetCoinsEngine:
         return new_balance
 
     def daily_bonus(self) -> BetResult:
-        """Award daily login bonus"""
+        """
+        Grant the user's daily login BetCoins bonus if not already claimed today.
+        
+        If the user has not claimed today's bonus, awards a BetCoins amount computed as 10 plus 2 per day of the user's current streak, capped so the bonus does not exceed 50, records the transaction, and grants 5 XP. If the bonus was already claimed today, no balance change is made.
+        
+        Returns:
+            BetResult: success `True` when a bonus was granted (includes `amount_change`, `new_balance`, `message`, and `xp_earned`); `False` when the bonus was already claimed today (`amount_change` is 0 and `new_balance` reflects the current balance).
+        """
         # Check if already claimed today
         today = datetime.utcnow().date().isoformat()
 
@@ -180,7 +215,16 @@ class BetCoinsEngine:
         )
 
     def place_bet(self, amount: int, question_id: str) -> Tuple[bool, int]:
-        """Place a bet on a question. Returns (success, bet_amount)"""
+        """
+        Compute the allowed bet amount for a question by enforcing the user's balance and a maximum of 50% of the balance.
+        
+        Parameters:
+            amount (int): Desired bet amount.
+            question_id (str): Identifier of the question (not used for calculation).
+        
+        Returns:
+            tuple: (success (bool), bet_amount (int)) — `success` is `True` when the bet is accepted; `bet_amount` is the adjusted amount (0 if `amount` <= 0).
+        """
         balance = self.get_balance()
 
         if amount <= 0:
@@ -195,7 +239,21 @@ class BetCoinsEngine:
         return True, amount
 
     def resolve_bet(self, amount: int, is_correct: bool, question_id: str) -> BetResult:
-        """Resolve a bet after question is answered"""
+        """
+        Settle a question bet and apply the resulting balance change for the user.
+        
+        Parameters:
+            amount (int): The bet amount placed for the question; values <= 0 are treated as no bet.
+            is_correct (bool): Whether the user's answer was correct.
+            question_id (str): Identifier of the question used as a transaction reference.
+        
+        Returns:
+            BetResult: Result of settling the bet including:
+                - `amount_change`: positive amount awarded on win (twice the bet), negative amount on loss, or 0 if no bet.
+                - `new_balance`: user's balance after the transaction (unchanged for no bet).
+                - `message`: user-facing summary of the outcome.
+                - `xp_earned`: experience points awarded (varies by outcome).
+        """
         if amount <= 0:
             return BetResult(
                 success=True,
@@ -238,7 +296,15 @@ class BetCoinsEngine:
             )
 
     def get_transaction_history(self, limit: int = 20) -> List[Dict]:
-        """Get recent transactions"""
+        """
+        Retrieve the user's most recent betcoin transaction records.
+        
+        Parameters:
+            limit (int): Maximum number of transactions to return (default 20).
+        
+        Returns:
+            List[Dict]: A list of transaction records sorted by newest first; empty list if none found.
+        """
         result = self.supabase.table("betcoin_transactions") \
             .select("*") \
             .eq("user_id", self.user_id) \
@@ -278,6 +344,12 @@ class ShowMilhaoEngine:
     CHECKPOINTS = [5, 10]  # Safe points (0-indexed: Q5 and Q10)
 
     def __init__(self, user_id: str):
+        """
+        Initialize the engine with the given user context and related services.
+        
+        Parameters:
+            user_id (str): The identifier of the user the engine will operate for. Initializes a Supabase client and a BetCoinsEngine instance bound to this user.
+        """
         self.user_id = user_id
         self.supabase = get_supabase()
         self.betcoins = BetCoinsEngine(user_id)
@@ -287,7 +359,18 @@ class ShowMilhaoEngine:
         initial_stake: int = 0,
         difficulty_mode: str = "classic"
     ) -> ShowMilhaoState:
-        """Start a new Show do Milhão session"""
+        """
+        Start a new Show do Milhão game session for the user.
+        
+        Creates and persists a new session record, optionally deducting an initial stake (capped to the user's available balance), and returns the initial session state.
+        
+        Parameters:
+            initial_stake (int): Amount of BetCoins to wager as the session entry stake; if greater than the user's balance, the stake is reduced to the available balance.
+            difficulty_mode (str): Difficulty progression mode for the session (e.g., "classic").
+        
+        Returns:
+            ShowMilhaoState: The newly created session state including session_id, current_question (0), total_questions (15), current_pot (equal to the final applied stake), initial_stake, checkpoints, available/used lifelines, questions_answered (empty), and status set to IN_PROGRESS.
+        """
 
         # Deduct initial stake if any
         if initial_stake > 0:
@@ -339,7 +422,15 @@ class ShowMilhaoEngine:
         )
 
     def get_session(self, session_id: str) -> Optional[ShowMilhaoState]:
-        """Get current session state"""
+        """
+        Retrieve the Show do Milhão session state for the given session ID.
+        
+        Parameters:
+            session_id (str): Identifier of the session to fetch.
+        
+        Returns:
+            ShowMilhaoState or None: The session state if found, otherwise None.
+        """
         result = self.supabase.table("show_milhao_sessions") \
             .select("*") \
             .eq("id", session_id) \
@@ -364,7 +455,25 @@ class ShowMilhaoEngine:
         )
 
     def get_next_question(self, session_id: str) -> Optional[Dict]:
-        """Get the next question for the session"""
+        """
+        Selects and returns the next active question for a running Show do Milhão session.
+        
+        Parameters:
+            session_id (str): Identifier of the Show do Milhão session.
+        
+        Returns:
+            dict or None: A mapping with the next question and session context, or `None` if the session is missing, not in progress, or no eligible question is available. When present, the dict contains:
+                - question_id (str): The question's unique identifier.
+                - question_number (int): 1-based index of this question within the session.
+                - total_questions (int): Total number of questions in the session (typically 15).
+                - bullet (str): The question text or prompt.
+                - options (dict): Answer options keyed by option identifier.
+                - difficulty (float): Question difficulty score.
+                - prize_if_correct (int): BetCoins awarded for answering this question correctly.
+                - current_pot (int): Current accumulated pot for the session.
+                - is_checkpoint (bool): Whether this question position is a guaranteed checkpoint.
+                - lifelines_available (dict): Lifelines still available to the user for the session.
+        """
         state = self.get_session(session_id)
         if not state or state.status != ShowMilhaoStatus.IN_PROGRESS:
             return None
@@ -418,7 +527,45 @@ class ShowMilhaoEngine:
         question_id: str,
         selected_answer: str
     ) -> Dict[str, Any]:
-        """Process an answer in Show do Milhão"""
+        """
+        Evaluate a submitted answer for a Show do Milhão session and advance or finalize the session accordingly.
+        
+        Parameters:
+            session_id (str): ID of the Show do Milhão session.
+            question_id (str): ID of the question being answered.
+            selected_answer (str): The user's selected answer identifier/value.
+        
+        Returns:
+            dict: Result payload describing the outcome. Possible structures:
+              - Error: {"error": "<message>"} when session is inactive or question not found.
+              - WINNER: {
+                    "result": "WINNER",
+                    "is_correct": True,
+                    "correct_answer": str,
+                    "prize_won": int,            # final pot awarded
+                    "message": str,
+                    "debriefing": Optional[str]
+                }
+              - CORRECT (advance to next question): {
+                    "result": "CORRECT",
+                    "is_correct": True,
+                    "correct_answer": str,
+                    "current_pot": int,         # updated pot after prize
+                    "next_question": int,       # next question index (1-based)
+                    "is_checkpoint": bool,
+                    "message": str,
+                    "debriefing": Optional[str]
+                }
+              - WRONG (session ends): {
+                    "result": "WRONG",
+                    "is_correct": False,
+                    "correct_answer": str,
+                    "final_prize": int,         # prize preserved by last checkpoint (0 if none)
+                    "pot_lost": int,            # amount lost from current pot
+                    "message": str,
+                    "debriefing": Optional[str]
+                }
+        """
         state = self.get_session(session_id)
         if not state or state.status != ShowMilhaoStatus.IN_PROGRESS:
             return {"error": "Session not active"}
@@ -511,7 +658,24 @@ class ShowMilhaoEngine:
             }
 
     def use_lifeline(self, session_id: str, lifeline: Lifeline, question_id: str) -> Dict:
-        """Use a lifeline"""
+        """
+        Apply a lifeline to the specified Show do Milhão session question and return its outcome.
+        
+        Parameters:
+            session_id (str): ID of the active show session.
+            lifeline (Lifeline): The lifeline to use (FIFTY_FIFTY, SKIP, or UNIVERSITY).
+            question_id (str): ID of the question the lifeline is applied to.
+        
+        Returns:
+            dict: On success, a dictionary describing the lifeline outcome:
+                - For 50/50: keys "lifeline" (str), "remaining_options" (dict of option keys to text), and "message" (str).
+                - For SKIP: keys "lifeline" (str), "action" ("skip"), and "message" (str).
+                - For UNIVERSITY: keys "lifeline" (str), "votes" (dict with counts for "A","B","C","D"), and "message" (str).
+            On failure, a dictionary with an "error" key and a descriptive message (e.g., session not active, lifeline not available, or question not found).
+        
+        Side effects:
+            - Marks the lifeline as used in the session state and persists the updated lifelines to the database.
+        """
         state = self.get_session(session_id)
         if not state or state.status != ShowMilhaoStatus.IN_PROGRESS:
             return {"error": "Session not active"}
@@ -581,7 +745,20 @@ class ShowMilhaoEngine:
         return result
 
     def stop_and_take(self, session_id: str) -> Dict:
-        """Player decides to stop and take current pot"""
+        """
+        End an active Show do Milhão session and award the current pot to the player.
+        
+        If the session is active, finalizes it as won, awards the current pot as the final prize, and returns a summary of the stopped session. If the session is not active or cannot be found, returns an error.
+        
+        Returns:
+            dict: On success, a dictionary with:
+                - "result": "STOPPED"
+                - "final_prize": int, the awarded BetCoins
+                - "questions_answered": int, number of answered questions in the session
+                - "message": str, user-facing confirmation message
+            On failure, a dictionary with:
+                - "error": str, describing why the operation failed (e.g., "Session not active")
+        """
         state = self.get_session(session_id)
         if not state or state.status != ShowMilhaoStatus.IN_PROGRESS:
             return {"error": "Session not active"}
@@ -603,7 +780,17 @@ class ShowMilhaoEngine:
         final_prize: int,
         questions_answered: List[Dict]
     ):
-        """End a session and award prizes"""
+        """
+        Finalize a Show do Milhão session by persisting its outcome, awarding any prize, and unlocking the win achievement when applicable.
+        
+        Updates the session record with the final status, final_prize, questions_answered, and ended_at timestamp. If final_prize is greater than zero, records a SHOW_MILHAO transaction to grant BetCoins to the user. If the session status is WON and exactly 15 questions were answered, unlocks the "show_milhao_win" achievement for the user.
+        
+        Parameters:
+            session_id (str): Identifier of the session to finalize.
+            status (ShowMilhaoStatus): Final status of the session.
+            final_prize (int): Amount of BetCoins to award as the session prize (0 if none).
+            questions_answered (List[Dict]): Recorded answers/details for the session's questions.
+        """
         # Update session
         self.supabase.table("show_milhao_sessions").update({
             "status": status.value,
@@ -626,7 +813,13 @@ class ShowMilhaoEngine:
             self._unlock_achievement("show_milhao_win")
 
     def _unlock_achievement(self, slug: str):
-        """Unlock an achievement for the user"""
+        """
+        Attempt to unlock the achievement identified by `slug` for the current user.
+        
+        If the achievement exists and is not already unlocked for the user, records the unlock and grants any configured rewards (for example, a betcoin reward).
+        Parameters:
+            slug (str): Unique achievement identifier (slug) to unlock.
+        """
         # Get achievement
         achievement = self.supabase.table("achievements") \
             .select("*") \
@@ -670,11 +863,32 @@ class StreakEngine:
     """Manages daily streaks"""
 
     def __init__(self, user_id: str):
+        """
+        Initialize the instance with the target user's identifier and a Supabase client.
+        
+        Parameters:
+            user_id (str): The unique identifier of the user whose data this instance will operate on.
+        """
         self.user_id = user_id
         self.supabase = get_supabase()
 
     def check_and_update_streak(self) -> Dict[str, Any]:
-        """Check and update user's streak on login/activity"""
+        """
+        Update the user's daily activity streak based on their last active date and return the updated streak summary.
+        
+        Checks the user's last active timestamp, increments, resets, or preserves the streak as appropriate, updates the user's current and longest streak and last_active_at in storage, and returns a summary of the resulting streak state.
+        
+        Returns:
+            result (dict): A dictionary with keys:
+                - current_streak (int): The user's updated current streak (days).
+                - longest_streak (int): The user's updated longest streak (days).
+                - streak_extended (bool): `True` if the streak increased by one day.
+                - streak_broken (bool): `True` if a previous streak was broken and reset.
+                - previous_streak (int or None): The previous streak length when `streak_broken` is `True`, otherwise `None`.
+                - message (str): A short human-readable message describing the streak outcome.
+            If the user is not found, returns:
+                {"error": "User not found"}
+        """
         user = self.supabase.table("users") \
             .select("current_streak, longest_streak, last_active_at") \
             .eq("id", self.user_id) \
@@ -749,12 +963,30 @@ class AchievementsEngine:
     """Manages achievements and unlocks"""
 
     def __init__(self, user_id: str):
+        """
+        Initialize the engine with the given user context and related services.
+        
+        Parameters:
+            user_id (str): The identifier of the user the engine will operate for. Initializes a Supabase client and a BetCoinsEngine instance bound to this user.
+        """
         self.user_id = user_id
         self.supabase = get_supabase()
         self.betcoins = BetCoinsEngine(user_id)
 
     def check_all_achievements(self) -> List[Dict]:
-        """Check all achievements and unlock any that are earned"""
+        """
+        Unlocks any achievements the user currently qualifies for.
+        
+        Checks the user's statistics against all achievement requirements, inserts newly earned achievements into the user's unlocked list, awards configured rewards (e.g., BetCoins, XP), and returns details for each achievement that was unlocked during this check.
+        
+        Returns:
+            List[Dict]: A list of unlocked achievements where each dict contains:
+                - name (str): Achievement name.
+                - description (str): Achievement description.
+                - rarity (str): Achievement rarity.
+                - betcoin_reward (int): BetCoins awarded (0 if none).
+                - xp_reward (int): XP awarded (0 if none).
+        """
         unlocked = []
 
         # Get user stats
@@ -821,7 +1053,14 @@ class AchievementsEngine:
         return unlocked
 
     def get_user_achievements(self) -> List[Dict]:
-        """Get all achievements (unlocked and locked) for display"""
+        """
+        Builds a list of all achievements annotated with the user's unlocked state.
+        
+        Returns:
+            List[Dict]: A list where each item is an achievement dict extended with:
+                - "unlocked" (bool): `true` if the user has unlocked the achievement, `false` otherwise.
+                - "unlocked_at" (str|None): timestamp when unlocked, or `None` if not unlocked.
+        """
         # All achievements
         all_ach = self.supabase.table("achievements") \
             .select("*") \
@@ -855,12 +1094,28 @@ class DailyChallengeEngine:
     """Manages daily challenges"""
 
     def __init__(self, user_id: str):
+        """
+        Initialize the engine with the given user context and related services.
+        
+        Parameters:
+            user_id (str): The identifier of the user the engine will operate for. Initializes a Supabase client and a BetCoinsEngine instance bound to this user.
+        """
         self.user_id = user_id
         self.supabase = get_supabase()
         self.betcoins = BetCoinsEngine(user_id)
 
     def get_today_challenge(self) -> Optional[Dict]:
-        """Get today's challenge"""
+        """
+        Retrieve today's daily challenge and the user's progress for it.
+        
+        If a challenge for today does not exist, a new challenge will be generated and returned.
+        
+        Returns:
+            dict: Challenge record merged with:
+                - `current_progress` (int): the user's current progress toward the challenge (0 if none).
+                - `is_completed` (bool): whether the user has completed the challenge (False if none).
+            None: if the challenge could not be retrieved or generated.
+        """
         today = datetime.utcnow().date().isoformat()
 
         result = self.supabase.table("daily_challenges") \
@@ -890,7 +1145,14 @@ class DailyChallengeEngine:
         }
 
     def _generate_daily_challenge(self) -> Dict:
-        """Generate a new daily challenge"""
+        """
+        Create and persist a new daily challenge record for today.
+        
+        Selects one challenge from a predefined set, tags it with today's date, inserts it into the `daily_challenges` table, and returns the stored record. If the database insert produces no data, returns the selected challenge dict with the `challenge_date` field set.
+        
+        Returns:
+            dict: The persisted daily challenge record as returned by the database, or the selected challenge dictionary if insertion returned no data.
+        """
         today = datetime.utcnow().date().isoformat()
 
         challenges = [
@@ -929,7 +1191,24 @@ class DailyChallengeEngine:
         return result.data[0] if result.data else selected
 
     def update_progress(self, progress_increment: int = 1) -> Dict:
-        """Update progress on today's challenge"""
+        """
+        Increment the user's progress for today's daily challenge and persist the update.
+        
+        If no challenge exists for today or the challenge is already completed, a short status dictionary is returned.
+        
+        Parameters:
+            progress_increment (int): Amount to add to the current progress (defaults to 1).
+        
+        Returns:
+            dict: On success, includes:
+                - progress (int): Updated current progress after the increment.
+                - target (int): Target value required to complete the challenge.
+                - is_completed (bool): `true` if the challenge is now completed, `false` otherwise.
+                - message (str, optional): Present when the challenge was completed, containing a completion message.
+              Early-return forms:
+                - {"error": "<message>"} when there is no challenge today.
+                - {"message": "<message>"} when the challenge was already completed.
+        """
         challenge = self.get_today_challenge()
         if not challenge:
             return {"error": "No challenge today"}

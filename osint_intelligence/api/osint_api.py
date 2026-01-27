@@ -147,6 +147,12 @@ app.add_middleware(
 
 class SupabaseClient:
     def __init__(self):
+        """
+        Initialize the Supabase client using global settings and prepare default request headers.
+        
+        Sets the instance URL and API key from the application settings and constructs default HTTP headers:
+        `apikey`, `Authorization` (Bearer token), `Content-Type: application/json`, and `Prefer: return=representation`.
+        """
         self.url = settings.SUPABASE_URL
         self.key = settings.SUPABASE_KEY
         self.headers = {
@@ -157,6 +163,19 @@ class SupabaseClient:
         }
 
     async def query(self, table: str, params: Dict = None) -> List[Dict]:
+        """
+        Fetch rows from a REST table using optional query parameters.
+        
+        Parameters:
+            table (str): Name of the REST table to query.
+            params (Dict, optional): Query parameters to apply to the request (e.g., filters, pagination).
+        
+        Returns:
+            List[Dict]: A list of rows returned by the REST endpoint, each row represented as a dictionary.
+        
+        Raises:
+            httpx.HTTPStatusError: If the HTTP request fails or returns a non-success status.
+        """
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{self.url}/rest/v1/{table}",
@@ -167,6 +186,19 @@ class SupabaseClient:
             return response.json()
 
     async def insert(self, table: str, data: Dict) -> Dict:
+        """
+        Insert a record into the given Supabase table.
+        
+        Parameters:
+            table (str): Name of the Supabase table to insert into.
+            data (Dict): The JSON-serializable payload representing the row to insert.
+        
+        Returns:
+            Dict: The inserted row as returned by Supabase (parsed from the JSON response).
+        
+        Raises:
+            httpx.HTTPStatusError: If the HTTP request fails or returns a non-2xx status.
+        """
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.url}/rest/v1/{table}",
@@ -177,6 +209,19 @@ class SupabaseClient:
             return response.json()
 
     async def rpc(self, function: str, params: Dict = None) -> Any:
+        """
+        Call a Supabase/PostgREST RPC endpoint and return the parsed JSON result.
+        
+        Parameters:
+        	function (str): Name of the remote procedure (RPC) to invoke.
+        	params (Dict, optional): JSON-serializable parameters to send as the RPC payload; defaults to an empty object.
+        
+        Returns:
+        	result (Any): The response body decoded from JSON.
+        
+        Raises:
+        	httpx.HTTPStatusError: If the HTTP response has a non-success status code.
+        """
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.url}/rest/v1/rpc/{function}",
@@ -197,7 +242,12 @@ def calculate_input_quality_score(
     novelty: float,
     signal_strength: float
 ) -> float:
-    """Calculate IQS (Input Quality Score)"""
+    """
+    Compute an input quality score for a research item based on its confidence, novelty, and signal strength.
+    
+    Returns:
+        float: A numeric score where higher values indicate higher input quality.
+    """
     return (0.4 * confidence) + (0.4 * signal_strength) + (0.2 * novelty)
 
 def calculate_trust_score(
@@ -205,7 +255,17 @@ def calculate_trust_score(
     verified: bool,
     platform: str
 ) -> float:
-    """Calculate trust score based on social signals"""
+    """
+    Estimate an author's trustworthiness from follower count, verification status, and platform.
+    
+    The function combines contributions from follower count, verification, and platform-specific weighting and returns a normalized score.
+    
+    Parameters:
+        platform (str): Platform identifier (e.g., "twitter", "linkedin", "reddit", "hackernews"); unknown values receive a default platform weighting.
+    
+    Returns:
+        float: Trust score between 0.0 and 1.0, where higher values indicate greater trustworthiness.
+    """
     import math
 
     # Follower trust (log scale, max 0.4)
@@ -229,7 +289,18 @@ def calculate_trust_score(
     return total / max_possible
 
 def calculate_velocity(engagement: int, hours_old: float) -> float:
-    """Calculate engagement velocity"""
+    """
+    Compute a normalized engagement velocity for a post.
+    
+    Calculates engagement per hour and scales it into the range 0.0–1.0. If hours_old is less than or equal to zero, uses engagement divided by 100 as a heuristic before applying the 1.0 cap.
+    
+    Parameters:
+        engagement (int): Total engagement count (likes, comments, shares, etc.).
+        hours_old (float): Age of the post in hours.
+    
+    Returns:
+        float: A value between 0.0 and 1.0 representing the normalized engagement velocity; higher values indicate faster engagement.
+    """
     if hours_old <= 0:
         return min(1.0, engagement / 100)
     velocity = engagement / hours_old
@@ -240,14 +311,33 @@ def calculate_final_score(
     velocity: float,
     engagement: int
 ) -> float:
-    """Calculate final social signal score"""
+    """
+    Combine trust, velocity, and engagement into a single social signal score.
+    
+    Parameters:
+        trust_score (float): Author/platform trust metric (typically 0.0–1.0).
+        velocity (float): Engagement velocity metric (higher means faster recent engagement).
+        engagement (int): Raw engagement count for the post.
+    
+    Returns:
+        float: Final composite score where higher values indicate a stronger social signal. The engagement contribution is scaled by trust and capped before being combined with trust and velocity.
+    """
     trust_weighted = engagement * trust_score
     normalized_twe = min(1.0, trust_weighted / 1000)
 
     return (0.4 * trust_score) + (0.3 * velocity) + (0.3 * normalized_twe)
 
 def calculate_efficiency(ops: float, iqs: float) -> float:
-    """Calculate content efficiency (ROI)"""
+    """
+    Compute content efficiency as the ratio of output to input quality.
+    
+    Parameters:
+        ops (float): Output value or score produced by the content (e.g., engagement, conversions).
+        iqs (float): Input Quality Score representing the quality or effort invested.
+    
+    Returns:
+        efficiency (float): The ratio `ops / iqs`; returns 0 if `iqs` is less than or equal to 0.
+    """
     if iqs <= 0:
         return 0
     return ops / iqs
@@ -262,7 +352,14 @@ def calculate_efficiency(ops: float, iqs: float) -> float:
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """
+    Provide current service health status with a UTC timestamp.
+    
+    Returns:
+        dict: A dictionary containing:
+            - status (str): Health status, e.g., "healthy".
+            - timestamp (str): UTC timestamp in ISO 8601 format.
+    """
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
 # -----------------------------------------------------------------------------
@@ -271,7 +368,15 @@ async def health_check():
 
 @app.get("/api/osint/kpis", response_model=List[KPIResponse])
 async def get_kpis(days: int = Query(default=7, ge=1, le=90)):
-    """Get KPI summary with period comparison"""
+    """
+    Retrieve KPI summaries for the given rolling window and compare each metric to the previous period.
+    
+    Parameters:
+        days (int): Window length in days for the KPI query (1–90).
+    
+    Returns:
+        A list of KPI summary records each containing fields such as `metric_name`, `current_value`, `previous_value`, and `change_percent`.
+    """
     try:
         kpis = await db.rpc("get_kpi_summary", {"p_days": days, "p_domain": settings.DOMAIN})
         return kpis
@@ -280,7 +385,30 @@ async def get_kpis(days: int = Query(default=7, ge=1, le=90)):
 
 @app.get("/api/osint/dashboard/summary")
 async def get_dashboard_summary():
-    """Get comprehensive dashboard summary"""
+    """
+    Builds a 7-day dashboard summary aggregating social signals, research items, and content outputs for the service domain.
+    
+    Returns:
+        A dict containing aggregated metrics for the past 7 days:
+        - period (str): Fixed value "7_days".
+        - signals (dict):
+            - total (int): Number of social signals considered.
+            - outliers (int): Number of signals marked as outliers.
+            - outlier_rate (float): Fraction of signals that are outliers (rounded to 4 decimals).
+            - avg_score (float): Mean final score across signals (rounded to 4 decimals).
+            - avg_trust (float): Mean trust score across signals (rounded to 4 decimals).
+            - by_platform (dict): Counts of signals grouped by platform.
+        - research (dict):
+            - total (int): Number of research items considered.
+            - actionable (int): Number of research items marked actionable.
+            - actionable_rate (float): Fraction of research items that are actionable (rounded to 4 decimals).
+            - avg_quality (float): Mean input quality score across research items (rounded to 4 decimals).
+        - content (dict):
+            - total (int): Number of content outputs considered.
+            - high_leverage (int): Number of content items with leverage level "high".
+            - avg_efficiency (float): Mean efficiency across content items (rounded to 4 decimals).
+        - generated_at (str): ISO8601 UTC timestamp when the summary was produced.
+    """
     try:
         # Parallel fetch of all dashboard data
         signals_task = db.query("social_posts", {
@@ -358,7 +486,26 @@ async def get_dashboard_summary():
 
 @app.post("/api/osint/research")
 async def create_research(research: ResearchInput):
-    """Submit new research item"""
+    """
+    Create and store a new research item and compute its input quality score (IQS).
+    
+    Parameters:
+        research (ResearchInput): Research payload containing topic, source, insight text, confidence, novelty, signal strength, insight_type, category, and tags.
+    
+    Returns:
+        dict: Result object with keys:
+            - status (str): "success" on successful insert.
+            - research_id (int | None): ID of the inserted research row, or None if not available.
+            - scores (dict): Score breakdown containing:
+                - input_quality_score (float): IQS rounded to 4 decimal places.
+                - confidence (float)
+                - novelty (float)
+                - signal_strength (float)
+            - actionable (bool): `true` if IQS > 0.6, `false` otherwise.
+    
+    Raises:
+        HTTPException: Raised with status 500 and an error detail if insertion or processing fails.
+    """
     try:
         # Calculate IQS
         iqs = calculate_input_quality_score(
@@ -404,7 +551,21 @@ async def get_research(
     actionable_only: bool = False,
     min_quality: float = Query(default=0, ge=0, le=1)
 ):
-    """Get research items with filters"""
+    """
+    Retrieve research items for the HealthTech domain applying optional filters.
+    
+    Parameters:
+        limit (int): Maximum number of items to return (1–200).
+        insight_type (Optional[InsightType]): Filter by insight type.
+        actionable_only (bool): If true, return only items marked actionable.
+        min_quality (float): Minimum input quality score (0.0–1.0) to include.
+    
+    Returns:
+        List[dict]: Matching research item records as returned by the backend.
+    
+    Raises:
+        HTTPException: If an unexpected error occurs while fetching data.
+    """
     try:
         params = {
             "domain": f"eq.{settings.DOMAIN}",
@@ -430,7 +591,25 @@ async def get_research(
 
 @app.post("/api/osint/social/signal")
 async def submit_social_signal(signal: SocialSignalInput):
-    """Submit a social signal for analysis"""
+    """
+    Submit a social signal, compute trust/velocity/final scores, persist the record, and return the created ID with computed metrics.
+    
+    Parameters:
+    	signal (SocialSignalInput): Social post data used to compute scores and create a stored social signal record.
+    
+    Returns:
+    	dict: A response object with keys:
+    		- "status": operation status string ("success" on success).
+    		- "signal_id": stored record ID or `None` if unavailable.
+    		- "scores": mapping with computed metrics:
+    			- "trust_score": trust score (rounded to 4 decimals).
+    			- "velocity": velocity score (rounded to 4 decimals).
+    			- "final_score": combined final score (rounded to 4 decimals).
+    			- "engagement": raw engagement value (likes + shares*2 + comments*3).
+    
+    Raises:
+    	HTTPException: If an unexpected error occurs while computing scores or persisting the record (resulting in a 500 response).
+    """
     try:
         # Calculate scores
         trust_score = calculate_trust_score(
@@ -488,7 +667,21 @@ async def get_social_signals(
     outliers_only: bool = False,
     min_score: float = Query(default=0, ge=0, le=1)
 ):
-    """Get social signals with filters"""
+    """
+    Retrieve social signal records filtered by platform, score, and outlier status.
+    
+    Parameters:
+        platform (Optional[Platform]): Platform enum to filter results by platform.
+        limit (int): Maximum number of records to return (1–200).
+        outliers_only (bool): If true, return only signals flagged as outliers.
+        min_score (float): Minimum `final_score` threshold (0.0–1.0) to include.
+    
+    Returns:
+        List[dict]: Rows from the `social_posts` table matching the domain and provided filters.
+    
+    Raises:
+        HTTPException: If an unexpected error occurs while querying the database.
+    """
     try:
         params = {
             "domain": f"eq.{settings.DOMAIN}",
@@ -510,7 +703,25 @@ async def get_social_signals(
 
 @app.get("/api/osint/social/outliers")
 async def get_outliers(days: int = Query(default=7, ge=1, le=30)):
-    """Get statistical outliers from social signals"""
+    """
+    Finds statistical outliers among recent social signals.
+    
+    Parameters:
+        days (int): Number of past days to analyze (1–30).
+    
+    Returns:
+        result (dict): A mapping with:
+            - outliers (list): Signals with final_score above the outlier threshold; each entry includes original signal fields plus `z_score` (rounded to 2 decimals) and `percentile` (integer).
+            - statistics (dict|None): Aggregate stats for the analyzed window or `None` if no signals were found. When present, contains:
+                - mean (float): Mean final_score (rounded to 4 decimals).
+                - std_dev (float): Standard deviation of final_score (rounded to 4 decimals).
+                - threshold (float): Outlier threshold used (mean + 1.5 * std_dev, rounded to 4 decimals).
+                - total_analyzed (int): Number of signals analyzed.
+                - outlier_count (int): Number of detected outliers.
+    
+    Raises:
+        HTTPException: If an unexpected error occurs while querying or processing signals.
+    """
     try:
         cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
 
@@ -564,7 +775,25 @@ async def get_outliers(days: int = Query(default=7, ge=1, le=30)):
 
 @app.get("/api/osint/rankings/weekly", response_model=List[RankingResponse])
 async def get_weekly_rankings(limit: int = Query(default=50, ge=1, le=100)):
-    """Get weekly author rankings"""
+    """
+    Compute weekly author rankings based on social signals from the past seven days.
+    
+    Fetches social posts within the last 7 days for the configured domain, aggregates metrics by author, and computes a composite ranking score that blends average post score, average trust, consistency, and outlier ratio. If no signals are found in the window, returns an empty list.
+    
+    Parameters:
+        limit (int): Maximum number of ranking entries to return (1–100).
+    
+    Returns:
+        List[dict]: Ordered list of ranking entries. Each entry contains:
+            - author: author identifier
+            - platform: primary platform observed for the author
+            - rank: 1-based rank position
+            - ranking_score: composite ranking score (rounded to 4 decimals)
+            - avg_post_score: average final_score for the author's posts (rounded to 4 decimals)
+            - avg_trust_score: average trust_score for the author's posts (rounded to 4 decimals)
+            - total_posts: number of posts considered
+            - total_engagement: sum of engagement across the author's posts
+    """
     try:
         cutoff = (datetime.utcnow() - timedelta(days=7)).isoformat()
 
@@ -642,7 +871,22 @@ async def get_weekly_rankings(limit: int = Query(default=50, ge=1, le=100)):
 
 @app.get("/api/osint/rankings/all-time")
 async def get_alltime_rankings(limit: int = Query(default=100, ge=1, le=500)):
-    """Get all-time author rankings"""
+    """
+    Compile all-time author rankings based on historical social signal metrics.
+    
+    Parameters:
+        limit (int): Maximum number of ranked authors to return (between 1 and 500).
+    
+    Returns:
+        List[dict]: Ordered list of ranking records. Each record contains:
+            - rank (int): 1-based rank position.
+            - author (str): Author identifier.
+            - platform (str): Primary platform for the author from the dataset.
+            - lifetime_avg_score (float): Author's average final score across all posts.
+            - total_posts (int): Number of posts considered for the author (authors with fewer than 3 posts are excluded).
+            - total_engagement (int): Sum of engagement across the author's posts.
+            - outlier_count (int): Number of posts marked as outliers for the author.
+    """
     try:
         signals = await db.query("social_posts", {
             "domain": f"eq.{settings.DOMAIN}",
@@ -704,7 +948,25 @@ async def get_alltime_rankings(limit: int = Query(default=100, ge=1, le=500)):
 
 @app.post("/api/osint/content")
 async def track_content(content: ContentInput):
-    """Start tracking published content"""
+    """
+    Begin tracking a published content item and persist its output record.
+    
+    Looks up the associated research (by content.research_id) to estimate an input quality score, creates a content_outputs record with tracking metadata, and returns the stored-content summary.
+    
+    Parameters:
+        content (ContentInput): Content metadata to track; must include content_id and research_id.
+    
+    Returns:
+        dict: {
+            "status": "success",
+            "content_id": str,                 # the provided content_id
+            "input_quality_score": float,      # estimated input quality score rounded to 4 decimals
+            "tracking_started": bool           # true when tracking record was created
+        }
+    
+    Raises:
+        HTTPException: If any error occurs while fetching research context or inserting the content record.
+    """
     try:
         # Fetch research context
         research = await db.query("research_items", {
@@ -749,7 +1011,25 @@ async def get_content_efficiency(
     limit: int = Query(default=50, ge=1, le=200),
     min_efficiency: float = Query(default=0, ge=0)
 ):
-    """Get content efficiency rankings"""
+    """
+    Provide content efficiency rankings filtered and ordered by efficiency.
+    
+    Parameters:
+        limit (int): Maximum number of results to return (1–200). Defaults to 50.
+        min_efficiency (float): Minimum efficiency threshold; only items with efficiency >= this value are returned. Defaults to 0.
+    
+    Returns:
+        List[dict]: Ordered list of content efficiency records. Each dict contains:
+            - content_id (str): The tracked content identifier.
+            - platform (str): The platform where the content was published.
+            - input_quality_score (float): Estimated input quality score (IQS).
+            - output_performance_score (float): Measured output performance score.
+            - efficiency (float): Ratio of output performance to input quality.
+            - leverage_level (str): Categorized leverage level ("low", "medium", "high").
+    
+    Raises:
+        HTTPException: With status 500 if an unexpected error occurs while querying or processing results.
+    """
     try:
         params = {
             "domain": f"eq.{settings.DOMAIN}",
@@ -783,7 +1063,17 @@ async def get_content_efficiency(
 
 @app.get("/api/osint/learning/latest")
 async def get_latest_learning():
-    """Get latest learning iteration data"""
+    """
+    Fetches the most recent learning iteration record for the configured domain.
+    
+    Queries the learning_iterations table and returns the newest record for settings.DOMAIN. If no record exists, returns a dictionary with a `message` key indicating no data is available.
+    
+    Returns:
+        dict: The latest learning iteration record, or `{"message": "No learning data available yet"}` when none exists.
+    
+    Raises:
+        HTTPException: On unexpected failures during the query.
+    """
     try:
         results = await db.query("learning_iterations", {
             "domain": f"eq.{settings.DOMAIN}",
@@ -800,7 +1090,23 @@ async def get_latest_learning():
 
 @app.get("/api/osint/learning/weights")
 async def get_current_weights():
-    """Get current optimized weights"""
+    """
+    Retrieve the current learned optimization weights for platform, timing, and topics.
+    
+    If no learning iteration exists for the configured domain, returns sensible default weights and marks the source as "default"; otherwise returns the latest iteration's weights and metadata with source "learned".
+    
+    Returns:
+        dict: A mapping containing:
+            - platform_weights (dict): Per-platform weight values (e.g., {"twitter": 1.0, ...}).
+            - timing_weights (dict): Time-of-day weight values (e.g., {"morning": 1.0, ...}).
+            - topic_weights (dict): Per-topic weight values (may be empty).
+            - source (str): "learned" when returned from the latest iteration, "default" when defaults are used.
+            - iteration (int, optional): Iteration number of the learned weights when source is "learned".
+            - last_updated (str, optional): ISO timestamp of the learning iteration when source is "learned".
+    
+    Raises:
+        HTTPException: If the backend query fails or an unexpected error occurs.
+    """
     try:
         results = await db.query("learning_iterations", {
             "domain": f"eq.{settings.DOMAIN}",
@@ -840,7 +1146,21 @@ async def get_current_weights():
 
 @app.get("/api/osint/learning/progress")
 async def get_learning_progress(limit: int = Query(default=30, ge=1, le=100)):
-    """Get learning progress over time"""
+    """
+    Fetch recent learning iterations and indicate whether mean efficiency shows an improving trend.
+    
+    Parameters:
+        limit (int): Maximum number of iterations to return (1–100). Defaults to 30.
+    
+    Returns:
+        dict: {
+            "iterations": List of learning iteration records (most recent first),
+            "trend": "improving" if the most recent mean_efficiency is greater than the oldest returned mean_efficiency and more than one iteration is present, otherwise "stable"
+        }
+    
+    Raises:
+        HTTPException: Raised with status code 500 if the database query fails.
+    """
     try:
         results = await db.query("learning_iterations", {
             "domain": f"eq.{settings.DOMAIN}",
@@ -863,7 +1183,25 @@ async def get_learning_progress(limit: int = Query(default=30, ge=1, le=100)):
 
 @app.get("/api/osint/analytics/platform-comparison")
 async def get_platform_comparison(days: int = Query(default=30, ge=1, le=90)):
-    """Compare platform performance"""
+    """
+    Produce per-platform comparison metrics over a recent time window.
+    
+    Parameters:
+        days (int): Number of days to include in the comparison (1–90).
+    
+    Returns:
+        list[dict] | dict: A list of platform summary objects sorted by `avg_score`. Each object contains:
+            - platform: platform identifier
+            - signal_count: number of signals considered
+            - avg_score: average final score (rounded to 4 decimals)
+            - total_engagement: sum of engagement values
+            - outlier_count: number of signals marked as outliers
+            - outlier_rate: proportion of outliers (rounded to 4 decimals)
+        Returns an empty dict if no signals are found for the given window.
+    
+    Raises:
+        HTTPException: If an unexpected error occurs while querying or processing data.
+    """
     try:
         cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
 
@@ -915,7 +1253,23 @@ async def get_platform_comparison(days: int = Query(default=30, ge=1, le=90)):
 
 @app.get("/api/osint/analytics/trend")
 async def get_trend_analysis(days: int = Query(default=30, ge=1, le=90)):
-    """Get daily trend analysis"""
+    """
+    Produce daily aggregated trend metrics for social signals over the past `days`.
+    
+    Parameters:
+        days (int): Number of past days to include in the trend (minimum 1, maximum 90).
+    
+    Returns:
+        List[dict]: Chronologically ordered list of daily metrics where each dict contains:
+            - date (str): ISO date (YYYY-MM-DD).
+            - signal_count (int): Number of signals for that day.
+            - avg_score (float): Average `final_score` for signals on that day (rounded to 4 decimals).
+            - total_engagement (int): Sum of engagement values for that day.
+            - outlier_count (int): Number of signals flagged as outliers that day.
+    
+    Raises:
+        HTTPException: If an unexpected error occurs while fetching or processing signals.
+    """
     try:
         cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
 

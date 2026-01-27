@@ -36,6 +36,12 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 
 
 def get_supabase() -> Client:
+    """
+    Create and return a Supabase client configured with the module's SUPABASE_URL and SUPABASE_KEY.
+    
+    Returns:
+        Client: A Supabase `Client` instance initialized with the configured URL and key.
+    """
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -148,6 +154,11 @@ class WeightedQuestion(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    """
+    Provide the application's lifespan context for FastAPI, emitting startup and shutdown messages to stdout.
+    
+    Yields control to the application runtime; on startup it prints a startup message, and on shutdown it prints a shutdown message.
+    """
     print("🚀 Residency Coach API starting...")
     yield
     # Shutdown
@@ -176,12 +187,29 @@ app.add_middleware(
 
 @app.get("/health")
 async def health_check():
+    """
+    Return the current service health status and the current UTC timestamp.
+    
+    Returns:
+        dict: A mapping with keys:
+            - "status": "healthy"
+            - "timestamp": Current UTC time as an ISO 8601 string (UTC).
+    """
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
 
 @app.get("/api/stats")
 async def get_system_stats():
-    """Get overall system statistics"""
+    """
+    Return aggregate counts for questions, users, tags, and answers submitted today (UTC).
+    
+    Returns:
+        stats (dict): Mapping with keys:
+            - total_questions (int): Total number of questions in the system.
+            - total_users (int): Total number of users.
+            - total_tags (int): Total number of tags.
+            - answers_today (int): Number of user answers recorded since the start of the current UTC date.
+    """
     supabase = get_supabase()
 
     # Questions count
@@ -214,7 +242,18 @@ async def get_system_stats():
 
 @app.post("/api/users", response_model=UserResponse)
 async def create_user(user: UserCreate):
-    """Create a new user"""
+    """
+    Create a new user record in the database and initialize game-related fields.
+    
+    Parameters:
+        user (UserCreate): Payload containing user profile and optional metadata.
+    
+    Returns:
+        dict: The inserted user record as returned by the database, including initialized fields such as `total_betcoins` (100), `level` (1), `total_xp` (0), and `current_streak` (0).
+    
+    Raises:
+        HTTPException: Raised with status 400 if the user could not be created.
+    """
     supabase = get_supabase()
 
     user_data = {
@@ -241,7 +280,20 @@ async def create_user(user: UserCreate):
 
 @app.get("/api/users/{user_id}")
 async def get_user(user_id: str):
-    """Get user profile and stats"""
+    """
+    Fetch a user's profile together with their top weak tags and achievement count.
+    
+    Parameters:
+        user_id (str): The user's UUID.
+    
+    Returns:
+        dict: Merged user record with additional fields:
+            - weak_tags (list): Up to 5 tag objects (name, slug) with error_rate and priority_weight for tags the user has seen at least 3 times.
+            - achievements_count (int): Total number of achievements the user has.
+    
+    Raises:
+        HTTPException: 404 if no user exists with the provided user_id.
+    """
     supabase = get_supabase()
 
     user = supabase.table("users").select("*").eq("id", user_id).single().execute()
@@ -273,7 +325,15 @@ async def get_user(user_id: str):
 
 @app.post("/api/users/{user_id}/daily-login")
 async def daily_login(user_id: str):
-    """Process daily login (streak + bonus)"""
+    """
+    Process a user's daily login by updating streaks, awarding the daily betcoin bonus, and checking for newly unlocked achievements.
+    
+    Returns:
+        result (dict): A summary containing:
+            - streak: result of the streak check/update (engine-specific streak summary).
+            - daily_bonus: result of the daily bonus claim (engine-specific bonus summary).
+            - achievements_unlocked: list of newly unlocked achievements (empty list if none).
+    """
     streak = StreakEngine(user_id)
     betcoins = BetCoinsEngine(user_id)
     achievements = AchievementsEngine(user_id)
@@ -307,7 +367,11 @@ async def get_questions(
     tags: Optional[str] = None,
     exam_id: Optional[str] = None
 ):
-    """Get questions with filters"""
+    """
+    Retrieve a paginated list of active questions filtered by difficulty range and optionally by exam, ordered by creation date descending.
+    
+    @returns List of question records (dict). Each record includes question fields and a `question_tags` relation with `tags` entries containing `name` and `slug`. An empty list is returned when no questions match.
+    """
     supabase = get_supabase()
 
     query = supabase.table("questions") \
@@ -326,7 +390,19 @@ async def get_questions(
 
 @app.post("/api/questions")
 async def create_question(question: QuestionCreate):
-    """Create a new question"""
+    """
+    Create a new question record and associate the provided tags with it.
+    
+    Parameters:
+        question (QuestionCreate): Question payload containing fields to insert (exam_id, original_text, bullet_text,
+            options, correct_answer, debriefing, difficulty) and a list of tag slugs to link.
+    
+    Returns:
+        dict: The created question row as returned by the database (includes at least the generated `id` and inserted fields).
+    
+    Raises:
+        HTTPException: With status code 400 if the question could not be created.
+    """
     supabase = get_supabase()
 
     # Insert question
@@ -361,7 +437,20 @@ async def create_question(question: QuestionCreate):
 
 @app.post("/api/questions/{question_id}/answer", response_model=AnswerResponse)
 async def submit_answer(question_id: str, answer: AnswerSubmit, user_id: str = Query(...)):
-    """Submit an answer to a question"""
+    """
+    Handle a user's answer submission for a question and return the resolved outcome.
+    
+    Records the answer, resolves any wagered betcoins, awards XP, triggers database updates (including tag-weight adjustments via triggers), and evaluates newly unlocked achievements.
+    
+    Parameters:
+        answer (AnswerSubmit): The submitted answer payload containing selected answer, timing, doubt flag, and wagered betcoins.
+    
+    Returns:
+        AnswerResponse: Result of the submission including whether it was correct, the canonical correct answer and debriefing, XP earned, net betcoins change and new balance, affected tag names, and any newly unlocked achievements.
+    
+    Raises:
+        HTTPException: 404 if the question with the given ID is not found.
+    """
     supabase = get_supabase()
 
     # Get question
@@ -433,8 +522,23 @@ async def submit_answer(question_id: str, answer: AnswerSubmit, user_id: str = Q
 @app.post("/api/questions/weighted", response_model=List[WeightedQuestion])
 async def get_weighted_questions(request: WeightingRequest):
     """
-    Get questions weighted by the Outliers algorithm.
-    Prioritizes weak tags, spaced repetition, and exam-specific patterns.
+    Compute and return a ranked list of questions scored by user weaknesses, recency, and exam-specific tag weights.
+    
+    Combines a user's tag priority and error rates with exam-specific tag multipliers and a recency (spaced-repetition) factor to produce a priority score for each question, then returns the top N questions ordered by that score.
+    
+    Parameters:
+        request (WeightingRequest): Request containing:
+            - user_id: ID of the user whose tag weights are used.
+            - target_exam: Exam slug used to select exam-specific tag multipliers.
+            - question_count: Number of top questions to return.
+    
+    Returns:
+        List[dict]: A list of weighted question entries (length <= request.question_count). Each entry contains:
+            - question_id (str): Question identifier.
+            - priority_score (float): Computed priority score (higher means higher priority).
+            - tags (List[str]): Slugs of tags associated with the question.
+            - difficulty (float): Question difficulty value.
+            - reason (str): Short human-readable reason for the question's selection.
     """
     supabase = get_supabase()
 
@@ -532,7 +636,21 @@ async def get_weighted_questions(request: WeightingRequest):
 
 @app.post("/api/show-milhao/start")
 async def start_show_milhao(config: ShowMilhaoStart, user_id: str = Query(...)):
-    """Start a new Show do Milhão session"""
+    """
+    Create and initialize a Show do Milhão game session for the specified user.
+    
+    Parameters:
+        config (ShowMilhaoStart): Session configuration including `initial_stake` and `difficulty_mode`.
+        user_id (str): ID of the user who will own the session (provided as a query parameter).
+    
+    Returns:
+        dict: Session summary containing:
+            - session_id (str): Unique identifier for the new session.
+            - initial_stake (int): Stake placed at session start.
+            - current_pot (int): Current pot value for the session.
+            - lifelines_available (List[str]): Lifelines the user can use in the session.
+            - message (str): Human-readable startup message.
+    """
     show = ShowMilhaoEngine(user_id)
     session = show.start_session(
         initial_stake=config.initial_stake,
@@ -550,7 +668,19 @@ async def start_show_milhao(config: ShowMilhaoStart, user_id: str = Query(...)):
 
 @app.get("/api/show-milhao/{session_id}/question")
 async def get_show_milhao_question(session_id: str):
-    """Get the next question in Show do Milhão"""
+    """
+    Retrieve the next question for an active Show do Milhão session.
+    
+    Parameters:
+        session_id (str): Identifier of the Show do Milhão session.
+    
+    Returns:
+        dict: The next question payload for the session.
+    
+    Raises:
+        HTTPException: With status 404 if the session is not found.
+        HTTPException: With status 400 if there are no more questions or the session has ended.
+    """
     # Get session to find user_id
     supabase = get_supabase()
     session = supabase.table("show_milhao_sessions") \
@@ -573,7 +703,19 @@ async def get_show_milhao_question(session_id: str):
 
 @app.post("/api/show-milhao/{session_id}/answer")
 async def answer_show_milhao(session_id: str, answer: ShowMilhaoAnswer):
-    """Submit an answer in Show do Milhão"""
+    """
+    Submit an answer for the current question in a Show do Milhão session.
+    
+    Parameters:
+    	session_id (str): Identifier of the Show do Milhão session.
+    	answer (ShowMilhaoAnswer): Payload containing `question_id` and the user's `selected_answer`.
+    
+    Returns:
+    	result (dict): Outcome of the answer submission, typically including correctness, updated session state (pot/lifelines), rewards or penalties, and any messages for the user.
+    
+    Raises:
+    	HTTPException: 404 if the session with `session_id` is not found.
+    """
     supabase = get_supabase()
     session = supabase.table("show_milhao_sessions") \
         .select("user_id") \
@@ -596,7 +738,19 @@ async def answer_show_milhao(session_id: str, answer: ShowMilhaoAnswer):
 
 @app.post("/api/show-milhao/{session_id}/lifeline")
 async def use_lifeline(session_id: str, lifeline: LifelineUse):
-    """Use a lifeline in Show do Milhão"""
+    """
+    Apply a lifeline to an active Show do Milhão session.
+    
+    Parameters:
+        session_id (str): Identifier of the show session.
+        lifeline (LifelineUse): Object with `lifeline` (one of the Lifeline enum values) and `question_id` to which the lifeline applies.
+    
+    Returns:
+        dict: Result of the lifeline operation containing updated session state and any lifeline-specific effects (e.g., modified question, lifelines remaining, current pot).
+    
+    Raises:
+        HTTPException: 404 if the session does not exist; 400 if the provided lifeline value is invalid.
+    """
     supabase = get_supabase()
     session = supabase.table("show_milhao_sessions") \
         .select("user_id") \
@@ -625,7 +779,15 @@ async def use_lifeline(session_id: str, lifeline: LifelineUse):
 
 @app.post("/api/show-milhao/{session_id}/stop")
 async def stop_show_milhao(session_id: str):
-    """Stop and take current winnings"""
+    """
+    Stop a Show do Milhão session and finalize the user's winnings.
+    
+    Returns:
+        dict: Result object for the stopped session containing the finalized pot, awarded winnings, and any updated session or user state.
+    
+    Raises:
+        HTTPException: with status code 404 if the session_id does not exist.
+    """
     supabase = get_supabase()
     session = supabase.table("show_milhao_sessions") \
         .select("user_id") \
@@ -648,7 +810,22 @@ async def stop_show_milhao(session_id: str):
 
 @app.post("/api/chat")
 async def chat_with_coach(message: ChatMessage, user_id: str = Query(...)):
-    """Chat with the AI coach"""
+    """
+    Send a user message to the AI coach and return the coach's reply.
+    
+    Parameters:
+        message (ChatMessage): User message payload containing `message` text and `mode`.
+        user_id (str): ID of the user sending the message (provided as a query parameter).
+    
+    Returns:
+        dict: {
+            "response": str — coach's textual reply,
+            "mode": str — the chat mode used (one of the ChatMessage modes)
+        }
+    
+    Raises:
+        HTTPException: with status code 500 if an internal error occurs while processing the message.
+    """
     try:
         coach = create_coach(user_id)
 
@@ -679,7 +856,17 @@ async def chat_with_coach(message: ChatMessage, user_id: str = Query(...)):
 
 @app.get("/api/users/{user_id}/betcoins")
 async def get_betcoins(user_id: str):
-    """Get BetCoins balance and history"""
+    """
+    Retrieve a user's BetCoins balance and recent transactions.
+    
+    Parameters:
+        user_id (str): The identifier of the user whose BetCoins data will be fetched.
+    
+    Returns:
+        dict: A mapping with keys:
+            - "balance": current BetCoins balance for the user.
+            - "recent_transactions": list of the user's most recent transaction records (up to 10, most recent first).
+    """
     betcoins = BetCoinsEngine(user_id)
 
     return {
@@ -690,14 +877,27 @@ async def get_betcoins(user_id: str):
 
 @app.get("/api/users/{user_id}/achievements")
 async def get_achievements(user_id: str):
-    """Get user's achievements"""
+    """
+    Retrieve the achievements for a user.
+    
+    Parameters:
+        user_id (str): Identifier of the user whose achievements to fetch.
+    
+    Returns:
+        list: A list of achievement records for the user.
+    """
     achievements = AchievementsEngine(user_id)
     return achievements.get_user_achievements()
 
 
 @app.get("/api/users/{user_id}/daily-challenge")
 async def get_daily_challenge(user_id: str):
-    """Get today's challenge and progress"""
+    """
+    Fetch the user's daily challenge and its current progress.
+    
+    Returns:
+        A dictionary with the day's challenge details and progress metrics (e.g., objectives, progress percentage, and any related metadata).
+    """
     challenge = DailyChallengeEngine(user_id)
     return challenge.get_today_challenge()
 
@@ -707,7 +907,27 @@ async def get_leaderboard(
     metric: str = Query(default="xp", regex="^(xp|streak|accuracy)$"),
     limit: int = Query(default=50, ge=1, le=100)
 ):
-    """Get leaderboard"""
+    """
+    Return a ranked leaderboard of users sorted by the chosen metric.
+    
+    Parameters:
+        metric (str): Which metric to sort by; must be one of "xp", "streak", or "accuracy".
+        limit (int): Maximum number of leaderboard entries to return (1–100).
+    
+    Returns:
+        list[dict]: Ordered list of leaderboard entries. Each entry contains:
+            - rank (int): 1-based position in the leaderboard.
+            - id (str): User identifier.
+            - full_name (str): User's full name.
+            - avatar_url (str | None): URL of the user's avatar, if available.
+            - medical_school (str | None): User's medical school, if available.
+            - level (int): User level.
+            - total_xp (int): Total experience points.
+            - current_streak (int): Current daily streak count.
+            - total_correct (int): Total correct answers.
+            - total_questions_answered (int): Total questions answered.
+            - accuracy (float): Percentage accuracy computed as (total_correct / total_questions_answered) * 100, rounded to one decimal place (0.0 if no answered questions).
+    """
     supabase = get_supabase()
 
     order_field = {
@@ -744,7 +964,17 @@ async def get_leaderboard(
 
 @app.get("/api/tags")
 async def get_tags(category: Optional[str] = None):
-    """Get all tags"""
+    """
+    Retrieve all tags, optionally filtering by category.
+    
+    If a category is provided, only tags with that category value are returned.
+    
+    Parameters:
+        category (str | None): Optional category to filter tags by.
+    
+    Returns:
+        List[dict]: A list of tag records (dictionaries); an empty list if no tags match.
+    """
     supabase = get_supabase()
 
     query = supabase.table("tags").select("*")
@@ -758,7 +988,12 @@ async def get_tags(category: Optional[str] = None):
 
 @app.get("/api/users/{user_id}/tag-performance")
 async def get_tag_performance(user_id: str):
-    """Get user's performance by tag"""
+    """
+    Retrieve a user's tag performance records ordered by priority weight.
+    
+    Returns:
+        A list of tag-performance records (dictionaries) for the given user where `times_seen` is at least 1, ordered by `priority_weight` descending; an empty list if none are found.
+    """
     supabase = get_supabase()
 
     result = supabase.table("user_tag_weights") \
